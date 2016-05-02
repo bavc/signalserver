@@ -37,11 +37,9 @@ def show_result(request, video_videofile_name):
     if os.path.isfile(video_videofile_name) is False:
         file_name = video_videofile_name + '.gz'
         new_file_name = os.path.splitext(file_name)[0]
-        with (
-            gzip.open(file_name, 'rb'), open(new_file_name, 'wb')
-        ) as (f_in, f_out):
-            shutil.copyfileobj(f_in, f_out)
-        video_videofile_name = new_file_name
+        with gzip.open(file_name, 'rb') as f_in:
+            with open(new_file_name, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
     newst = process_file(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
