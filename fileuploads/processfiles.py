@@ -6,12 +6,6 @@ from .models import Video
 
 
 def process_file(file_name):
-    if file_name.endswith('.gz'):
-        new_file_name = os.path.splitext(file_name)[0]
-        with gzip.open(file_name, 'rb') as f_in, open(new_file_name, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        file_name = new_file_name
-
     tree = ET.parse(file_name)
     root = tree.getroot()
     frames = root[2]

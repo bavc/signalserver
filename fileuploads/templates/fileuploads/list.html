@@ -2,22 +2,22 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Minimal Django File Upload Example</title>
+        <title>signalserver fileupload</title>
     </head>
     <body>
         <h1>File Upload</h1>
 
-    <!-- List of uploaded videos -->
+    <!-- List of uploaded files -->
     {% if videos %}
         <ul>
         {% for video in videos %}
-            <li><a href="{{ video.filename }}">{{ video.filename }}</a>
+            <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
                 Uploaded time{{video.upload_time}} </li>
                 <li><a href="delete-video/{{video.filename}}">Delete</a></li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>No videos.</p>
+        <p>No file.</p>
     {% endif %}
         <!-- Upload form. Note enctype attribute! -->
         <form action="{% url 'fileuploads:list' %}" method="post" enctype="multipart/form-data">
