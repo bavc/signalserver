@@ -2,12 +2,12 @@ import os
 import gzip
 import shutil
 import xml.etree.ElementTree as ET
+from .models import Video
 
 
 def process_file(file_name):
     if file_name.endswith('.gz'):
         new_file_name = os.path.splitext(file_name)[0]
-        print(new_file_name)
         with gzip.open(file_name, 'rb') as f_in, open(new_file_name, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
         file_name = new_file_name
@@ -60,16 +60,20 @@ def process_file(file_name):
         datadict['yhigh-ylow'] += diff
         countdict['yhigh-ylow'] += 1
     #newst = str(datadict)
-
+    resultst = ''
     for k in datadict.keys():
         v = datadict[k]
         ave = v/countdict[k]
-        st = "{0} has average {1}<br>".format(k, ave)
-        newst += st
+        st = "{0} has average {1} <br />".format(k, ave)
+        resultst += st
 
     for k, v in specialdict.items():
-        st = "{0} has {1} frames in {2} frames <br>".format(k, v, count)
-        newst += st
+        st = "{0} has {1} frames in {2} <br />".format(k, v, count)
+        resultst += st
 
     #return HttpResponse("Hello, world, index. {0}".format(newst))
-    return newst
+    return resultst
+
+
+def delete_file(file_name):
+    Video.objects.get(filename=file_name).delete()

@@ -13,6 +13,7 @@ from .forms import UploadFileForm
 from .models import Video
 from .forms import VideoForm
 from .processfiles import process_file
+from .processfiles import delete_file
 
 
 def index(request):
@@ -29,17 +30,35 @@ def results(request, question_id):
 
 
 def show_video(request, video_videofile_name):
+    video_videofile_name = video_videofile_name + '.xml'
     newst = process_file(os.path.join('videostorage', video_videofile_name))
     return HttpResponse("Hello, world, index. {0}".format(newst))
-    #return HttpResponse(response % video_videofile_name)
+    #video = Video.objects.get(filename=video_videofile_name)
+    #return render(request, 'fileuploads/show.html',
+    #              {'video': video})
+
+
+def delete_video(request, video_videofile_name):
+    delete_file(video_videofile_name)
+    return HttpResponseRedirect(reverse('fileuploads:list'))
+
+
+def get_filename(original_name):
+    name = os.path.splitext(original_name)[0]
+    return name
 
 
 def list(request):
     # Handle file upload
     if request.method == 'POST':
         form = VideoForm(request.POST, request.FILES)
+        original_name = request.FILES['videofile'].name
+        name = get_filename(original_name)
         if form.is_valid():
-            newvideo = Video(videofile=request.FILES['videofile'])
+            newvideo = Video(
+                videofile=request.FILES['videofile'],
+                filename=name,
+            )
             newvideo.save()
             return HttpResponseRedirect(
                 reverse('fileuploads:list'))

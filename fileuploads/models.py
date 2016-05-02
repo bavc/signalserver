@@ -15,3 +15,5 @@ class Filedata(models.Model):
 
 class Video(models.Model):
     videofile = models.FileField(upload_to='videostorage')
+    filename = models.CharField(max_length=400)
+    upload_time = models.DateTimeField(auto_now_add=True)

@@ -11,7 +11,9 @@
     {% if videos %}
         <ul>
         {% for video in videos %}
-            <li><a href="{{ video.videofile.url }}">{{ video.videofile.name }}</a></li>
+            <li><a href="{{ video.filename }}">{{ video.filename }}</a>
+                Uploaded time{{video.upload_time}} </li>
+                <li><a href="delete-video/{{video.filename}}">Delete</a></li>
         {% endfor %}
         </ul>
     {% else %}
