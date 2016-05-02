@@ -1,4 +1,6 @@
 import os
+import gzip
+import shutil
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -13,6 +15,7 @@ from .forms import UploadFileForm
 from .models import Video
 from .forms import VideoForm
 from .processfiles import process_file
+from .processfiles import delete_file
 
 
 def index(request):
@@ -28,18 +31,50 @@ def results(request, question_id):
     return HttpResponse(response % filename_id)
 
 
-def show_video(request, video_videofile_name):
-    newst = process_file(os.path.join('videostorage', video_videofile_name))
+def show_result(request, video_videofile_name):
+    video_videofile_name = video_videofile_name + '.xml'
+    video_videofile_name = os.path.join('videostorage', video_videofile_name)
+    if os.path.isfile(video_videofile_name) is False:
+        file_name = video_videofile_name + '.gz'
+        new_file_name = os.path.splitext(file_name)[0]
+        with (
+            gzip.open(file_name, 'rb'), open(new_file_name, 'wb')
+        ) as (f_in, f_out):
+            shutil.copyfileobj(f_in, f_out)
+        video_videofile_name = new_file_name
+    newst = process_file(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
-    #return HttpResponse(response % video_videofile_name)
+
+
+def show_video(request, video_videofile_name):
+    video = Video.objects.get(filename=video_videofile_name)
+    return render(request, 'fileuploads/show.html',
+                  {'video': video})
+
+
+def delete_video(request, video_videofile_name):
+    delete_file(video_videofile_name)
+    return HttpResponseRedirect(reverse('fileuploads:list'))
+
+
+def get_filename(original_name):
+    if original_name.endswith('.gz'):
+        original_name = os.path.splitext(original_name)[0]
+    name = os.path.splitext(original_name)[0]
+    return name
 
 
 def list(request):
     # Handle file upload
     if request.method == 'POST':
         form = VideoForm(request.POST, request.FILES)
+        original_name = request.FILES['videofile'].name
+        name = get_filename(original_name)
         if form.is_valid():
-            newvideo = Video(videofile=request.FILES['videofile'])
+            newvideo = Video(
+                videofile=request.FILES['videofile'],
+                filename=name,
+            )
             newvideo.save()
             return HttpResponseRedirect(
                 reverse('fileuploads:list'))

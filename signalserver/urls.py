@@ -19,6 +19,7 @@ from fileuploads import views
 
 urlpatterns = [
     url(r'^$', views.list, name='list'),
-    url(r'^fileuploads/', include('fileuploads.urls')),
+    url(r'^videostorage/', include('fileuploads.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^delete-video/', include('fileuploads.urls')),
 ]
