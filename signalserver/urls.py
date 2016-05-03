@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^$', views.list, name='list'),
     url(r'^videostorage/', include('fileuploads.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^delete-video/', include('fileuploads.urls')),
+    url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',
+        views.delete_video, name='delete_video'),
 ]
