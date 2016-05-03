@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^list/show/result/(?P<video_videofile_name>[\w.]{0,256})$',
         views.show_result, name='show_result'),
     url(r'^list/delete-video/(?P<video_videofile_name>[\w.]{0,256})$',
-        views.delete_video, name='delete_video')
+        views.delete_video, name='delete_video'),
 ]
