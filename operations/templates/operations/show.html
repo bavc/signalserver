@@ -1,0 +1,42 @@
+<h1>{{ configuration.configuration_name }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{% for choice in configuration.operation_set.all %}
+    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
+    <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
+    {{ choice.get_op_name_display }} {{ choice.cut_off_number }} {{ choice.display_order }}</label><a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">Delete</a></br>
+{% endfor %}
+
+<form action="{% url 'operations:show' configuration.configuration_name %}" method="post">
+    {% csrf_token %}
+
+    <!-- variable -->
+    {{ form.signal_fields.errors }}
+    <label for="id_signal">Signal</label>
+    {{ form.signal_fields }}
+
+    {{ form.operation.errors }}
+    <label for="id_name">Operation</label>
+    {{ form.operation_fields }}
+
+    {{ form.cutoff_number.errors }}
+    <label for="id_cutoff ">Cutoff Number</label>
+    {{ form.cutoff_number }}
+
+    {{ form.display_order.errors }}
+    <label for="id_cutoff ">Display order</label>
+    {{ form.display_order }}
+
+
+    <input type="submit" value="Add" />
+    </form>
+
+    <ul>
+        <li><a href="/operations/">Go back to config list</a></li>
+        <li><a href="/">Go back to file list</a></li>
+
+    </ul>
+
+</body>
+</html>

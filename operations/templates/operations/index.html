@@ -1,0 +1,45 @@
+<!-- {% if latest_configuration_list %}
+    <ul>
+    {% for configuration in latest_config_list %}
+        <li><a href="/operations/{{ configuration.id }}/">{{ configuration.configuration_name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No configurations are available.</p>
+{% endif %} -->
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>signalserver file process configuration</title>
+    </head>
+    <body>
+        <h1>List of Configurations</h1>
+
+    <!-- List of already created configurations -->
+    {% if configurations %}
+        <ul>
+        {% for config in configurations %}
+            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}</a>
+                Createtion time{{config.creation_date}} </li>
+                <li><a href="delete-config/{{config.configuration_name}}">Delete</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No Configuration is set.</p>
+    {% endif %}
+        <!-- Upload form. Note enctype attribute! -->
+        <form action="{% url 'operations:index' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.config_name.label_tag }} {{ form.config_name.help_text }}</p>
+            <p>
+                {{ form.config_name.errors }}
+                {{ form.config_name }}
+            </p>
+            <p><input type="submit" value="Create" /></p>
+        </form>
+    </body>
+</html>
