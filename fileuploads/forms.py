@@ -1,4 +1,5 @@
 from django import forms
+from operations.models import Configuration
 
 
 class FileNameForm(forms.Form):
@@ -15,3 +16,12 @@ class VideoForm(forms.Form):
         label='Select a file',
         help_text='max. 42 megabytes'
     )
+    config_dic = {}
+    cons = Configuration.objects.all()
+    for con in cons:
+        con_id = con.id
+        con_name = con.configuration_name
+        config_dic[con_id] = con_name
+
+    CONFIGS = ((k, v) for k, v in config_dic.items())
+    config_fields = forms.ChoiceField(choices=CONFIGS, required=True)

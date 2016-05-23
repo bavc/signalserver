@@ -12,8 +12,13 @@
         <ul>
         {% for video in videos %}
             <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}} </li>
-                <li><a href="delete-video/{{video.filename}}">Delete</a></li>
+                Uploaded time{{video.upload_time}}
+                <!-- variable -->
+                {{ form.config_fields.errors }}
+                <label for="id_signal">Config</label>
+                {{ form.config_fields }}
+
+                <a href="delete-video/{{video.filename}}">Delete</a></li>
         {% endfor %}
         </ul>
     {% else %}
