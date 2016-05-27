@@ -24,7 +24,7 @@
         {% for config in configurations %}
             <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}</a>
                 Createtion time{{config.creation_date}} </li>
-                <li><a href="delete-config/{{config.configuration_name}}">Delete</a></li>
+                <a href="delete-config/{{config.configuration_name}}">Delete</a>
         {% endfor %}
         </ul>
     {% else %}
@@ -41,5 +41,9 @@
             </p>
             <p><input type="submit" value="Create" /></p>
         </form>
+        <ul>
+            <li><a href="/">Go back to file list</a></li>
+        </ul>
     </body>
+
 </html>

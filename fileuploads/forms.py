@@ -21,6 +21,7 @@ class ConfigForm(forms.Form):
 
     CONFIGS = ((k, v) for k, v in config_dic.items())
     config_fields = forms.ChoiceField(choices=CONFIGS, required=True)
+    file_name = forms.CharField(max_length=250)
 
 
 class VideoForm(forms.Form):

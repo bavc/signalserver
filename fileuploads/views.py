@@ -17,6 +17,7 @@ from .forms import VideoForm
 from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
+from .processfiles import process_file_with_config
 
 
 def index(request):
@@ -32,7 +33,7 @@ def results(request, question_id):
     return HttpResponse(response % filename_id)
 
 
-def show_result(request, video_videofile_name):
+def get_full_path_name(video_videofile_name):
     video_videofile_name = video_videofile_name + '.xml'
     video_videofile_name = os.path.join('videostorage', video_videofile_name)
     if os.path.isfile(video_videofile_name) is False:
@@ -41,6 +42,11 @@ def show_result(request, video_videofile_name):
         with gzip.open(file_name, 'rb') as f_in:
             with open(new_file_name, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
+    return video_videofile_name;
+
+
+def show_result(request, video_videofile_name):
+    video_videofile_name = get_full_path_name(video_videofile_name)
     newst = process_file(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
@@ -62,6 +68,15 @@ def get_filename(original_name):
         original_name = os.path.splitext(original_name)[0]
     name = os.path.splitext(original_name)[0]
     return name
+
+
+def process(request):
+    if request.method == 'POST':
+        file_name = request.POST['file_name']
+        config_id = request.POST['config_fields']
+        file_name = get_full_path_name(file_name)
+        newst = process_file_with_config(file_name, config_id)
+        return HttpResponse("Hello, world, process. {0}".format(newst))
 
 
 def list(request):
