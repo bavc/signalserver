@@ -14,6 +14,7 @@ from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
 from .forms import VideoForm
+from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
 
@@ -46,8 +47,9 @@ def show_result(request, video_videofile_name):
 
 def show_video(request, video_videofile_name):
     video = Video.objects.get(filename=video_videofile_name)
+    form = ConfigForm()
     return render(request, 'fileuploads/show.html',
-                  {'video': video})
+                  {'video': video, 'form': form})
 
 
 def delete_video(request, video_videofile_name):
@@ -64,6 +66,7 @@ def get_filename(original_name):
 
 def list(request):
     # Handle file upload
+    form = VideoForm()
     if request.method == 'POST':
         form = VideoForm(request.POST, request.FILES)
         original_name = request.FILES['videofile'].name
@@ -74,11 +77,14 @@ def list(request):
                 filename=name,
             )
             newvideo.save()
-            return HttpResponseRedirect(
-                reverse('fileuploads:list'))
-
-    else:
-        form = VideoForm()  # A empty, unbound form
+            #videos = Video.objects.all()
+            #return HttpResponseRedirect(reverse('fileuploads:list',
+            #                            kwargs={
+            #                                'videos': videos,
+            #                                'form': form
+            #                                    }))
+     #       return HttpResponseRedirect(
+     #           reverse('fileuploads:list'))
 
     # Load documents for the list page
     videos = Video.objects.all()

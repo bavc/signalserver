@@ -11,11 +11,7 @@ class UploadFileForm(forms.Form):
     file_name = forms.FileField()
 
 
-class VideoForm(forms.Form):
-    videofile = forms.FileField(
-        label='Select a file',
-        help_text='max. 42 megabytes'
-    )
+class ConfigForm(forms.Form):
     config_dic = {}
     cons = Configuration.objects.all()
     for con in cons:
@@ -25,3 +21,10 @@ class VideoForm(forms.Form):
 
     CONFIGS = ((k, v) for k, v in config_dic.items())
     config_fields = forms.ChoiceField(choices=CONFIGS, required=True)
+
+
+class VideoForm(forms.Form):
+    videofile = forms.FileField(
+        label='Select a file',
+        help_text='max. 42 megabytes'
+    )
