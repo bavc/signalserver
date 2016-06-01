@@ -18,6 +18,7 @@ from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
 from .processfiles import process_file_with_config
+from .constants import STORED_FILEPATH
 
 
 def index(request):
@@ -35,14 +36,14 @@ def results(request, question_id):
 
 def get_full_path_name(video_videofile_name):
     video_videofile_name = video_videofile_name + '.xml'
-    video_videofile_name = os.path.join('videostorage', video_videofile_name)
+    video_videofile_name = os.path.join(STORED_FILEPATH, video_videofile_name)
     if os.path.isfile(video_videofile_name) is False:
         file_name = video_videofile_name + '.gz'
         new_file_name = os.path.splitext(file_name)[0]
         with gzip.open(file_name, 'rb') as f_in:
             with open(new_file_name, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
-    return video_videofile_name;
+    return video_videofile_name
 
 
 def show_result(request, video_videofile_name):
@@ -86,7 +87,13 @@ def list(request):
         form = VideoForm(request.POST, request.FILES)
         original_name = request.FILES['videofile'].name
         name = get_filename(original_name)
-        if form.is_valid():
+        count = Video.objects.filter(filename=name).count()
+        #num = 1
+        #while item > 0:
+        #    name = name + '(' + str(num) + ')'
+        #    item = Video.objects.filter(filename=name).count()
+        #    num += 1
+        if form.is_valid() and count == 0:
             newvideo = Video(
                 videofile=request.FILES['videofile'],
                 filename=name,
