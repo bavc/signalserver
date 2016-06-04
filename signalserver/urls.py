@@ -19,6 +19,11 @@ from fileuploads import views
 
 urlpatterns = [
     url(r'^$', views.list, name='list'),
+    url(r'^show/(?P<video_videofile_name>[\w.]{0,256})$',
+        views.show_video, name='show_video'),
+    url(r'^show/result/(?P<video_videofile_name>[\w.]{0,256})$',
+        views.show_result, name='show_result'),
+    url(r'^process/$', views.process, name='process'),
     url(r'^videostorage/', include('fileuploads.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',

@@ -11,16 +11,22 @@ class UploadFileForm(forms.Form):
     file_name = forms.FileField()
 
 
-class ConfigForm(forms.Form):
+def get_configurations():
     config_dic = {}
+
     cons = Configuration.objects.all()
     for con in cons:
         con_id = con.id
         con_name = con.configuration_name
         config_dic[con_id] = con_name
 
-    CONFIGS = ((k, v) for k, v in config_dic.items())
-    config_fields = forms.ChoiceField(choices=CONFIGS, required=True)
+    return ((k, v) for k, v in config_dic.items())
+
+
+class ConfigForm(forms.Form):
+    config_fields = forms.ChoiceField(
+        choices=get_configurations, required=True
+    )
     file_name = forms.CharField(max_length=250)
 
 
