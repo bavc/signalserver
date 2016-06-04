@@ -63,6 +63,7 @@ def show(request, config_name):
         form = OperationForm(request.POST)
         cutoff_num = request.POST['cutoff_number']
         sig_name = request.POST['signal_fields']
+        sig2_name = request.POST['second_signal_fields']
         op_name = request.POST['operation_fields']
         display_order = request.POST['display_order']
         if form.is_valid():
@@ -70,6 +71,7 @@ def show(request, config_name):
                 configuration=configuration,
                 cut_off_number=cutoff_num,
                 signal_name=sig_name,
+                second_signal_name=sig2_name,
                 op_name=op_name,
                 display_order=display_order)
             new_operation.save()

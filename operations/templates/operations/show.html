@@ -5,6 +5,7 @@
 {% for choice in configuration.operation_set.all %}
     <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
     <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
+    {{ choice.get_second_signal_name_display }}
     {{ choice.get_op_name_display }} {{ choice.cut_off_number }} {{ choice.display_order }}</label><a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">Delete</a></br>
 {% endfor %}
 
@@ -15,6 +16,10 @@
     {{ form.signal_fields.errors }}
     <label for="id_signal">Signal</label>
     {{ form.signal_fields }}
+
+    {{ form.second_signal_fields.errors }}
+    <label for="id_signal2">Signal2</label>
+    {{ form.second_signal_fields }}
 
     {{ form.operation.errors }}
     <label for="id_name">Operation</label>
