@@ -6,7 +6,6 @@ from django.db import models
 SIGNALS = (
     ('lavfi.signalstats.VLOW', 'lavfi.signalstats.VLOW'),
     ('lavfi.signalstats.YLOW', 'lavfi.signalstats.YLOW'),
-    ('yhigh-ylow', 'yhigh-ylow'),
     ('lavfi.psnr.psnr.y', 'lavfi.psnr.psnr.y'),
     ('avfi.signalstats.ULOW', 'lavfi.signalstats.ULOW'),
     ('lavfi.r128.S', 'lavfi.r128.S'),
@@ -60,6 +59,7 @@ SIGNALS = (
 OPERATIONS = (
     ('average', 'average'),
     ('exceeds', 'exceeds'),
+    ('average_difference', 'average_difference'),
 )
 
 
@@ -72,6 +72,8 @@ class Operation(models.Model):
     configuration = models.ForeignKey(
         Configuration, on_delete=models.CASCADE)
     signal_name = models.CharField(max_length=200, choices=SIGNALS)
+    second_signal_name = models.CharField(
+        max_length=100, choices=SIGNALS, default=None)
     op_name = models.CharField(max_length=20, choices=OPERATIONS)
     cut_off_number = models.IntegerField(default=0)
     display_order = models.IntegerField(default=0)

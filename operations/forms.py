@@ -4,7 +4,6 @@ from .models import Configuration, Operation
 SIGNALS = (
     ('lavfi.signalstats.VLOW', 'lavfi.signalstats.VLOW'),
     ('lavfi.signalstats.YLOW', 'lavfi.signalstats.YLOW'),
-    ('yhigh-ylow', 'yhigh-ylow'),
     ('lavfi.psnr.psnr.y', 'lavfi.psnr.psnr.y'),
     ('avfi.signalstats.ULOW', 'lavfi.signalstats.ULOW'),
     ('lavfi.r128.S', 'lavfi.r128.S'),
@@ -58,6 +57,7 @@ SIGNALS = (
 OPERATIONS = (
     ('average', 'average'),
     ('exceeds', 'exceeds'),
+    ('average_difference', 'average_difference'),
 )
 
 
@@ -78,6 +78,9 @@ class ConfigForm(forms.Form):
 
 class OperationForm(forms.Form):
     signal_fields = forms.ChoiceField(choices=SIGNALS, required=True)
+    second_signal_fields = forms.ChoiceField(
+        choices=SIGNALS, required=False
+    )
     operation_fields = forms.ChoiceField(choices=OPERATIONS, required=True)
     cutoff_number = forms.IntegerField(
         label='Please enter the cut off number'
