@@ -14,8 +14,11 @@ from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
 from .forms import VideoForm
+from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
+from .processfiles import process_file_with_config
+from .constants import STORED_FILEPATH
 
 
 def index(request):
@@ -31,23 +34,29 @@ def results(request, question_id):
     return HttpResponse(response % filename_id)
 
 
-def show_result(request, video_videofile_name):
+def get_full_path_name(video_videofile_name):
     video_videofile_name = video_videofile_name + '.xml'
-    video_videofile_name = os.path.join('videostorage', video_videofile_name)
+    video_videofile_name = os.path.join(STORED_FILEPATH, video_videofile_name)
     if os.path.isfile(video_videofile_name) is False:
         file_name = video_videofile_name + '.gz'
         new_file_name = os.path.splitext(file_name)[0]
         with gzip.open(file_name, 'rb') as f_in:
             with open(new_file_name, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
+    return video_videofile_name
+
+
+def show_result(request, video_videofile_name):
+    video_videofile_name = get_full_path_name(video_videofile_name)
     newst = process_file(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
 
 def show_video(request, video_videofile_name):
     video = Video.objects.get(filename=video_videofile_name)
+    form = ConfigForm()
     return render(request, 'fileuploads/show.html',
-                  {'video': video})
+                  {'video': video, 'form': form})
 
 
 def delete_video(request, video_videofile_name):
@@ -62,23 +71,42 @@ def get_filename(original_name):
     return name
 
 
+def process(request):
+    if request.method == 'POST':
+        file_name = request.POST['file_name']
+        config_id = request.POST['config_fields']
+        file_name = get_full_path_name(file_name)
+        newst = process_file_with_config(file_name, config_id)
+        return HttpResponse("Hello, world, process. {0}".format(newst))
+
+
 def list(request):
     # Handle file upload
+    form = VideoForm()
     if request.method == 'POST':
         form = VideoForm(request.POST, request.FILES)
         original_name = request.FILES['videofile'].name
         name = get_filename(original_name)
-        if form.is_valid():
+        count = Video.objects.filter(filename=name).count()
+        #num = 1
+        #while item > 0:
+        #    name = name + '(' + str(num) + ')'
+        #    item = Video.objects.filter(filename=name).count()
+        #    num += 1
+        if form.is_valid() and count == 0:
             newvideo = Video(
                 videofile=request.FILES['videofile'],
                 filename=name,
             )
             newvideo.save()
-            return HttpResponseRedirect(
-                reverse('fileuploads:list'))
-
-    else:
-        form = VideoForm()  # A empty, unbound form
+            #videos = Video.objects.all()
+            #return HttpResponseRedirect(reverse('fileuploads:list',
+            #                            kwargs={
+            #                                'videos': videos,
+            #                                'form': form
+            #                                    }))
+     #       return HttpResponseRedirect(
+     #           reverse('fileuploads:list'))
 
     # Load documents for the list page
     videos = Video.objects.all()

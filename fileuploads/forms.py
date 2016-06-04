@@ -1,4 +1,5 @@
 from django import forms
+from operations.models import Configuration
 
 
 class FileNameForm(forms.Form):
@@ -8,6 +9,25 @@ class FileNameForm(forms.Form):
 class UploadFileForm(forms.Form):
     title = forms.CharField(max_length=50)
     file_name = forms.FileField()
+
+
+def get_configurations():
+    config_dic = {}
+
+    cons = Configuration.objects.all()
+    for con in cons:
+        con_id = con.id
+        con_name = con.configuration_name
+        config_dic[con_id] = con_name
+
+    return ((k, v) for k, v in config_dic.items())
+
+
+class ConfigForm(forms.Form):
+    config_fields = forms.ChoiceField(
+        choices=get_configurations, required=True
+    )
+    file_name = forms.CharField(max_length=250)
 
 
 class VideoForm(forms.Form):

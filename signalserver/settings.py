@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'operations.apps.OperationsConfig',
     'fileuploads.apps.FileuploadsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,3 +125,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = '/var/signalserver/files'

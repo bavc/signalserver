@@ -6,6 +6,8 @@ services:
         env_file: ./signalservers.env
         ports:
             - "8000:8000"
+        volumes:
+            - files:/var/signalserver/files
     db:
         image: postgres:9.5
         env_file: ./signalservers.env
@@ -15,3 +17,4 @@ services:
             - dbdata:/var/lib/postgresql/data
 volumes:
     dbdata: {}
+    files: {}

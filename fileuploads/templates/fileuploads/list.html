@@ -12,8 +12,10 @@
         <ul>
         {% for video in videos %}
             <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}} </li>
-                <li><a href="delete-video/{{video.filename}}">Delete</a></li>
+                Uploaded time{{video.upload_time}}
+
+
+                <a href="delete-video/{{video.filename}}">Delete</a></li>
         {% endfor %}
         </ul>
     {% else %}
@@ -30,5 +32,8 @@
             </p>
             <p><input type="submit" value="Upload" /></p>
         </form>
+        <ul>
+            <li><a href="/operations/">Go to config list</a></li>
+        </ul>
     </body>
 </html>

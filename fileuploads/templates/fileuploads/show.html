@@ -9,8 +9,23 @@
         <p>This is parking page for config for now. click link below</p>
 
     <!-- config will go here -->
+    <form action="{% url 'fileuploads:process' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
             <li><a href="result/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}} </li>
+                Uploaded time{{video.upload_time}}
+                <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
+                {{ form.config_fields.errors }}
+                <label for="id_signal">Config</label>
+                {{ form.config_fields }} </li>
+             <p><input type="submit" value="Process" /></p>
+        </form>
+            </br>
+            </br>
+            </br>
+            <li><a href="/operations/">Go to config list</a></li>
+
+
+            <li><a href="/">Go back to file list</a></li>
         </ul>
 
     </body>
