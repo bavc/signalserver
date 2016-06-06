@@ -2,6 +2,7 @@ from django import forms
 from .models import Configuration, Operation
 
 SIGNALS = (
+    ('None', 'None'),
     ('lavfi.signalstats.VLOW', 'lavfi.signalstats.VLOW'),
     ('lavfi.signalstats.YLOW', 'lavfi.signalstats.YLOW'),
     ('lavfi.psnr.psnr.y', 'lavfi.psnr.psnr.y'),
@@ -78,13 +79,13 @@ class ConfigForm(forms.Form):
 
 class OperationForm(forms.Form):
     signal_fields = forms.ChoiceField(choices=SIGNALS, required=True)
+    operation_fields = forms.ChoiceField(choices=OPERATIONS, required=True)
     second_signal_fields = forms.ChoiceField(
         choices=SIGNALS, required=False
     )
-    operation_fields = forms.ChoiceField(choices=OPERATIONS, required=True)
     cutoff_number = forms.IntegerField(
-        label='Please enter the cut off number'
+        label='Please enter the cut off number', initial=0
     )
     display_order = forms.IntegerField(
-        label='Please the display order'
+        label='Please the display order', initial=0
     )

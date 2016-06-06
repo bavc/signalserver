@@ -18,3 +18,19 @@ class Video(models.Model):
     videofile = models.FileField(upload_to=STORED_FILEPATH)
     filename = models.CharField(max_length=400)
     upload_time = models.DateTimeField(auto_now_add=True)
+
+
+class Result(models.Model):
+    #video = models.ForeignKey(
+    #    Video, on_delete=models.CASCADE)
+    filename = models.CharField(max_length=400)
+
+
+class Row(models.Model):
+    result = models.ForeignKey(
+        Result, on_delete=models.CASCADE)
+    signal_name = models.CharField(max_length=200)
+    op_name = models.CharField(max_length=200)
+    cut_off_number = models.FloatField(default=0)
+    display_order = models.IntegerField(default=0)
+    result_number = models.FloatField(default=0)

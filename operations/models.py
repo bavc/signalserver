@@ -4,6 +4,7 @@ from django.db import models
 
 
 SIGNALS = (
+    ('None', 'None'),
     ('lavfi.signalstats.VLOW', 'lavfi.signalstats.VLOW'),
     ('lavfi.signalstats.YLOW', 'lavfi.signalstats.YLOW'),
     ('lavfi.psnr.psnr.y', 'lavfi.psnr.psnr.y'),
