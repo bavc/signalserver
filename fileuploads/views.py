@@ -13,11 +13,13 @@ from django.views import generic
 from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
+from .models import Result
 from .forms import VideoForm
 from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
 from .processfiles import process_file_with_config
+from .processfiles import process_file_with_config_object
 from .constants import STORED_FILEPATH
 
 
@@ -73,11 +75,15 @@ def get_filename(original_name):
 
 def process(request):
     if request.method == 'POST':
-        file_name = request.POST['file_name']
+        original_file_name = request.POST['file_name']
         config_id = request.POST['config_fields']
-        file_name = get_full_path_name(file_name)
-        newst = process_file_with_config(file_name, config_id)
-        return HttpResponse("Hello, world, process. {0}".format(newst))
+        file_name = get_full_path_name(original_file_name)
+        #newst = process_file_with_config(file_name, config_id)
+        result = process_file_with_config_object(
+            file_name, config_id, original_file_name)
+        return render(request, 'fileuploads/process.html',
+                      {'result': result})
+        #return HttpResponse("Hello, world, process. {0}".format(newst))
 
 
 def list(request):
