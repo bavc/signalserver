@@ -2,7 +2,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-{% for choice in configuration.operation_set.all %}
+{% for choice in operation %}
     <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
     <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
     {{ choice.get_second_signal_name_display }}

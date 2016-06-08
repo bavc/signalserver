@@ -23,8 +23,8 @@
         <ul>
         {% for config in configurations %}
             <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}</a>
-                Createtion time{{config.creation_date}} </li>
-                <a href="delete-config/{{config.configuration_name}}">Delete</a>
+                Createtion time  {{config.creation_time}}
+                <a href="delete-config/{{config.configuration_name}}">Delete</a></li>
         {% endfor %}
         </ul>
     {% else %}
@@ -38,6 +38,12 @@
             <p>
                 {{ form.config_name.errors }}
                 {{ form.config_name }}
+            </p>
+             <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
+            <p>
+                {{ form.display_order.errors }}
+                {{ form.display_order }}
             </p>
             <p><input type="submit" value="Create" /></p>
         </form>
