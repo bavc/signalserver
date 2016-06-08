@@ -24,7 +24,8 @@ def index(request):
     if request.method == 'POST':
         form = ConfigForm(request.POST)
         config_name = request.POST['config_name']
-        count = Configuration.objects.filter(filename=config_name).count()
+        count = Configuration.objects.filter(
+            configuration_name=config_name).count()
         display_order = request.POST['display_order']
         if form.is_valid() and count == 0:
             new_configuration = Configuration(
