@@ -67,6 +67,7 @@ OPERATIONS = (
 class Configuration(models.Model):
     configuration_name = models.CharField(max_length=200, unique=True)
     creation_time = models.DateTimeField(auto_now_add=True)
+    display_order = models.IntegerField(default=0)
 
 
 class Operation(models.Model):

@@ -24,8 +24,11 @@ def index(request):
     if request.method == 'POST':
         form = ConfigForm(request.POST)
         config_name = request.POST['config_name']
+        display_order = request.POST['display_order']
         if form.is_valid():
-            new_configuration = Configuration(configuration_name=config_name)
+            new_configuration = Configuration(
+                configuration_name=config_name,
+                display_order=display_order)
             new_configuration.save()
             return HttpResponseRedirect(
                 reverse('operations:index'))
@@ -34,7 +37,7 @@ def index(request):
         form = ConfigForm()  # A empty, unbound form
 
     # Load documents for the list page
-    configurations = Configuration.objects.all()
+    configurations = Configuration.objects.order_by('display_order')
 
     # Render list page with the documents and the form
     return render(request, 'operations/index.html',
@@ -59,6 +62,7 @@ def delete_op(request, op_id, config_name):
 
 def show(request, config_name):
     configuration = Configuration.objects.get(configuration_name=config_name)
+
     if request.method == 'POST':
         form = OperationForm(request.POST)
         cutoff_num = request.POST['cutoff_number']
@@ -79,11 +83,14 @@ def show(request, config_name):
             #    reverse('operations:show'))
 
     #else:
+    operation = Operation.objects.filter(
+        configuration=configuration).order_by('display_order')
     form = OperationForm()  # A empty, unbound form
     #response = "resuot of configured operations %s."
     #return HttpResponse(response % config_name)
     return render(request, 'operations/show.html',
-                  {'configuration': configuration, 'form': form})
+                  {'configuration': configuration,
+                   'form': form, 'operation': operation})
 
 
 def results(request, configuration_id):

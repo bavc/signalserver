@@ -14,7 +14,7 @@ class UploadFileForm(forms.Form):
 def get_configurations():
     config_dic = {}
 
-    cons = Configuration.objects.all()
+    cons = Configuration.objects.all().order_by('display_order')
     for con in cons:
         con_id = con.id
         con_name = con.configuration_name

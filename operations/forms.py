@@ -75,6 +75,9 @@ class ConfigForm(forms.Form):
     config_name = forms.CharField(
         label='Please enter the configuration name'
     )
+    display_order = forms.IntegerField(
+        label='Please enter the display order', initial=0
+    )
 
 
 class OperationForm(forms.Form):
@@ -87,5 +90,5 @@ class OperationForm(forms.Form):
         label='Please enter the cut off number', initial=0
     )
     display_order = forms.IntegerField(
-        label='Please the display order', initial=0
+        label='Please enter the display order', initial=0
     )
