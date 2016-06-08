@@ -90,21 +90,29 @@ def list(request):
     # Handle file upload
     form = VideoForm()
     if request.method == 'POST':
+
         form = VideoForm(request.POST, request.FILES)
-        original_name = request.FILES['videofile'].name
-        name = get_filename(original_name)
-        count = Video.objects.filter(filename=name).count()
+        files = request.FILES.getlist('videofile')
+        #original_name = request.FILES['videofile'].name
+        #name = get_filename(original_name)
+
+        #count = Video.objects.filter(filename=name).count()
         #num = 1
         #while item > 0:
         #    name = name + '(' + str(num) + ')'
         #    item = Video.objects.filter(filename=name).count()
         #    num += 1
-        if form.is_valid() and count == 0:
-            newvideo = Video(
-                videofile=request.FILES['videofile'],
-                filename=name,
-            )
-            newvideo.save()
+        if form.is_valid():
+            for f in files:
+                original_name = f.name
+                name = get_filename(original_name)
+                count = Video.objects.filter(filename=name).count()
+                if count == 0:
+                    newvideo = Video(
+                        videofile=f,
+                        filename=name,
+                    )
+                    newvideo.save()
             #videos = Video.objects.all()
             #return HttpResponseRedirect(reverse('fileuploads:list',
             #                            kwargs={
