@@ -21,10 +21,20 @@ from .processfiles import delete_file
 from .processfiles import process_file_with_config
 from .processfiles import process_file_with_config_object
 from .constants import STORED_FILEPATH
+from celery import group
+from .tasks import add
+from .tasks import process_bulk
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the file upload index.")
+    ce = add.delay(1, 1)
+    status = ce.ready()
+    if status:
+        st = "hello" + str(ce.get())
+    else:
+        st = "not ready"
+    return HttpResponse(
+        "Hello, world. You're at the file upload index. %s" % st)
 
 
 def detail(request, question_id):
@@ -86,7 +96,38 @@ def process(request):
         #return HttpResponse("Hello, world, process. {0}".format(newst))
 
 
-def list(request):
+def bulk_process(request):
+    if request.method == 'POST':
+        videos = Video.objects.all()
+        config_id = request.POST['config_fields']
+        #results = []
+        original_names = []
+        file_names = []
+        #result = process_file.delay(file_name, config_id, original_file_name)
+        #results = result.get()
+
+        for v in videos:
+            original_file_name = v.filename
+            original_names.append(original_file_name)
+            file_name = get_full_path_name(original_file_name)
+            file_names.append(file_name)
+
+        status = process_bulk.delay(file_names, config_id,
+                                    original_names).ready()
+        #    results = group(process_file.s(i, config_id, j)
+        #                    for i, j in zip(file_names,
+        #                                    original_names))().get()
+        if status:
+            results = "yay it is done"
+        else:
+            results = "still working on it"
+
+            #results.append(result)
+        return render(request, 'fileuploads/bulkprocess.html',
+                      {'results': results})
+
+
+def upload(request):
     # Handle file upload
     form = VideoForm()
     if request.method == 'POST':
@@ -123,6 +164,16 @@ def list(request):
      #           reverse('fileuploads:list'))
 
     # Load documents for the list page
+    videos = Video.objects.all()
+
+    # Render list page with the documents and the form
+    return render(request, 'fileuploads/upload.html',
+                  {'videos': videos, 'form': form})
+
+
+def list(request):
+    # Handle file upload
+    form = ConfigForm()
     videos = Video.objects.all()
 
     # Render list page with the documents and the form
