@@ -14,3 +14,4 @@ done
 docker-compose up -d
 echo ">> Application is running <<"
 echo "http://${DOCKER_HOST:-localhost}" | sed 's/tcp:\/\///g' | sed -E 's/(\:[0-9]+)?$/:8000/'
+docker-compose up -d rmq

@@ -27,7 +27,6 @@ class ConfigForm(forms.Form):
     config_fields = forms.ChoiceField(
         choices=get_configurations, required=True
     )
-    file_name = forms.CharField(max_length=250)
 
 
 class VideoForm(forms.Form):

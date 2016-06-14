@@ -1,6 +1,7 @@
 import os
 import gzip
 import shutil
+import datetime
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -21,10 +22,23 @@ from .processfiles import delete_file
 from .processfiles import process_file_with_config
 from .processfiles import process_file_with_config_object
 from .constants import STORED_FILEPATH
+from celery import group
+from .tasks import add
+from .tasks import process_bulk
+from .tasks import process_file
+from celery.result import AsyncResult
+from operations.models import Configuration
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the file upload index.")
+    ce = add.delay(1, 1)
+    status = ce.ready()
+    if status:
+        st = "hello" + str(ce.get())
+    else:
+        st = "not ready"
+    return HttpResponse(
+        "Hello, world. You're at the file upload index. %s" % st)
 
 
 def detail(request, question_id):
@@ -86,7 +100,64 @@ def process(request):
         #return HttpResponse("Hello, world, process. {0}".format(newst))
 
 
-def list(request):
+def bulk_process(request):
+    if request.method == 'POST':
+        videos = Video.objects.all()
+        config_id = request.POST['config_fields']
+        config_name = Configuration.objects.get(
+            id=config_id).configuration_name
+        #results = []
+        original_names = []
+        file_names = []
+
+        for v in videos:
+            original_name = v.filename
+            original_names.append(original_name)
+            file_name = get_full_path_name(original_name)
+            file_names.append(file_name)
+            current_time = str(datetime.datetime.now())
+            status = process_file.delay(file_name, config_id,
+                                        original_name, current_time)
+
+            result = Result(
+                filename=original_name,
+                config_id=config_id,
+                config_name=config_name,
+                processed_time=current_time,
+                task_id=status.task_id,
+                status=False)
+            result.save()
+    return HttpResponseRedirect("../status")
+
+
+def status(request):
+    results = Result.objects.all()
+    for result in results:
+        task_id = result.task_id
+        work_status = AsyncResult(task_id).ready()
+        result.status = work_status
+        result.save()
+
+    results = Result.objects.all()
+        #
+        #    results = group(process_file.s(i, config_id, j)
+        #                    for i, j in zip(file_names,
+        #
+        #task_id = status.task_id
+
+        #status = AsyncResult(task_id).ready()
+        #if status:
+        #    results = "yay it is done"
+        #else:
+        #    results = "still working on it"
+
+            #results.append(result)
+
+    return render(request, 'fileuploads/status.html',
+                  {'results': results})
+
+
+def upload(request):
     # Handle file upload
     form = VideoForm()
     if request.method == 'POST':
@@ -123,6 +194,16 @@ def list(request):
      #           reverse('fileuploads:list'))
 
     # Load documents for the list page
+    videos = Video.objects.all()
+
+    # Render list page with the documents and the form
+    return render(request, 'fileuploads/upload.html',
+                  {'videos': videos, 'form': form})
+
+
+def list(request):
+    # Handle file upload
+    form = ConfigForm()
     videos = Video.objects.all()
 
     # Render list page with the documents and the form
