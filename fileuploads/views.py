@@ -1,6 +1,7 @@
 import os
 import gzip
 import shutil
+import datetime
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -24,6 +25,9 @@ from .constants import STORED_FILEPATH
 from celery import group
 from .tasks import add
 from .tasks import process_bulk
+from .tasks import process_file
+from celery.result import AsyncResult
+from operations.models import Configuration
 
 
 def index(request):
@@ -100,31 +104,57 @@ def bulk_process(request):
     if request.method == 'POST':
         videos = Video.objects.all()
         config_id = request.POST['config_fields']
+        config_name = Configuration.objects.get(
+            id=config_id).configuration_name
         #results = []
         original_names = []
         file_names = []
-        #result = process_file.delay(file_name, config_id, original_file_name)
-        #results = result.get()
 
         for v in videos:
-            original_file_name = v.filename
-            original_names.append(original_file_name)
-            file_name = get_full_path_name(original_file_name)
+            original_name = v.filename
+            original_names.append(original_name)
+            file_name = get_full_path_name(original_name)
             file_names.append(file_name)
+            current_time = str(datetime.datetime.now())
+            status = process_file.delay(file_name, config_id,
+                                        original_name, current_time)
 
-        status = process_bulk.delay(file_names, config_id,
-                                    original_names).ready()
+            result = Result(
+                filename=original_name,
+                config_id=config_id,
+                config_name=config_name,
+                processed_time=current_time,
+                task_id=status.task_id,
+                status=False)
+            result.save()
+    return HttpResponseRedirect("../status")
+
+
+def status(request):
+    results = Result.objects.all()
+    for result in results:
+        task_id = result.task_id
+        work_status = AsyncResult(task_id).ready()
+        result.status = work_status
+        result.save()
+
+    results = Result.objects.all()
+        #
         #    results = group(process_file.s(i, config_id, j)
         #                    for i, j in zip(file_names,
-        #                                    original_names))().get()
-        if status:
-            results = "yay it is done"
-        else:
-            results = "still working on it"
+        #
+        #task_id = status.task_id
+
+        #status = AsyncResult(task_id).ready()
+        #if status:
+        #    results = "yay it is done"
+        #else:
+        #    results = "still working on it"
 
             #results.append(result)
-        return render(request, 'fileuploads/bulkprocess.html',
-                      {'results': results})
+
+    return render(request, 'fileuploads/status.html',
+                  {'results': results})
 
 
 def upload(request):

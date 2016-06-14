@@ -14,6 +14,11 @@ class Result(models.Model):
     #video = models.ForeignKey(
     #    Video, on_delete=models.CASCADE)
     filename = models.CharField(max_length=400)
+    processed_time = models.DateTimeField()
+    config_id = models.IntegerField(default=0)
+    config_name = models.CharField(max_length=100)
+    task_id = models.CharField(max_length=200)
+    status = models.BooleanField(default=False)
 
 
 class Row(models.Model):

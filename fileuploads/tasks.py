@@ -42,7 +42,7 @@ def process_bulk(file_names, config_id, original_names):
 
 
 @celery.task
-def process_file(file_name, config_id, original_name):
+def process_file(file_name, config_id, original_name, processed_time):
     count = 0
     datadict = {}
     specialdict = {}
@@ -90,13 +90,9 @@ def process_file(file_name, config_id, original_name):
         count += 1
     resultst = ''
     result_name = original_name + ".xml"
-    res_count = Result.objects.filter(filename=result_name).count()
-    if res_count > 0:
-        Result.objects.get(filename=result_name).delete()
-    new_result = Result(
-        filename=result_name)
-    new_result.save()
-    result = Result.objects.get(filename=result_name)
+
+    result = Result.objects.get(filename=original_name,
+                                processed_time=processed_time)
     for k in datadict.keys():
         v = datadict[k]
         ave = v/count

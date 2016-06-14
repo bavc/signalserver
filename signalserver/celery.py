@@ -10,13 +10,17 @@ from django.conf import settings  # noqa
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 
 app = Celery('signalserver',
-             backend='rpc://',
+             backend='redis://redis:6379',
              broker='amqp://guest@rmq:5672//')
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+
+app.conf.update(
+    CELERY_RESULT_BACKEND='redis://redis:6379'
+)
 
 
 @app.task(bind=True)
