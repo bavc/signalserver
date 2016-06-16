@@ -1,7 +1,7 @@
 import os
 import gzip
 import shutil
-import datetime
+from datetime import datetime
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -20,7 +20,6 @@ from .forms import ConfigForm
 from .processfiles import process_file
 from .processfiles import delete_file
 from .processfiles import process_file_with_config
-from .processfiles import process_file_with_config_object
 from .constants import STORED_FILEPATH
 from celery import group
 from .tasks import add
@@ -64,7 +63,7 @@ def get_full_path_name(video_videofile_name):
 
 def show_result(request, video_videofile_name):
     video_videofile_name = get_full_path_name(video_videofile_name)
-    newst = process_file(video_videofile_name)
+    newst = process_file_with_iter(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
 
@@ -92,12 +91,10 @@ def process(request):
         original_file_name = request.POST['file_name']
         config_id = request.POST['config_fields']
         file_name = get_full_path_name(original_file_name)
-        #newst = process_file_with_config(file_name, config_id)
-        result = process_file_with_config_object(
+        result = process_file_with_config(
             file_name, config_id, original_file_name)
         return render(request, 'fileuploads/process.html',
                       {'result': result})
-        #return HttpResponse("Hello, world, process. {0}".format(newst))
 
 
 def bulk_process(request):
@@ -115,18 +112,23 @@ def bulk_process(request):
             original_names.append(original_name)
             file_name = get_full_path_name(original_name)
             file_names.append(file_name)
-            current_time = str(datetime.datetime.now())
-            status = process_file.delay(file_name, config_id,
-                                        original_name, current_time)
+            current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            current_time = datetime.strptime(current_time_str,
+                                             "%Y-%m-%d %H:%M:%S")
 
             result = Result(
                 filename=original_name,
                 config_id=config_id,
                 config_name=config_name,
                 processed_time=current_time,
-                task_id=status.task_id,
+                task_id=0,
                 status=False)
             result.save()
+            status = process_file.delay(file_name, config_id,
+                                        original_name, current_time_str)
+            result.task_id = status.task_id
+            result.save()
+
     return HttpResponseRedirect("../status")
 
 
