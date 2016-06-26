@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^upload/$', views.upload, name='upload'),
     url(r'^process/$', views.process, name='process'),
     url(r'^status/$', views.status, name='status'),
+    url(r'^search/$', views.search, name='search'),
     url(r'^bulk_process/$', views.bulk_process, name='bulk_process'),
     url(r'^show/(?P<video_videofile_name>[\w.]{0,256})$',
         views.show_video, name='show_video'),

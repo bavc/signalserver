@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <meta charset="utf-8">
+        <title>signalserver file processing</title>
+        {% load staticfiles %}
+        <script type="text/javascript" src="/bower_components/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+
+        <script type="text/javascript">
+        jQuery(function(){
+            jQuery('#datetimepicker').datetimepicker();
+            jQuery('#datetimepicker').datetimepicker({value:'2016/06/16 12:56'});
+            jQuery('#datetimepicker2').datetimepicker();
+            jQuery('#datetimepicker2').datetimepicker({value:'2016/06/16 04:06'});
+        });
+        </script>
+</head>
+
+    <body>
+        <h1>File Search</h1>
+        <form action="{% url 'fileuploads:search' %}" method="post" class="form">
+            {% csrf_token %}
+        <div class="container">
+        <div class="row">
+
+        <h3>DateTime Based Search</h3>
+            <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
+            <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+        </div>
+            <button type="search" class="btn btn-primary">
+                Search
+            </button>
+        </div>
+        </form>
+
+    <!-- List of uploaded files -->
+    {% if videos %}
+
+        <form action="{% url 'fileuploads:bulk_process' %}" method="post" enctype="multipart/form-data">
+        <ul>
+        {% csrf_token %}
+        {% for video in videos %}
+
+            <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
+                Uploaded time{{video.upload_time}}
+
+
+
+                <a href="delete-video/{{video.filename}}">Delete</a></li>
+        {% endfor %}
+
+            </li>    {{ form.config_fields.errors }}
+                <label for="id_signal">Config</label>
+                {{ form.config_fields }} </li>
+        </ul>
+             <p><input type="submit" value="Process All" /></p>
+
+        </form>
+
+
+    {% else %}
+        <p>No file.</p>
+    {% endif %}
+        <ul>
+            <li><a href="/operations/">Go to config list</a></li>
+            <li><a href="/upload/">Go to Upload file</a></li>
+        </ul>
+    </body>
+    <!-- this should go after your </body> -->
+<link rel="stylesheet" type="text/css" href="/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
+<script src="/bower_components/jquery/jquery.js"></script>
+<script src="/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+</html>

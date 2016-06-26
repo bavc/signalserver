@@ -10,8 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-
-
 from __future__ import absolute_import
 # ^^^ The above is required if you want to import from the celery
 # library.  If you don't have this then `from celery.schedules import`
@@ -34,7 +32,6 @@ SECRET_KEY = 'xa95)v=zj*c^2gq=36wl5!9)4y=lh$ax0nd_96u^n2_)j15zh+'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -85,7 +82,7 @@ WSGI_APPLICATION = 'signalserver.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-   'default': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('POSTGRES_DB', 'qctooldb'),
         'USER': os.environ.get('POSTGRES_USER', 'postgresuser'),
@@ -142,6 +139,29 @@ CELERY_RESULT_SERIALIZER = 'json'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), ".."),
+)
+
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+
 STATIC_URL = '/static/'
 
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    'usr/src/app/bower_components/',
+
+]
+
 MEDIA_ROOT = '/var/signalserver/files'
+
+BOWER_COMPONENTS_ROOT = '/usr/src/app/bower_components/'
+
+BOWER_COMPONENTS_URL = '/bower_components/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+)

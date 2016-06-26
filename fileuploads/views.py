@@ -63,8 +63,8 @@ def get_full_path_name(video_videofile_name):
 
 def show_result(request, video_videofile_name):
     video_videofile_name = get_full_path_name(video_videofile_name)
-    newst = process_file_with_iter(video_videofile_name)
-    return HttpResponse("Hello, world, index. {0}".format(newst))
+    #newst = process_file_with_iter(video_videofile_name)
+    #return HttpResponse("Hello, world, index. {0}".format(newst))
 
 
 def show_video(request, video_videofile_name):
@@ -130,6 +130,22 @@ def bulk_process(request):
             result.save()
 
     return HttpResponseRedirect("../status")
+
+
+def search(request):
+    if request.method == 'POST':
+        start_field = request.POST['start_field']
+        end_field = request.POST['end_field']
+        start = datetime.strptime(start_field,
+                                  "%Y/%m/%d %H:%M")
+        end = datetime.strptime(end_field,
+                                "%Y/%m/%d %H:%M")
+        videos = Video.objects.filter(upload_time__range=[start, end])
+        return render(request, 'fileuploads/search.html',
+                      {'videos': videos})
+    videos = Video.objects.all()
+    return render(request, 'fileuploads/search.html',
+                  {'videos': videos})
 
 
 def status(request):
