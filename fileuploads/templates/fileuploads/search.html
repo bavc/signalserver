@@ -1,26 +1,8 @@
-<!DOCTYPE html>
-<html>
- <head>
-    <meta charset="utf-8">
-        <title>signalserver file processing</title>
-        {% load staticfiles %}
-        <script type="text/javascript" src="/bower_components/jquery/jquery.min.js"></script>
-        <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+{% include 'base.html' %}
+{% block body_block %}
 
-        <script type="text/javascript">
-        jQuery(function(){
-            jQuery('#datetimepicker').datetimepicker();
-            jQuery('#datetimepicker').datetimepicker({value:'2016/06/16 12:56'});
-            jQuery('#datetimepicker2').datetimepicker();
-            jQuery('#datetimepicker2').datetimepicker({value:'2016/06/16 04:06'});
-        });
-        </script>
-</head>
-
-    <body>
         <h1>File Search</h1>
-        <form action="{% url 'fileuploads:search' %}" method="post" class="form">
+        <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form">
             {% csrf_token %}
         <div class="container">
         <div class="row">
@@ -36,40 +18,78 @@
         </form>
 
     <!-- List of uploaded files -->
+
+        <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+
+
+    {% if start %}
+        <input type="hidden" name="start" id="start" value="{{ start }}" />
+        {{ start}}
+    {% endif %}
+    {% if end %}
+        <input type="hidden" name="end" id="end" value="{{ end }}" />
+        {{ end }}
+    {% endif %}
     {% if videos %}
 
-        <form action="{% url 'fileuploads:bulk_process' %}" method="post" enctype="multipart/form-data">
         <ul>
         {% csrf_token %}
         {% for video in videos %}
 
-            <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
+            <li><input type="hidden" name="file{{ forloop.counter }}" id="file{{ forloop.counter }}" value="{{ video.filename }}" />
+                <a href="show/{{ video.filename }}">{{ video.filename }}</a>
                 Uploaded time{{video.upload_time}}
-
-
-
                 <a href="delete-video/{{video.filename}}">Delete</a></li>
         {% endfor %}
-
-            </li>    {{ form.config_fields.errors }}
-                <label for="id_signal">Config</label>
-                {{ form.config_fields }} </li>
-        </ul>
-             <p><input type="submit" value="Process All" /></p>
-
-        </form>
-
-
     {% else %}
         <p>No file.</p>
     {% endif %}
+
+
+    </ul>
+    </li>
+     {% if message %}
+        {{ message }}
+    {% endif %}
+    {% if form %}
+     {% csrf_token %}
+    <p>{{ form.non_field_errors }}</p>
+    <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
+    <p>{{ form.group_name.errors }}
+        {{ form.group_name }}</p>
+    {% endif %}
+
+     <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
+        Create Group
+    </button>
+
+
+
+
+
+         </form>
+
+
+        </ul>
+
+
+
+
+
+
         <ul>
             <li><a href="/operations/">Go to config list</a></li>
             <li><a href="/upload/">Go to Upload file</a></li>
         </ul>
-    </body>
-    <!-- this should go after your </body> -->
+    {% endblock %}
+    <script type="text/javascript">
+        jQuery(function(){
+            jQuery('#datetimepicker').datetimepicker();
+            jQuery('#datetimepicker').datetimepicker({value:'2016/06/16 12:56'});
+            jQuery('#datetimepicker2').datetimepicker();
+            jQuery('#datetimepicker2').datetimepicker({value:'2016/06/16 04:06'});
+        });
+        </script>
 <link rel="stylesheet" type="text/css" href="/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
 <script src="/bower_components/jquery/jquery.js"></script>
 <script src="/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-</html>

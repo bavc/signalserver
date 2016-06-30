@@ -10,6 +10,19 @@ class Video(models.Model):
     upload_time = models.DateTimeField(auto_now_add=True)
 
 
+class Group(models.Model):
+    group_name = models.CharField(max_length=400)
+    creation_time = models.DateTimeField(auto_now_add=True)
+
+
+class Member(models.Model):
+    group = models.ForeignKey(
+        Group, on_delete=models.CASCADE)
+    file_name = models.CharField(max_length=400)
+    file_id = models.IntegerField(default=0)
+    upload_time = models.DateTimeField()
+
+
 class Result(models.Model):
     #video = models.ForeignKey(
     #    Video, on_delete=models.CASCADE)

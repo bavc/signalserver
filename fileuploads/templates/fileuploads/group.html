@@ -1,0 +1,56 @@
+{% include 'base.html' %}
+{% block body_block %}
+
+        <h1>Group Search</h1>
+        <!--form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form"-->
+            {% csrf_token %}
+        <div class="container">
+        <div class="row">
+
+        <h3>Name Based Search</h3>
+            <p>Please end the group name <input name='name_field' type="text" id="file_name"></p>
+        </div>
+            <button type="search" class="btn btn-primary">
+                Search
+            </button>
+        </div>
+        <!--/form-->
+
+    <!-- List of uploaded files -->
+
+        <!--form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data"-->
+    {% if group %}
+        <li> {{group.group_name}} is saved.
+    {% endif %}
+
+    {% if groups %}
+
+        <ul>
+        {% csrf_token %}
+        {% for group in groups %}
+
+            <li>
+                <a href="show/{{ group.group_name }}">{{ group.group_name }}</a>
+                creation time{{group.creation_time}}
+                <p> Files in this group :
+                <!--a href="delete-video/{{video.filename}}">Delete</a--></li>
+                {% for member in group.member_set.all %}
+                    <ul>{{member.file_name}} {{member.upload_time}}</ul>
+                {% endfor %}
+                </p>
+
+        {% endfor %}
+        </ul>
+
+
+
+    {% else %}
+        <p>No groups.</p>
+    {% endif %}
+
+        <ul>
+            <li><a href="/operations/">Go to config list</a></li>
+            <li><a href="/upload/">Go to Upload file</a></li>
+        </ul>
+    {% endblock %}
+
