@@ -30,6 +30,7 @@ services:
     worker:
         build:
             context: .
+            dockerfile: ./Dockerfile-alternate
         env_file: ./signalservers.env
         user: signalserversadmin
         command: celery -A signalserver worker --loglevel=info

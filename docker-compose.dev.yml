@@ -1,0 +1,7 @@
+version: '2.0'
+services:
+    web:
+        build:
+            dockerfile: ./Dockerfile-alternate
+        volumes:
+            - ./frontend:/usr/src/app/frontend
