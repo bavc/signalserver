@@ -10,6 +10,19 @@ class Video(models.Model):
     upload_time = models.DateTimeField(auto_now_add=True)
 
 
+class Group(models.Model):
+    group_name = models.CharField(max_length=400)
+    creation_time = models.DateTimeField(auto_now_add=True)
+
+
+class Member(models.Model):
+    group = models.ForeignKey(
+        Group, on_delete=models.CASCADE)
+    file_name = models.CharField(max_length=400)
+    file_id = models.IntegerField(default=0)
+    upload_time = models.DateTimeField()
+
+
 class Result(models.Model):
     #video = models.ForeignKey(
     #    Video, on_delete=models.CASCADE)
@@ -19,6 +32,7 @@ class Result(models.Model):
     config_name = models.CharField(max_length=100)
     task_id = models.CharField(max_length=200)
     status = models.BooleanField(default=False)
+    group_name = models.CharField(max_length=400, default=None, null=True)
 
 
 class Row(models.Model):

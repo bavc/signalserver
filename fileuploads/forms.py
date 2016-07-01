@@ -29,6 +29,12 @@ class ConfigForm(forms.Form):
     )
 
 
+class GroupForm(forms.Form):
+    group_name = forms.CharField(
+        label='Please enter the group name'
+    )
+
+
 class VideoForm(forms.Form):
     videofile = forms.FileField(
         widget=forms.ClearableFileInput(attrs={'multiple': True}),

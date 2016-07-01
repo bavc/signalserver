@@ -7,7 +7,7 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - files:/var/signalserver/files
+            - ${FILES_VOLUME_PATH}:/var/signalserver/files
     db:
         image: postgres:9.5
         env_file: ./signalservers.env
@@ -30,6 +30,7 @@ services:
     worker:
         build:
             context: .
+            dockerfile: ./Dockerfile-alternate
         env_file: ./signalservers.env
         user: signalserversadmin
         command: celery -A signalserver worker --loglevel=info

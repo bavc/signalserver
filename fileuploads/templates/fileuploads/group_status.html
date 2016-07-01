@@ -1,0 +1,35 @@
+
+        <h1>Hello</h1>
+        <p>This is the page for the result of file processing</p>
+        {% if results %}
+                {% for result in results %}
+                     <li>{{ result.filename }} has processed by
+                        {{ result.config_name }} at {{ result.processed_time }}.
+                        Process Status is {{ result.status }} by task_id {{ result.task_id }} group name is {{ result.group_name }}</li>
+                {% endfor %}
+        {% endif %}
+        <p> Processed Results </p>
+
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        {% for result in results %}
+            {% if result.status %}
+                 <p>Filename: {{ result.filename }} Config: {{result.config_name}} time: {{ result.processed_time }}</p>
+                 {% for row in result.row_set.all %}
+                 <li>{{ row.signal_name }} has
+                    {{ row.op_name }} {{ row.result_number }}
+                    Cut off Number {{ row.cut_off_number }} Display order {{ row.display_order }}</li>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+
+
+            </br>
+            </br>
+            </br>
+            <li><a href="/operations/">Go to config list</a></li>
+            <li><a href="/search/">Go to file search and group</a></li>
+            <li><a href="/save_group/">Go to group list</a></li>
+            <li><a href="/status/">Go to status of all the file process list</li>
+            <li><a href="/">Go back to file list</a></li>
+
+

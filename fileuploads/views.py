@@ -1,8 +1,5 @@
 import os
-import gzip
-import shutil
 from datetime import datetime
-
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -15,12 +12,15 @@ from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
 from .models import Result
+from .models import Group
+from .models import Member
 from .forms import VideoForm
 from .forms import ConfigForm
-from .processfiles import process_file
+from .forms import GroupForm
+from .processfiles import process_file_original
 from .processfiles import delete_file
 from .processfiles import process_file_with_config
-from .constants import STORED_FILEPATH
+from .processfiles import get_full_path_file_name
 from celery import group
 from .tasks import add
 from .tasks import process_bulk
@@ -49,21 +49,9 @@ def results(request, question_id):
     return HttpResponse(response % filename_id)
 
 
-def get_full_path_name(video_videofile_name):
-    video_videofile_name = video_videofile_name + '.xml'
-    video_videofile_name = os.path.join(STORED_FILEPATH, video_videofile_name)
-    if os.path.isfile(video_videofile_name) is False:
-        file_name = video_videofile_name + '.gz'
-        new_file_name = os.path.splitext(file_name)[0]
-        with gzip.open(file_name, 'rb') as f_in:
-            with open(new_file_name, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-    return video_videofile_name
-
-
 def show_result(request, video_videofile_name):
-    video_videofile_name = get_full_path_name(video_videofile_name)
-    newst = process_file_with_iter(video_videofile_name)
+    video_videofile_name = get_full_path_file_name(video_videofile_name)
+    newst = process_file_original(video_videofile_name)
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
 
@@ -90,11 +78,63 @@ def process(request):
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
         config_id = request.POST['config_fields']
-        file_name = get_full_path_name(original_file_name)
+        file_name = get_full_path_file_name(original_file_name)
         result = process_file_with_config(
             file_name, config_id, original_file_name)
         return render(request, 'fileuploads/process.html',
                       {'result': result})
+
+
+def file_process(file_name, config_id, config_name, group_name=None):
+    original_name = file_name
+    file_name = get_full_path_file_name(original_name)
+    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_time = datetime.strptime(current_time_str,
+                                     "%Y-%m-%d %H:%M:%S")
+
+    result = Result(
+        filename=original_name,
+        config_id=config_id,
+        config_name=config_name,
+        processed_time=current_time,
+        task_id=0,
+        status=False,
+        group_name=group_name)
+    result.save()
+    status = process_file.delay(file_name, config_id,
+                                original_name, current_time_str)
+    result.task_id = status.task_id
+    result.save()
+
+
+def group_process(request):
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        group = Group.objects.get(group_name=group_name)
+        members = Member.objects.filter(group=group)
+        config_id = request.POST['config_fields']
+        config_name = Configuration.objects.get(
+            id=config_id).configuration_name
+        for member in members:
+            file_process(member.file_name, config_id, config_name, group_name)
+        results = Result.objects.filter(group_name=group_name)
+        #return group_status(request, group)
+        #return render(request, 'fileuploads/group_status.html',
+        #              {'results': results})
+        results = Result.objects.filter(group_name=group_name)
+        for result in results:
+            task_id = result.task_id
+            work_status = AsyncResult(task_id).ready()
+            result.status = work_status
+            result.save()
+
+        results = Result.objects.filter(group_name=group_name)
+        return render(request, 'fileuploads/group_status.html',
+                      {'results': results})
+    else:
+        results = Result.objects.exclude(group_name=None)
+        return render(request, 'fileuploads/group_status.html',
+                      {'results': results})
 
 
 def bulk_process(request):
@@ -103,33 +143,95 @@ def bulk_process(request):
         config_id = request.POST['config_fields']
         config_name = Configuration.objects.get(
             id=config_id).configuration_name
-        #results = []
-        original_names = []
-        file_names = []
-
         for v in videos:
-            original_name = v.filename
-            original_names.append(original_name)
-            file_name = get_full_path_name(original_name)
-            file_names.append(file_name)
-            current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            current_time = datetime.strptime(current_time_str,
-                                             "%Y-%m-%d %H:%M:%S")
-
-            result = Result(
-                filename=original_name,
-                config_id=config_id,
-                config_name=config_name,
-                processed_time=current_time,
-                task_id=0,
-                status=False)
-            result.save()
-            status = process_file.delay(file_name, config_id,
-                                        original_name, current_time_str)
-            result.task_id = status.task_id
-            result.save()
-
+            file_process(v.filename, config_id, config_name)
     return HttpResponseRedirect("../status")
+
+
+def search_result(start_field, end_field):
+    start = datetime.strptime(start_field,
+                              "%Y/%m/%d %H:%M")
+    end = datetime.strptime(end_field,
+                            "%Y/%m/%d %H:%M")
+    return Video.objects.filter(upload_time__range=[start, end])
+
+
+def search(request):
+    if request.method == 'POST':
+        start_field = request.POST['start_field']
+        end_field = request.POST['end_field']
+        videos = search_result(start_field, end_field)
+        form = GroupForm()
+        return render(request, 'fileuploads/search.html',
+                      {'videos': videos, 'form': form, 'start': start_field,
+                       'end': end_field})
+    videos = Video.objects.all()
+    return render(request, 'fileuploads/search.html',
+                  {'videos': videos})
+
+
+def save_group(request):
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        count = Group.objects.filter(group_name=group_name).count()
+        if count > 0:
+            form = GroupForm()
+            message = "the name " + group_name +  \
+                      " is taken, please select differnt name"
+            start_field = request.POST['start']
+            end_field = request.POST['end']
+            videos = search_result(start_field, end_field)
+            return render(request, 'fileuploads/search.html',
+                          {'videos': videos, 'form': form,
+                           'start': start_field,
+                           'end': end_field,
+                           'message': message
+                           })
+        else:
+            new_group = Group(
+                group_name=group_name
+            )
+            new_group.save()
+            group = Group.objects.get(group_name=group_name)
+            #length of request you don't need group_name, token, start and end
+            number = len(request.POST) - 4
+            counter = 1
+            newkey = "file" + str(counter)
+            while counter < number:
+                if newkey in request.POST:
+                    file_name = request.POST[newkey]
+                    video = Video.objects.get(filename=file_name)
+                    new_member = Member(
+                        file_name=file_name,
+                        group=group,
+                        upload_time=video.upload_time,
+                        file_id=video.id
+                    )
+                    new_member.save()
+                counter += 1
+                newkey = newkey = "file" + str(counter)
+            groups = Group.objects.all()
+            form = ConfigForm()
+            return render(request, 'fileuploads/group.html',
+                          {'groups': groups, 'group': group, 'form': form})
+    else:
+        groups = Group.objects.all()
+        form = ConfigForm()
+        return render(request, 'fileuploads/group.html',
+                      {'groups': groups, 'form': form})
+
+
+def group_status(request, group_name):
+    results = Result.objects.filter(group_name=group_name)
+    for result in results:
+        task_id = result.task_id
+        work_status = AsyncResult(task_id).ready()
+        result.status = work_status
+        result.save()
+
+    results = Result.objects.filter(group_name=group_name)
+    return render(request, 'fileuploads/group_status.html',
+                  {'results': results})
 
 
 def status(request):
@@ -180,12 +282,13 @@ def upload(request):
                 original_name = f.name
                 name = get_filename(original_name)
                 count = Video.objects.filter(filename=name).count()
-                if count == 0:
-                    newvideo = Video(
-                        videofile=f,
-                        filename=name,
-                    )
-                    newvideo.save()
+                if count > 0:
+                    Video.objects.get(filename=name).delete()
+                newvideo = Video(
+                    videofile=f,
+                    filename=name,
+                )
+                newvideo.save()
             #videos = Video.objects.all()
             #return HttpResponseRedirect(reverse('fileuploads:list',
             #                            kwargs={

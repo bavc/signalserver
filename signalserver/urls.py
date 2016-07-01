@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from fileuploads import views
 
 urlpatterns = [
@@ -24,10 +26,15 @@ urlpatterns = [
     url(r'^show/result/(?P<video_videofile_name>[\w.]{0,256})$',
         views.show_result, name='show_result'),
     url(r'^process/$', views.process, name='process'),
+    url(r'^search/$', views.search, name='search'),
+    url(r'^status/$', views.status, name='status'),
+    url(r'^save_group/$', views.save_group, name='save_group'),
+    url(r'^group_process/$', views.group_process, name='group_process'),
     url(r'^fileuploads/', include('fileuploads.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',
         views.delete_video, name='delete_video'),
     url(r'^operations/', include('operations.urls')),
     url(r'^upload', views.upload, name='upload'),
-]
+] + static(settings.BOWER_COMPONENTS_URL,
+           document_root=settings.BOWER_COMPONENTS_ROOT)

@@ -8,9 +8,22 @@ from operations.models import Configuration
 from operations.models import Operation
 from .models import Result
 from .models import Row
+from .constants import STORED_FILEPATH
 
 
-def process_file(file_name):
+def get_full_path_file_name(original_file_name):
+    original_file_name = original_file_name + '.xml'
+    original_file_name = os.path.join(STORED_FILEPATH, original_file_name)
+    if os.path.isfile(original_file_name) is False:
+        file_name = original_file_name + '.gz'
+        new_file_name = os.path.splitext(file_name)[0]
+        with gzip.open(file_name, 'rb') as f_in:
+            with open(new_file_name, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+    return original_file_name
+
+
+def process_file_original(file_name):
     st = ""
     nsmap = {}
     datadict = {}
@@ -157,3 +170,5 @@ def process_file_with_config(file_name, config_id, original_name):
 
 def delete_file(file_name):
     Video.objects.get(filename=file_name).delete()
+    full_path_file_name = get_full_path_file_name(file_name)
+    os.remove(full_path_file_name)
