@@ -91,19 +91,16 @@ def file_process(file_name, config_id, config_name, group_name=None):
     current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     current_time = datetime.strptime(current_time_str,
                                      "%Y-%m-%d %H:%M:%S")
-
+    status = process_file.delay(file_name, config_id,
+                                original_name, current_time_str)
     result = Result(
         filename=original_name,
         config_id=config_id,
         config_name=config_name,
         processed_time=current_time,
-        task_id=0,
-        status=False,
+        task_id=status.task_id,
+        status=AsyncResult(status.task_id).ready(),
         group_name=group_name)
-    result.save()
-    status = process_file.delay(file_name, config_id,
-                                original_name, current_time_str)
-    result.task_id = status.task_id
     result.save()
 
 
@@ -117,7 +114,7 @@ def group_process(request):
             id=config_id).configuration_name
         for member in members:
             file_process(member.file_name, config_id, config_name, group_name)
-        results = Result.objects.filter(group_name=group_name)
+        #results = Result.objects.filter(group_name=group_name)
         #return group_status(request, group)
         #return render(request, 'fileuploads/group_status.html',
         #              {'results': results})
@@ -132,6 +129,12 @@ def group_process(request):
         return render(request, 'fileuploads/group_status.html',
                       {'results': results})
     else:
+        results = Result.objects.exclude(group_name=None)
+        for result in results:
+            task_id = result.task_id
+            work_status = AsyncResult(task_id).ready()
+            result.status = work_status
+            result.save()
         results = Result.objects.exclude(group_name=None)
         return render(request, 'fileuploads/group_status.html',
                       {'results': results})
