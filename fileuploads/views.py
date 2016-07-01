@@ -85,38 +85,66 @@ def process(request):
                       {'result': result})
 
 
+def file_process(file_name, config_id, config_name, group_name=None):
+    original_name = file_name
+    file_name = get_full_path_file_name(original_name)
+    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_time = datetime.strptime(current_time_str,
+                                     "%Y-%m-%d %H:%M:%S")
+
+    result = Result(
+        filename=original_name,
+        config_id=config_id,
+        config_name=config_name,
+        processed_time=current_time,
+        task_id=0,
+        status=False,
+        group_name=group_name)
+    result.save()
+    status = process_file.delay(file_name, config_id,
+                                original_name, current_time_str)
+    result.task_id = status.task_id
+    result.save()
+
+
+def group_process(request):
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        group = Group.objects.get(group_name=group_name)
+        members = Member.objects.filter(group=group)
+        config_id = request.POST['config_fields']
+        config_name = Configuration.objects.get(
+            id=config_id).configuration_name
+        for member in members:
+            file_process(member.file_name, config_id, config_name, group_name)
+        results = Result.objects.filter(group_name=group_name)
+        #return group_status(request, group)
+        #return render(request, 'fileuploads/group_status.html',
+        #              {'results': results})
+        results = Result.objects.filter(group_name=group_name)
+        for result in results:
+            task_id = result.task_id
+            work_status = AsyncResult(task_id).ready()
+            result.status = work_status
+            result.save()
+
+        results = Result.objects.filter(group_name=group_name)
+        return render(request, 'fileuploads/group_status.html',
+                      {'results': results})
+    else:
+        results = Result.objects.exclude(group_name=None)
+        return render(request, 'fileuploads/group_status.html',
+                      {'results': results})
+
+
 def bulk_process(request):
     if request.method == 'POST':
         videos = Video.objects.all()
         config_id = request.POST['config_fields']
         config_name = Configuration.objects.get(
             id=config_id).configuration_name
-        #results = []
-        original_names = []
-        file_names = []
-
         for v in videos:
-            original_name = v.filename
-            original_names.append(original_name)
-            file_name = get_full_path_file_name(original_name)
-            file_names.append(file_name)
-            current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            current_time = datetime.strptime(current_time_str,
-                                             "%Y-%m-%d %H:%M:%S")
-
-            result = Result(
-                filename=original_name,
-                config_id=config_id,
-                config_name=config_name,
-                processed_time=current_time,
-                task_id=0,
-                status=False)
-            result.save()
-            status = process_file.delay(file_name, config_id,
-                                        original_name, current_time_str)
-            result.task_id = status.task_id
-            result.save()
-
+            file_process(v.filename, config_id, config_name)
     return HttpResponseRedirect("../status")
 
 
@@ -183,8 +211,27 @@ def save_group(request):
                 counter += 1
                 newkey = newkey = "file" + str(counter)
             groups = Group.objects.all()
+            form = ConfigForm()
             return render(request, 'fileuploads/group.html',
-                          {'groups': groups, 'group': group})
+                          {'groups': groups, 'group': group, 'form': form})
+    else:
+        groups = Group.objects.all()
+        form = ConfigForm()
+        return render(request, 'fileuploads/group.html',
+                      {'groups': groups, 'form': form})
+
+
+def group_status(request, group_name):
+    results = Result.objects.filter(group_name=group_name)
+    for result in results:
+        task_id = result.task_id
+        work_status = AsyncResult(task_id).ready()
+        result.status = work_status
+        result.save()
+
+    results = Result.objects.filter(group_name=group_name)
+    return render(request, 'fileuploads/group_status.html',
+                  {'results': results})
 
 
 def status(request):

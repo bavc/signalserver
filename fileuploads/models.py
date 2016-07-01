@@ -32,6 +32,7 @@ class Result(models.Model):
     config_name = models.CharField(max_length=100)
     task_id = models.CharField(max_length=200)
     status = models.BooleanField(default=False)
+    group_name = models.CharField(max_length=400, default=None, null=True)
 
 
 class Row(models.Model):

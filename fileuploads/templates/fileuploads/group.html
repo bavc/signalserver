@@ -1,7 +1,8 @@
 {% include 'base.html' %}
 {% block body_block %}
 
-        <h1>Group Search</h1>
+        <h1>Group List and Search</h1>
+
         <!--form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form"-->
             {% csrf_token %}
         <div class="container">
@@ -20,24 +21,53 @@
 
         <!--form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data"-->
     {% if group %}
-        <li> {{group.group_name}} is saved.
-    {% endif %}
-
-    {% if groups %}
-
-        <ul>
-        {% csrf_token %}
-        {% for group in groups %}
-
-            <li>
-                <a href="show/{{ group.group_name }}">{{ group.group_name }}</a>
-                creation time{{group.creation_time}}
-                <p> Files in this group :
+         <form action="{% url 'fileuploads:group_process' %}" method="post" enctype="multipart/form-data">
+         <h2> {{group.group_name}} is saved.</h2>
+        <p> Files in this group :
                 <!--a href="delete-video/{{video.filename}}">Delete</a--></li>
+                {% csrf_token %}
+                <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
                 {% for member in group.member_set.all %}
                     <ul>{{member.file_name}} {{member.upload_time}}</ul>
                 {% endfor %}
                 </p>
+        </li>    {{ form.config_fields.errors }}
+                <label for="id_signal">Config</label>
+                {{ form.config_fields }} </li>
+        </ul>
+             <p><input type="submit" value="Process All" /></p>
+
+        </form>
+        {% endif %}
+
+
+    {% if groups %}
+
+        <ul>
+
+        {% for group in groups %}
+
+            <li>
+                 <form action="{% url 'fileuploads:group_process' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
+                group name: {{ group.group_name }}
+                creation time: {{group.creation_time}}
+                <p> Files in this group :
+                <!--a href="delete-video/{{video.filename}}">Delete</a--></li>
+                {% for member in group.member_set.all %}
+
+                    <ul>{{member.file_name}} {{member.upload_time}}</ul>
+                {% endfor %}
+                </p>
+
+                {{ form.config_fields.errors }}
+                <label for="id_signal">Config</label>
+                {{ form.config_fields }} </li>
+        </ul>
+             <p><input type="submit" value="Process All" /></p>
+
+        </form>
 
         {% endfor %}
         </ul>
@@ -51,6 +81,10 @@
         <ul>
             <li><a href="/operations/">Go to config list</a></li>
             <li><a href="/upload/">Go to Upload file</a></li>
+            <li><a href="/search/">Go to file search and group</a></li>
+            <li><a href="/group_process/">Go to group process status</a></li>
+            <li><a href="/status/">Go to status of all the file process list</li>
+            <li><a href="/">Go back to file list</a></li>
         </ul>
     {% endblock %}
 
