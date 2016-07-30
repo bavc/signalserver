@@ -1,0 +1,49 @@
+{% include 'base.html' %}
+<script type="text/javascript" src="/frontend/bower_components/d3/d3.min.js"></script>
+
+
+
+{% block body_block %}
+        <body>
+        <h2> Processed Result
+        <h2> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
+        <h2> Config Name : {{ config_name }} </h2>
+        {% if signal_names %}
+                {% for signal_name in signal_names %}
+                    <div class="container">
+                        <h3> Graph, Average - {{ signal_name }} </h3>
+                        <div id="chart{{ forloop.counter }}"></div>
+                    </div>
+                {% endfor %}
+        {% endif %}
+        <li><a href="/">Go back to file list</a></li>
+        <li><a href="/operations/">Go to config list</a></li>
+        <li><a href="/search/">Go to file search and group</a></li>
+        <li><a href="/save_group/">Go to group list</a></li>
+        <li><a href="/group_process/">Go to check the status and results of all group process</a></li>
+        <li><a href="/status/">Go to status of all the file process list</li>
+
+<script type="text/javascript" src="/frontend/static/js/linechart.js"></script>
+<script>
+signal_names = [
+{% for name in signal_names %}
+    "{{name}}"{% if not forloop.last %}, {% endif %}
+{% endfor %}
+];
+
+function graph_for_signal(name, idx) {
+    d3.json("{% url 'fileuploads:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name,
+        function(error, data) {
+            createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
+        }
+    );
+}
+
+for (i = 0; i < signal_names.length; i++) {
+    graph_for_signal(signal_names[i], i + 1);
+}
+
+</script>
+{% endblock %}
+
+

@@ -150,14 +150,14 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
-    'usr/src/app/frontend/bower_components/',
+    'usr/src/app/frontend/',
 ]
 
 MEDIA_ROOT = '/var/signalserver/files'
 
-BOWER_COMPONENTS_ROOT = '/usr/src/app/frontend/bower_components/'
+BOWER_COMPONENTS_ROOT = '/usr/src/app/frontend/'
 
-BOWER_COMPONENTS_URL = '/bower_components/'
+BOWER_COMPONENTS_URL = '/frontend/'
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
