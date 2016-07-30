@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+import pytz
+import json
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -12,6 +14,7 @@ from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
 from .models import Result
+from .models import Row
 from .models import Group
 from .models import Member
 from .forms import VideoForm
@@ -27,6 +30,7 @@ from .tasks import process_bulk
 from .tasks import process_file
 from celery.result import AsyncResult
 from operations.models import Configuration
+from django.http import JsonResponse
 
 
 def index(request):
@@ -88,9 +92,9 @@ def process(request):
 def file_process(file_name, config_id, config_name, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
-    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     current_time = datetime.strptime(current_time_str,
-                                     "%Y-%m-%d %H:%M:%S")
+                                     "%Y-%m-%d %H:%M")
     status = process_file.delay(file_name, config_id,
                                 original_name, current_time_str)
     result = Result(
@@ -102,6 +106,15 @@ def file_process(file_name, config_id, config_name, group_name=None):
         status=AsyncResult(status.task_id).ready(),
         group_name=group_name)
     result.save()
+
+
+def update_results(results):
+    for result in results:
+        if not result.status:
+            task_id = result.task_id
+            work_status = AsyncResult(task_id).ready()
+            result.status = work_status
+            result.save()
 
 
 def group_process(request):
@@ -119,24 +132,15 @@ def group_process(request):
         #return render(request, 'fileuploads/group_status.html',
         #              {'results': results})
         results = Result.objects.filter(group_name=group_name)
-        for result in results:
-            task_id = result.task_id
-            work_status = AsyncResult(task_id).ready()
-            result.status = work_status
-            result.save()
-
+        update_results(results)
         results = Result.objects.filter(group_name=group_name)
-        return render(request, 'fileuploads/group_status.html',
+        return render(request, 'fileuploads/group_process.html',
                       {'results': results})
     else:
         results = Result.objects.exclude(group_name=None)
-        for result in results:
-            task_id = result.task_id
-            work_status = AsyncResult(task_id).ready()
-            result.status = work_status
-            result.save()
+        update_results(results)
         results = Result.objects.exclude(group_name=None)
-        return render(request, 'fileuploads/group_status.html',
+        return render(request, 'fileuploads/group_process.html',
                       {'results': results})
 
 
@@ -233,8 +237,72 @@ def group_status(request, group_name):
         result.save()
 
     results = Result.objects.filter(group_name=group_name)
-    return render(request, 'fileuploads/group_status.html',
+    return render(request, 'fileuploads/group_process.html',
                   {'results': results})
+
+
+def result_graph(request):
+    signal_names = []
+    values = []
+    group_name = ''
+    processed_time = ''
+    config_name = ''
+    results = []
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        processed_time = request.POST['processed_time']
+        processed_time = processed_time[0:-1]
+        processed_time = processed_time[0:-2] + 'm'
+
+        processed_time_object = datetime.strptime(processed_time,
+                                                  "%B %d, %Y, %I:%M %p")
+        processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
+
+        temp = Result.objects.filter(group_name=group_name)
+        results = temp.filter(processed_time=processed_time_object)
+
+        for result in results:
+            rows = Row.objects.filter(result=result)
+            for row in rows:
+                signal_data = {
+                    "filename": result.filename,
+                    "average": row.result_number
+                }
+                if row.signal_name not in signal_names:
+                    signal_names.append(row.signal_name)
+            config_name = result.config_name
+
+    return render(request, 'fileuploads/result_graph.html',
+                  {'group_name': group_name,
+                   'processed_time': processed_time,
+                   'signal_names': signal_names,
+                   'config_name': config_name})
+
+
+def get_graph_data(request):
+    group_name = request.GET['group_name']
+    processed_time = request.GET['processed_time']
+    signal_name = request.GET['signal_name']
+
+    data = []
+
+    processed_time_object = datetime.strptime(processed_time,
+                                              "%B %d, %Y, %I:%M %p")
+    processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
+
+    temp = Result.objects.filter(group_name=group_name)
+    results = temp.filter(processed_time=processed_time_object)
+
+    for result in results:
+        temprows = Row.objects.filter(result=result)
+        rows = temprows.filter(signal_name=signal_name)
+        for row in rows:
+            signal_data = {
+                "filename": result.filename,
+                "average": row.result_number
+            }
+            data.append(signal_data)
+    return JsonResponse(data, safe=False)
 
 
 def status(request):
