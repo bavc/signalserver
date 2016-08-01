@@ -93,7 +93,7 @@ def process_file(file_name, config_id, original_name, processed_time_str):
     result_name = original_name + ".xml"
 
     processed_time = datetime.strptime(processed_time_str,
-                                       "%Y-%m-%d %H:%M")
+                                       "%Y-%m-%d %H:%M:%S")
 
     result = Result.objects.get(filename=original_name,
                                 processed_time=processed_time)
