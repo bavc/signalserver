@@ -29,7 +29,6 @@ urlpatterns = [
     url(r'^search/$', views.search, name='search'),
     url(r'^status/$', views.status, name='status'),
     url(r'^save_group/$', views.save_group, name='save_group'),
-    url(r'^group_process/$', views.group_process, name='group_process'),
     url(r'^fileuploads/', include('fileuploads.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',

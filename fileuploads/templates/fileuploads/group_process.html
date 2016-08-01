@@ -1,37 +1,22 @@
 
         <h2>Hello</h2>
-        <h3>This is the page for the status and result of file processing</h3>
-        {% if results %}
-                {% for result in results %}
-                     <li>{{ result.filename }} has processed by
-                        {{ result.config_name }} at {{ result.processed_time }}.
-                        Process Status is {{ result.status }} by task_id {{ result.task_id }} group name is {{ result.group_name }}</li>
+        <h3>This is the page for the status </h3>
+        {% if group_results %}
+                {% for key, values in group_results.items %}
+                    {% if key in not_completed %}
+
+                            <h3> In progress </h3>
+
+                            <li>{{ key }} Config: {{values.0.config_name}}</li>
+                    {% else %}
+
+                        <h3> Completed </h3>
+
+                         <li>{{ key }} Config: {{values.0.config_name}}</li>
+                    {% endif %}
                 {% endfor %}
         {% endif %}
-        <p> Processed Results </p>
 
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        {% for result in results %}
-            {% if result.status %}
-                 <p>Groupname: {{ result.group_name }} time: {{ result.processed_time }}</p>
-                 {% if forloop.first %}
-                <form action="{% url 'fileuploads:result_graph' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="group_name" id="group_name" value="{{result.group_name}}" />
-                <input type="hidden" name="processed_time" id="processed_time" value="{{result.processed_time}}" />
-                <p><input type="submit" value="Show the result Graph of this group" /></p>
-                </form>
-            {% endif %}
-
-
-                 <p>Filename: {{ result.filename }} Config: {{result.config_name}} </p>
-                 {% for row in result.row_set.all %}
-                 <li>{{ row.signal_name }} has
-                    {{ row.op_name }} {{ row.result_number }}
-                    Cut off Number {{ row.cut_off_number }} Display order {{ row.display_order }}</li>
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
 
             </br>
             </br>
@@ -40,5 +25,5 @@
             <li><a href="/operations/">Go to config list</a></li>
             <li><a href="/search/">Go to file search and group</a></li>
             <li><a href="/save_group/">Go to group list</a></li>
-            <li><a href="/group_process/">Go to check the status and results of all group process</a></li>
+            <li><a href="../group_result/">Go to results of all group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
