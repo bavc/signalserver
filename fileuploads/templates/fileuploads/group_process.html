@@ -1,6 +1,7 @@
+{% include 'base.html' %}
+{% block body_block %}
 
-        <h2>Hello</h2>
-        <h3>This is the page for the status </h3>
+        <h2>Group Process status </h2>
         {% if group_results %}
                 {% for key, values in group_results.items %}
                     {% if key in not_completed %}
@@ -27,3 +28,5 @@
             <li><a href="/save_group/">Go to group list</a></li>
             <li><a href="../group_result/">Go to results of all group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
+
+{% endblock %}

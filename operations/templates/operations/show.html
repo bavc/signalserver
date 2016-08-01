@@ -1,3 +1,6 @@
+{% include 'base.html' %}
+{% block body_block %}
+
 <h1>{{ configuration.configuration_name }}</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
@@ -43,5 +46,4 @@
 
     </ul>
 
-</body>
-</html>
+{% endblock %}

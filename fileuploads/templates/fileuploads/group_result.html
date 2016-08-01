@@ -1,6 +1,7 @@
+{% include 'base.html' %}
+{% block body_block %}
 
-        <h2>Hello</h2>
-        <h3>This is the page the result of file processing</h3>
+        <h2>Result of Group file processing</h2>
         <p> Processed Results </p>
         {% if group_results %}
               {% for name, results in group_results.items %}
@@ -40,3 +41,5 @@
             <li><a href="/save_group/">Go to group list</a></li>
             <li><a href="../group_process/">Go to check the status and results of all group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
+
+{% endblock %}

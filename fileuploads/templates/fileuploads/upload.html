@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>signalserver fileupload</title>
-    </head>
-    <body>
-        <h1>File Upload</h1>
+{% include 'base.html' %}
+{% block body_block %}
+
+    <h1>File Upload</h1>
 
     <!-- List of uploaded files -->
     {% if videos %}
@@ -37,5 +33,4 @@
             <li><a href="/">Go back to file list</a></li>
             <li><a href="/operations/">Go to config list</a></li>
         </ul>
-    </body>
-</html>
+{% endblock %}
