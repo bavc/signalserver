@@ -17,9 +17,9 @@
         </div>
         </form>
 
-    <!-- List of uploaded files -->
+    <h3> list of all uploaded files </h3>
 
-        <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+    <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
 
 
     {% if start %}
@@ -45,10 +45,9 @@
         <p>No file.</p>
     {% endif %}
 
-
     </ul>
     </li>
-     {% if message %}
+    {% if message %}
         {{ message }}
     {% endif %}
     {% if form %}
@@ -56,26 +55,14 @@
     <p>{{ form.non_field_errors }}</p>
     <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
     <p>{{ form.group_name.errors }}
-        {{ form.group_name }}</p>
+       {{ form.group_name }}</p>
     {% endif %}
 
      <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
         Create Group
     </button>
-
-
-
-
-
-         </form>
-
-
+    </form>
         </ul>
-
-
-
-
-
 
         <ul>
             <li><a href="/operations/">Go to config list</a></li>

@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>signalserver file processing</title>
-    </head>
-    <body>
+{% include 'base.html' %}
+{% block body_block %}
+
+
         <h1>File Process</h1>
 
     <!-- List of uploaded files -->
@@ -43,5 +40,5 @@
             <li><a href="/fileuploads/group_process/">Go to result of group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
         </ul>
-    </body>
-</html>
+
+{% endblock %}
