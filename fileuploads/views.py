@@ -89,12 +89,10 @@ def process(request):
                       {'result': result})
 
 
-def file_process(file_name, config_id, config_name, group_name=None):
+def file_process(file_name, config_id, config_name, current_time_str,
+                 current_time, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
-    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    current_time = datetime.strptime(current_time_str,
-                                     "%Y-%m-%d %H:%M:%S")
     status = process_file.delay(file_name, config_id,
                                 original_name, current_time_str)
     result = Result(
@@ -125,8 +123,12 @@ def group_process(request):
         config_id = request.POST['config_fields']
         config_name = Configuration.objects.get(
             id=config_id).configuration_name
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.strptime(current_time_str,
+                                         "%Y-%m-%d %H:%M:%S")
         for member in members:
-            file_process(member.file_name, config_id, config_name, group_name)
+            file_process(member.file_name, config_id, config_name,
+                         current_time_str, current_time, group_name)
 
     groups = Group.objects.all()
     group_results = {}
@@ -163,8 +165,12 @@ def bulk_process(request):
         config_id = request.POST['config_fields']
         config_name = Configuration.objects.get(
             id=config_id).configuration_name
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.strptime(current_time_str,
+                                         "%Y-%m-%d %H:%M:%S")
         for v in videos:
-            file_process(v.filename, config_id, config_name)
+            file_process(v.filename, config_id, config_name,
+                         current_time_str, current_time)
     return HttpResponseRedirect("../status")
 
 
