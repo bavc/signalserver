@@ -30,6 +30,7 @@ from .tasks import process_bulk
 from .tasks import process_file
 from celery.result import AsyncResult
 from operations.models import Configuration
+from operations.models import Operation
 from django.http import JsonResponse
 
 
@@ -199,6 +200,8 @@ def search(request):
 def save_group(request):
     if request.method == 'POST':
         group_name = request.POST['group_name']
+        if " " in group_name:
+            group_name = group_name.replace(' ', '-')
         count = Group.objects.filter(group_name=group_name).count()
         if count > 0:
             form = GroupForm()
@@ -271,11 +274,13 @@ def group_result(request):
 
 def result_graph(request):
     signal_names = []
+    op_names = []
     values = []
     group_name = ''
     processed_time = ''
     config_name = ''
     results = []
+    operations = []
     if request.method == 'POST':
         group_name = request.POST['group_name']
         processed_time = request.POST['processed_time']
@@ -288,27 +293,37 @@ def result_graph(request):
         results = temp.filter(processed_time=processed_time_object)
 
         for result in results:
-            rows = Row.objects.filter(result=result)
-            for row in rows:
-                signal_data = {
-                    "filename": result.filename,
-                    "average": row.result_number
-                }
-                if row.signal_name not in signal_names:
-                    signal_names.append(row.signal_name)
             config_name = result.config_name
+            configuration = Configuration.objects.filter(
+                configuration_name=config_name)
+            operations = Operation.objects.filter(
+                configuration=configuration).order_by('display_order')
+            for operation in operations:
+                op_names.append(operation.op_name)
+                signal_name = operation.signal_name
+                if operation.op_name == 'exceeds':
+                    temprows = Row.objects.filter(result=result)
+                    rows = temprows.filter(op_name='exceeded')
+                if operation.op_name == 'average_difference':
+                    signal_name = operation.signal_name + "-" +  \
+                        operation.second_signal_name
+                signal_names.append(signal_name)
 
     return render(request, 'fileuploads/result_graph.html',
                   {'group_name': group_name,
                    'processed_time': processed_time,
                    'signal_names': signal_names,
-                   'config_name': config_name})
+                   'config_name': config_name,
+                   'operations': operations,
+                   'op_names': op_names
+                   })
 
 
 def get_graph_data(request):
     group_name = request.GET['group_name']
     processed_time = request.GET['processed_time']
     signal_name = request.GET['signal_name']
+    op_name = request.GET['op_name']
 
     data = []
 
@@ -321,12 +336,24 @@ def get_graph_data(request):
 
     for result in results:
         temprows = Row.objects.filter(result=result)
-        rows = temprows.filter(signal_name=signal_name)
+        sigrows = temprows.filter(signal_name=signal_name)
+        if op_name == 'exceeds':
+            rows = sigrows.filter(op_name='exceeded')
+        else:
+            rows = sigrows.filter(op_name=op_name)
+
         for row in rows:
-            signal_data = {
-                "filename": result.filename,
-                "average": row.result_number
-            }
+            if op_name == 'exceeds':
+                percent = (row.result_number / row.frame_number) * 100
+                signal_data = {
+                    "filename": result.filename,
+                    "average": percent
+                }
+            else:
+                signal_data = {
+                    "filename": result.filename,
+                    "average": row.result_number
+                }
             data.append(signal_data)
     return JsonResponse(data, safe=False)
 

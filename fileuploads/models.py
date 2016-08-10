@@ -43,3 +43,4 @@ class Row(models.Model):
     cut_off_number = models.FloatField(default=0)
     display_order = models.IntegerField(default=0)
     result_number = models.FloatField(default=0)
+    frame_number = models.FloatField(default=0)
