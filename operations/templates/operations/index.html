@@ -7,9 +7,22 @@
     {% if configurations %}
         <ul>
         {% for config in configurations %}
-            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}</a>
+
+            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}
+           </a>
                 Createtion time  {{config.creation_time}}
-                <a href="delete-config/{{config.configuration_name}}">Delete</a></li>
+                <a href="delete-config/{{config.configuration_name}}">Delete</a>
+                <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
+        <div id="rename_form{{ forloop.counter }}">
+           <form id="form_rename" action="{% url 'operations:rename' %}" name = "rename" method="post" class="form">
+            {% csrf_token %}
+            <input name='old_name' type="hidden" value="{{ config.configuration_name }}">
+            <input name='new_name' type="text" default="{{ config.configuration_name }}">
+            <button type="search" class="btn btn-primary">
+                Rename
+            </button></li>
+            </form>
+        </div>
         {% endfor %}
         </ul>
     {% else %}
@@ -35,4 +48,18 @@
         <ul>
             <li><a href="/">Go back to file list</a></li>
         </ul>
+
 {% endblock %}
+    <script>
+
+{% for config in configurations %}
+
+   $("#rename_form{{ forloop.counter }}").hide();
+   $(".rename_link{{ forloop.counter }}").click (function(){
+   $("#rename_form{{ forloop.counter }}").show();
+   });
+
+{% endfor %}
+
+
+    </script>
