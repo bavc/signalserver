@@ -1,22 +1,30 @@
 {% include 'base.html' %}
 {% block body_block %}
-
-        <h2>Group Process status </h2>
+    <div class="container-fluid">
+        <h2>Group Process Status </h2>
         {% if group_results %}
-                {% for key, values in group_results.items %}
-                    {% if key in not_completed %}
+            <h3> In Progress </h3>
+            {% for key, values in  group_results.items %}
+                {% if key in not_completed %}
+                    <li>{{ key }} Config: {{values.0.config_name}}</li>
 
-                            <h3> In progress </h3>
 
-                            <li>{{ key }} Config: {{values.0.config_name}}</li>
-                    {% else %}
-
-                        <h3> Completed </h3>
-
-                         <li>{{ key }} Config: {{values.0.config_name}}</li>
-                    {% endif %}
-                {% endfor %}
+                {% endif %}
+            {% endfor %}
+            <h3> Completed </h3>
+             {% for key, values in  group_results.items %}
+                {% if key not in not_completed %}
+                        <li>{{ key }} Config: {{values.0.config_name}}</li>
+                        <form action="{% url 'fileuploads:result_graph' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
+                            <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
+                            <p><input type="submit" value="Show the result Graph of this group" /></p>
+                        </form>
+                {% endif %}
+            {% endfor %}
         {% endif %}
+    </div>
 
 
             </br>
