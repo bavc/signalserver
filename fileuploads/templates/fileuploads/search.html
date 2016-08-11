@@ -1,69 +1,87 @@
 {% include 'base.html' %}
 {% block body_block %}
+    <span>
+    <div class = "container-fluid">
+        <h1>File Search and Group Creation</h1>
+        <h4>Based on the result of file search, we can create the group in this page.</h4>
 
-        <h1>File Search</h1>
-        <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form">
-            {% csrf_token %}
-        <div class="container">
         <div class="row">
+            <div class="col-md-6">
 
-        <h3>DateTime Based Search</h3>
-            <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
-            <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+            <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form">
+                    {% csrf_token %}
+
+                    <h3>DateTime Based Search</h3>
+                    <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
+                    <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+
+                    <p>Exact file name or keyword in the filename (case sensitive): </p>
+                    <p><input name='keyword' type="text" id="keyword"></p>
+                    <button type="search" class="btn btn-primary">
+                        Search
+                    </button>
+                    </form>
+                    {% if videos %}
+                        <h3> Search Results </h3>
+                            <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+                            <h4> Search keywords </h4>
+                            {% if start %}
+                                <input type="hidden" name="start" id="start" value="{{ start }}" />
+                                <h4> Start time : {{ start}}
+                            {% endif %}
+                            {% if end %}
+                                <input type="hidden" name="end" id="end" value="{{ end }}" />
+                                End time : {{ end }}
+                            {% endif %}
+                            {% if keyword %}
+                                The filename has a word : {{ keyword }} </h4></br></br>
+                            {% endif %}
+
+
+                            <ul>
+                            {% csrf_token %}
+                            {% for video in videos %}
+                                <li><input type="hidden" name="file{{ forloop.counter }}" id="file{{ forloop.counter }}" value="{{ video.filename }}" />
+                                {{ video.filename }}
+                                <ul>Uploaded time : {{video.upload_time}}</ul>
+                                </li>
+                            {% endfor %}
+                            </ul>
+
+                            {% if message %}
+                                {{ message }}
+                            {% endif %}
+                            {% if form %}
+                                {% csrf_token %}
+                                <p>{{ form.non_field_errors }}</p>
+                                <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
+                                 <p>{{ form.group_name.errors }}
+                                    {{ form.group_name }}</p>
+                            {% endif %}
+                            <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
+                                Create Group
+                            </button>
+                            </form>
+                    {% endif %}
+            </div>
+            <div class="col-md-6">
+                    <h3> All uploaded files </h3>
+                    {% if files %}
+                    {% for file in files %}
+                            <li>{{ file.filename }}
+                                 <ul> Uploaded time : {{file.upload_time}}</ul>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No file.</p>
+                    {% endif %}
+
+            </div>
         </div>
-            <button type="search" class="btn btn-primary">
-                Search
-            </button>
-        </div>
-        </form>
-
-    <h3> list of all uploaded files </h3>
-
-    <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
-
-
-    {% if start %}
-        <input type="hidden" name="start" id="start" value="{{ start }}" />
-        {{ start}}
-    {% endif %}
-    {% if end %}
-        <input type="hidden" name="end" id="end" value="{{ end }}" />
-        {{ end }}
-    {% endif %}
-    {% if videos %}
-
-        <ul>
-        {% csrf_token %}
-        {% for video in videos %}
-
-            <li><input type="hidden" name="file{{ forloop.counter }}" id="file{{ forloop.counter }}" value="{{ video.filename }}" />
-                <a href="show/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}}
-                <a href="delete-video/{{video.filename}}">Delete</a></li>
-        {% endfor %}
-    {% else %}
-        <p>No file.</p>
-    {% endif %}
-
-    </ul>
-    </li>
-    {% if message %}
-        {{ message }}
-    {% endif %}
-    {% if form %}
-     {% csrf_token %}
-    <p>{{ form.non_field_errors }}</p>
-    <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
-    <p>{{ form.group_name.errors }}
-       {{ form.group_name }}</p>
-    {% endif %}
-
-     <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
-        Create Group
-    </button>
-    </form>
-        </ul>
-
         <ul>
             <li><a href="/operations/">Go to config list</a></li>
             <li><a href="/upload/">Go to Upload file</a></li>
@@ -76,13 +94,41 @@
             <li><a href="/status/">Go to status of all the file process list</li>
             <li><a href="/">Go back to file list</a></li>
         </ul>
+    </div>
     {% endblock %}
     <script type="text/javascript">
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+
+        if(dd<10) {
+            dd='0'+dd;
+        }
+
+        if(mm<10) {
+            mm='0'+ mm;
+        }
+        var lm = mm - 1
+        if (lm == 0){
+            mm = 12;
+        }
+        if (lm < 10) {
+            lm = '0' + lm;
+        }
+
+
+        today = yyyy+'/'+mm+'/'+dd;
+        today = today + " 00:00";
+        lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
+
+
+
         jQuery(function(){
             jQuery('#datetimepicker').datetimepicker();
-            jQuery('#datetimepicker').datetimepicker({value:'2016/06/16 12:56'});
+            jQuery('#datetimepicker').datetimepicker({value:lastyear});
             jQuery('#datetimepicker2').datetimepicker();
-            jQuery('#datetimepicker2').datetimepicker({value:'2016/06/16 04:06'});
+            jQuery('#datetimepicker2').datetimepicker({value:today});
         });
         </script>
 <link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
