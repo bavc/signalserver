@@ -5,9 +5,10 @@
 
 {% block body_block %}
         <body>
-        <h2> Processed Result
-        <h2> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
-        <h2> Config Name : {{ config_name }} </h2>
+    <div class ="container-fluid">
+        <h2> Graphs from the processed data</h4>
+        <h4> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
+        <h4> Config Name : {{ config_name }} </h4>
 
         {% if operations %}
 
@@ -26,13 +27,14 @@
                     </div>
                 {% endfor %}
         {% endif %}
+
         <li><a href="/">Go back to file list</a></li>
         <li><a href="/operations/">Go to config list</a></li>
         <li><a href="/search/">Go to file search and group</a></li>
         <li><a href="/save_group/">Go to group list</a></li>
         <li><a href="../group_process/">Go to check the status all group process</a></li>
         <li><a href="/status/">Go to status of all the file process list</li>
-
+    </div>
 <script type="text/javascript" src="/frontend/static/js/linechart.js"></script>
 <script>
 signal_names = [

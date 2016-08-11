@@ -7,6 +7,9 @@ from django.core.urlresolvers import reverse
 from .models import Configuration
 from .models import Operation
 
+from fileuploads.models import Result
+from fileuploads.models import Row
+
 from .forms import ConfigNameForm
 from .forms import ConfigForm
 from .forms import OperationForm
@@ -103,6 +106,10 @@ def rename(request):
         new_name = request.POST['new_name']
         configuration = Configuration.objects.filter(
             configuration_name=old_name)
+        results = Result.objects.filter(config_name=old_name)
+        for result in results:
+            result.config_name = new_name
+            result.save()
         for conf in configuration:
             conf.configuration_name = new_name
             conf.save()
