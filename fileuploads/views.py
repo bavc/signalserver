@@ -175,26 +175,31 @@ def bulk_process(request):
     return HttpResponseRedirect("../status")
 
 
-def search_result(start_field, end_field):
+def search_result(start_field, end_field, keyword):
     start = datetime.strptime(start_field,
                               "%Y/%m/%d %H:%M")
     end = datetime.strptime(end_field,
                             "%Y/%m/%d %H:%M")
-    return Video.objects.filter(upload_time__range=[start, end])
+    results = Video.objects.filter(upload_time__range=[start, end])
+    if keyword is not None:
+        results = results.filter(filename__contains=keyword)
+    return results
 
 
 def search(request):
+    files = Video.objects.all()
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
-        videos = search_result(start_field, end_field)
+        keyword = request.POST['keyword']
+        videos = search_result(start_field, end_field, keyword)
         form = GroupForm()
         return render(request, 'fileuploads/search.html',
                       {'videos': videos, 'form': form, 'start': start_field,
-                       'end': end_field})
-    videos = Video.objects.all()
+                       'end': end_field, 'keyword': keyword, 'files': files})
+
     return render(request, 'fileuploads/search.html',
-                  {'videos': videos})
+                  {'files': files})
 
 
 def save_group(request):
