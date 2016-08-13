@@ -1,36 +1,77 @@
 {% include 'base.html' %}
 {% block body_block %}
+<span>
+    <div class = "container-fluid">
+    <h1>File List, Search and Upload</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="form">
+            {% csrf_token %}
 
+            <h3>File Search</h3>
+        <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
+        <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
 
-        <h1>File Process</h1>
-
-    <!-- List of uploaded files -->
-    {% if videos %}
-
-        <form action="{% url 'fileuploads:bulk_process' %}" method="post" enctype="multipart/form-data">
-        <ul>
-        {% csrf_token %}
-        {% for video in videos %}
-
-            <li><a href="show/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}}
-
-
-
-                <a href="delete-video/{{video.filename}}">Delete</a></li>
-        {% endfor %}
-
-            </li>    {{ form.config_fields.errors }}
-                <label for="id_signal">Config</label>
-                {{ form.config_fields }} </li>
-        </ul>
-             <p><input type="submit" value="Process All" /></p>
-
+        <p>Exact file name or keyword in the filename (case sensitive): </p>
+        <p><input name='keyword' type="text" id="keyword"></p>
+        <button type="search" class="btn btn-primary">
+            Search
+        </button>
         </form>
+        {% if files %}
+            <h3> Search Results </h3>
+                <h4> Search keywords
+                {% if keyword %}
+                   {{ keyword }}
+                {% endif %}
+                </h4>
+                {% if start %}
+                    <h4> Start time : {{ start}}
+                {% endif %}
+                {% if end %}
+                    End time : {{ end }}</h4>
+                {% endif %}
 
-    {% else %}
-        <p>No file.</p>
-    {% endif %}
+                <ul>
+                {% for video in files %}
+                    <li>
+                    {{ video.filename }}
+                    <ul>Uploaded time : {{video.upload_time}}
+                    <a href="delete-video/{{video.filename}}">Delete</a></ul>
+                    </li>
+                {% endfor %}
+                </ul>
+
+
+        {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h3> File upload </h3>
+            <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.videofile.label_tag }} {{ form.videofile.help_text }}</p>
+            <p>
+                {{ form.videofile.errors }}
+                {{ form.videofile }}
+            </p>
+            <p><input type="submit" value="Upload" /></p>
+            </form>
+            <h3>List of of uploaded files </h3>
+            {% if videos %}
+            <ul>
+            {% for video in videos %}
+                <li>{{ video.filename }}
+                Uploaded time{{video.upload_time}}
+                <a href="delete-video/{{video.filename}}">Delete</a></li>
+            {% endfor %}
+            </ul>
+
+            {% else %}
+                <p>No file.</p>
+            {% endif %}
+        </div>
+    </div>
         <ul>
             <li><a href="/upload/">Go to Upload file</a></li>
             <li><a href="/operations/">Go to config list</a></li>
@@ -40,5 +81,45 @@
             <li><a href="/fileuploads/group_process/">Go to result of group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
         </ul>
-
+    </div>
+</span>
 {% endblock %}
+<script type="text/javascript">
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+        var td = tomorrow.getDate();
+        var tm = tomorrow.getMonth()+1;
+
+        if(dd<10) {
+            dd='0'+dd;
+        }
+        if(td<10) {
+            td='0'+td;
+        }
+        if(mm<10) {
+            mm='0'+ mm;
+        }
+        if(tm<10) {
+            tm='0'+ tm;
+        }
+
+
+        endday = yyyy+'/'+tm+'/'+td;
+        endday = endday + " 00:00";
+        lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
+
+
+
+        jQuery(function(){
+            jQuery('#datetimepicker').datetimepicker();
+            jQuery('#datetimepicker').datetimepicker({value:lastyear});
+            jQuery('#datetimepicker2').datetimepicker();
+            jQuery('#datetimepicker2').datetimepicker({value:endday});
+        });
+        </script>
+<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
+<script src="/frontend/bower_components/jquery/jquery.js"></script>
+<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
