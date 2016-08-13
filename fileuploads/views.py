@@ -32,6 +32,7 @@ from celery.result import AsyncResult
 from operations.models import Configuration
 from operations.models import Operation
 from django.http import JsonResponse
+from django.db import IntegrityError
 
 
 def index(request):
@@ -202,6 +203,35 @@ def search(request):
                   {'files': files})
 
 
+def search_group(request):
+    result_groups = []
+    group_name = ''
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        result_groups = Group.objects.filter(group_name__contains=group_name)
+    groups = Group.objects.all()
+    form = ConfigForm()
+    return render(request, 'fileuploads/group.html',
+                  {'groups': groups,
+                   'result_groups': result_groups,
+                   'form': form,
+                   'keyword': group_name})
+
+
+def save_member(group, file_name):
+    video = Video.objects.get(filename=file_name)
+    try:
+        new_member = Member(
+            file_name=file_name,
+            group=group,
+            upload_time=video.upload_time,
+            file_id=video.id
+        )
+        new_member.save()
+    except IntegrityError:
+        pass  # it didn't need to save the dubplicate files
+
+
 def save_group(request):
     if request.method == 'POST':
         group_name = request.POST['group_name']
@@ -234,14 +264,7 @@ def save_group(request):
             while counter < number:
                 if newkey in request.POST:
                     file_name = request.POST[newkey]
-                    video = Video.objects.get(filename=file_name)
-                    new_member = Member(
-                        file_name=file_name,
-                        group=group,
-                        upload_time=video.upload_time,
-                        file_id=video.id
-                    )
-                    new_member.save()
+                    save_member(group, file_name)
                 counter += 1
                 newkey = newkey = "file" + str(counter)
             groups = Group.objects.all()
@@ -253,6 +276,52 @@ def save_group(request):
         form = ConfigForm()
         return render(request, 'fileuploads/group.html',
                       {'groups': groups, 'form': form})
+
+
+def edit_group(request, group_name):
+    group = Group.objects.get(group_name=group_name)
+    files = Video.objects.all()
+    if request.method == 'POST':
+        start_field = request.POST['start_field']
+        end_field = request.POST['end_field']
+        keyword = request.POST['keyword']
+        videos = search_result(start_field, end_field, keyword)[:50]
+        return render(request, 'fileuploads/group_edit.html',
+                      {'videos': videos, 'start': start_field, 'group': group,
+                       'end': end_field, 'keyword': keyword, 'files': files})
+
+    return render(request, 'fileuploads/group_edit.html',
+                  {'group': group, 'files': files})
+
+
+def update_group(request):
+    files = Video.objects.all()
+    group = ''
+    if request.method == 'POST':
+        file_names = []
+        for key, value in request.POST.items():
+            if key == 'group_name':
+                group_name = value
+                group = Group.objects.get(group_name=group_name)
+            elif "file_name" in key:
+                file_names.append(value)
+
+        for file_name in file_names:
+            save_member(group, file_name)
+
+    return render(request, 'fileuploads/group_edit.html',
+                  {'group': group, 'files': files})
+
+
+def remove_file(request, group_name, file_name):
+    group_name = group_name
+    group = Group.objects.get(group_name=group_name)
+    members = Member.objects.filter(group=group)
+    member = members.filter(file_name=file_name)
+    member.delete()
+    files = Video.objects.all()
+    return HttpResponseRedirect(reverse('fileuploads:edit_group',
+                                        args=(group_name,)))
 
 
 def group_result(request):

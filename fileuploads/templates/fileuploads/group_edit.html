@@ -1,0 +1,156 @@
+{% include 'base.html' %}
+<style>
+#div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
+</style>
+{% block body_block %}
+<span>
+    <div class = "container-fluid">
+        <h1>Group Edit, remove and add files</h1>
+        <h4>Edit group based on the file names.</h4>
+        <h4>Drag and drop to the group from the all file list for the file that you want to add. </h4>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% if group %}
+                    <form action="{% url 'fileuploads:update_group' %}" method="post" enctype="multipart/form-data">
+                    <h3> Group Name : {{group.group_name}} </h3>
+                    <h4> Files in this group : <h4>
+                    <p>
+                        {% csrf_token %}
+                        <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
+                        {% for member in group.member_set.all %}
+                            <ul>{{member.file_name}} {{member.upload_time}} <a href="{% url 'fileuploads:remove_file' member.file_name group.group_name %}">remove</a>
+                            </ul>
+                        {% endfor %}
+
+                    <h4> This is the area to drop.</h4>
+                    <div class="container-fluid" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    </div>
+                    <div class="container-fluid">
+                    <button type="submit" value="update group" class="btn btn-primary">Add Files</button>
+                    </div>
+
+                    </form>
+
+
+
+
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <form action="{% url 'fileuploads:edit_group' group.group_name %}" name = "search" method="post" class="form">
+                    {% csrf_token %}
+
+                    <h3>File Search</h3>
+                    <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
+                    <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+
+                    <p>Exact file name or keyword in the filename (case sensitive): </p>
+
+                    <p><input name='keyword' type="text" id="keyword"></p>
+
+                    <button type="search" class="btn btn-primary">
+                        Search
+                    </button>
+
+                </form>
+                {% if videos %}
+                    <h3> Search Results </h3>
+                    <h4> Search keywords
+                    {% if start %}
+                        <h4> Start time : {{ start}}
+                    {% endif %}
+                    {% if end %}
+                        End time : {{ end }}</h4>
+                    {% endif %}
+                    {% if keyword %}
+                        <h4>The filename has a word : {{ keyword }} </h4></br></br>
+                    {% endif %}
+                    <p>The number of Result is limited to 50. If you don't find the file you are
+                        loooking for, please refine the search cliteria. </p>
+                    <ul>
+                    {% for video in videos %}
+                        <div id="drag{{forloop.counter}}" draggable="true" ondragstart="drag(event)" width="336" height="69">
+                        <input type="hidden" name="file_name{{forloop.counter}}" id="file{{forloop.counter}}" value="{{ video.filename }}" />
+                        <ul>{{ video.filename }} Uploaded time : {{video.upload_time}}</ul>
+                        </div>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+
+
+            </div>
+            </div>
+
+
+        <ul>
+            <li><a href="/">Go file list</a></li>
+            <li><a href="/operations/">Go to config list</a></li>
+            <li><a href="/upload/">Go to Upload file</a></li>
+            <li><a href="/save_group/">Go to group list</a></li>
+            <li><a href="/search/">Go to file search and group</a></li>
+            <li><a href="../fileuploads/group_process/">Go to status of group process </a></li>
+            <li><a href="../fileuploads/group_result/">Go to results of group process</a></li>
+            <li><a href="/status/">Go to status of all the file process list</li>
+            <li><a href="/">Go back to file list</a></li>
+        </ul>
+    </div>
+</div>
+</span>
+{% endblock %}
+<script type="text/javascript">
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+
+    if(dd<10) {
+        dd='0'+dd;
+    }
+
+    if(mm<10) {
+        mm='0'+ mm;
+    }
+    var lm = mm - 1
+    if (lm == 0){
+        mm = 12;
+    }
+    if (lm < 10) {
+        lm = '0' + lm;
+    }
+
+
+    today = yyyy+'/'+mm+'/'+dd;
+    today = today + " 00:00";
+    lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
+
+
+
+    jQuery(function(){
+        jQuery('#datetimepicker').datetimepicker();
+        jQuery('#datetimepicker').datetimepicker({value:lastyear});
+        jQuery('#datetimepicker2').datetimepicker();
+        jQuery('#datetimepicker2').datetimepicker({value:today});
+    });
+
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        ev.target.appendChild(document.getElementById(data));
+    }
+
+
+</script>
+<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
+<script src="/frontend/bower_components/jquery/jquery.js"></script>
+<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+

@@ -22,6 +22,9 @@ class Member(models.Model):
     file_id = models.IntegerField(default=0)
     upload_time = models.DateTimeField()
 
+    class Meta:
+        unique_together = ("group", "file_id")
+
 
 class Result(models.Model):
     #video = models.ForeignKey(
