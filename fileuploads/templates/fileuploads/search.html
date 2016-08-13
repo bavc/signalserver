@@ -1,20 +1,16 @@
 {% include 'base.html' %}
 {% block body_block %}
-    <span>
+<span>
     <div class = "container-fluid">
         <h1>File Search and Group Creation</h1>
         <h4>Based on the result of file search, we can create the group in this page.</h4>
 
         <div class="row">
             <div class="col-md-6">
-
-            <div class="container">
-            <div class="row">
-                <div class="col-md-6">
                     <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form">
                     {% csrf_token %}
 
-                    <h3>DateTime Based Search</h3>
+                    <h3>File Search</h3>
                     <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
                     <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
 
@@ -95,6 +91,7 @@
             <li><a href="/">Go back to file list</a></li>
         </ul>
     </div>
+</span>
     {% endblock %}
     <script type="text/javascript">
         var today = new Date();
