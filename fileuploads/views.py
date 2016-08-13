@@ -500,14 +500,22 @@ def upload(request):
     videos = Video.objects.all()
 
     # Render list page with the documents and the form
-    return render(request, 'fileuploads/upload.html',
+    return render(request, 'fileuploads/list.html',
                   {'videos': videos, 'form': form})
 
 
 def list(request):
     # Handle file upload
-    form = ConfigForm()
+    form = VideoForm()
     videos = Video.objects.all()
+    if request.method == 'POST':
+        start_field = request.POST['start_field']
+        end_field = request.POST['end_field']
+        keyword = request.POST['keyword']
+        files = search_result(start_field, end_field, keyword)
+        return render(request, 'fileuploads/list.html',
+                      {'videos': videos, 'form': form, 'start': start_field,
+                       'end': end_field, 'keyword': keyword, 'files': files})
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
