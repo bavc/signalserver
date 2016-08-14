@@ -15,8 +15,8 @@ from .forms import UploadFileForm
 from .models import Video
 from .models import Result
 from .models import Row
-from .models import Group
-from .models import Member
+from groups.models import Group
+from groups.models import Member
 from .forms import VideoForm
 from .forms import ConfigForm
 from .forms import GroupForm
@@ -30,7 +30,9 @@ from .tasks import process_bulk
 from .tasks import process_file
 from celery.result import AsyncResult
 from operations.models import Configuration
+from operations.models import Operation
 from django.http import JsonResponse
+from django.db import IntegrityError
 
 
 def index(request):
@@ -89,246 +91,31 @@ def process(request):
                       {'result': result})
 
 
-def file_process(file_name, config_id, config_name, current_time_str,
-                 current_time, group_name=None):
-    original_name = file_name
-    file_name = get_full_path_file_name(original_name)
-    status = process_file.delay(file_name, config_id,
-                                original_name, current_time_str)
-    result = Result(
-        filename=original_name,
-        config_id=config_id,
-        config_name=config_name,
-        processed_time=current_time,
-        task_id=status.task_id,
-        status=AsyncResult(status.task_id).ready(),
-        group_name=group_name)
-    result.save()
-
-
-def update_results(results):
-    for result in results:
-        if not result.status:
-            task_id = result.task_id
-            work_status = AsyncResult(task_id).ready()
-            result.status = work_status
-            result.save()
-
-
-def group_process(request):
-    if request.method == 'POST':
-        group_name = request.POST['group_name']
-        group = Group.objects.get(group_name=group_name)
-        members = Member.objects.filter(group=group)
-        config_id = request.POST['config_fields']
-        config_name = Configuration.objects.get(
-            id=config_id).configuration_name
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        current_time = datetime.strptime(current_time_str,
-                                         "%Y-%m-%d %H:%M:%S")
-        for member in members:
-            file_process(member.file_name, config_id, config_name,
-                         current_time_str, current_time, group_name)
-
-    groups = Group.objects.all()
-    group_results = {}
-    for group in groups:
-        members = Member.objects.filter(group=group)
-        for member in members:
-            temp = Result.objects.filter(group_name=group.group_name)
-            results = temp.filter(filename=member.file_name)
-            update_results(results)
-            for result in results:
-                pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-                key = result.group_name + "-" + pro_time
-                if key in group_results:
-                    entry = group_results[key]
-                    entry.append(result)
-                    group_results[key] = entry
-                else:
-                    group_results[key] = [result]
-
-    not_completed = []
-    for key, values in group_results.items():
-        for value in values:
-            if not value.status:
-                not_completed.append(key)
-
-    return render(request, 'fileuploads/group_process.html',
-                  {'group_results': group_results,
-                   'not_completed': not_completed})
-
-
-def bulk_process(request):
-    if request.method == 'POST':
-        videos = Video.objects.all()
-        config_id = request.POST['config_fields']
-        config_name = Configuration.objects.get(
-            id=config_id).configuration_name
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        current_time = datetime.strptime(current_time_str,
-                                         "%Y-%m-%d %H:%M:%S")
-        for v in videos:
-            file_process(v.filename, config_id, config_name,
-                         current_time_str, current_time)
-    return HttpResponseRedirect("../status")
-
-
-def search_result(start_field, end_field):
+def search_result(start_field, end_field, keyword):
     start = datetime.strptime(start_field,
                               "%Y/%m/%d %H:%M")
     end = datetime.strptime(end_field,
                             "%Y/%m/%d %H:%M")
-    return Video.objects.filter(upload_time__range=[start, end])
+    results = Video.objects.filter(upload_time__range=[start, end])
+    if keyword is not None:
+        results = results.filter(filename__contains=keyword)
+    return results
 
 
 def search(request):
+    files = Video.objects.all()
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
-        videos = search_result(start_field, end_field)
+        keyword = request.POST['keyword']
+        videos = search_result(start_field, end_field, keyword)
         form = GroupForm()
         return render(request, 'fileuploads/search.html',
                       {'videos': videos, 'form': form, 'start': start_field,
-                       'end': end_field})
-    videos = Video.objects.all()
+                       'end': end_field, 'keyword': keyword, 'files': files})
+
     return render(request, 'fileuploads/search.html',
-                  {'videos': videos})
-
-
-def save_group(request):
-    if request.method == 'POST':
-        group_name = request.POST['group_name']
-        count = Group.objects.filter(group_name=group_name).count()
-        if count > 0:
-            form = GroupForm()
-            message = "the name " + group_name +  \
-                      " is taken, please select differnt name"
-            start_field = request.POST['start']
-            end_field = request.POST['end']
-            videos = search_result(start_field, end_field)
-            return render(request, 'fileuploads/search.html',
-                          {'videos': videos, 'form': form,
-                           'start': start_field,
-                           'end': end_field,
-                           'message': message
-                           })
-        else:
-            new_group = Group(
-                group_name=group_name
-            )
-            new_group.save()
-            group = Group.objects.get(group_name=group_name)
-            #length of request you don't need group_name, token, start and end
-            number = len(request.POST) - 4
-            counter = 1
-            newkey = "file" + str(counter)
-            while counter < number:
-                if newkey in request.POST:
-                    file_name = request.POST[newkey]
-                    video = Video.objects.get(filename=file_name)
-                    new_member = Member(
-                        file_name=file_name,
-                        group=group,
-                        upload_time=video.upload_time,
-                        file_id=video.id
-                    )
-                    new_member.save()
-                counter += 1
-                newkey = newkey = "file" + str(counter)
-            groups = Group.objects.all()
-            form = ConfigForm()
-            return render(request, 'fileuploads/group.html',
-                          {'groups': groups, 'group': group, 'form': form})
-    else:
-        groups = Group.objects.all()
-        form = ConfigForm()
-        return render(request, 'fileuploads/group.html',
-                      {'groups': groups, 'form': form})
-
-
-def group_result(request):
-    groups = Group.objects.all()
-    group_results = {}
-    for group in groups:
-        members = Member.objects.filter(group=group)
-        for member in members:
-            temp = Result.objects.filter(group_name=group.group_name)
-            results = temp.filter(filename=member.file_name)
-            for result in results:
-                pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-                key = result.group_name + "-" + pro_time
-                if key in group_results:
-                    entry = group_results[key]
-                    entry.append(result)
-                    group_results[key] = entry
-                else:
-                    group_results[key] = [result]
-
-    return render(request, 'fileuploads/group_result.html',
-                  {'group_results': group_results})
-
-
-def result_graph(request):
-    signal_names = []
-    values = []
-    group_name = ''
-    processed_time = ''
-    config_name = ''
-    results = []
-    if request.method == 'POST':
-        group_name = request.POST['group_name']
-        processed_time = request.POST['processed_time']
-
-        processed_time_object = datetime.strptime(processed_time,
-                                                  "%Y-%m-%d %H:%M:%S")
-        processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
-
-        temp = Result.objects.filter(group_name=group_name)
-        results = temp.filter(processed_time=processed_time_object)
-
-        for result in results:
-            rows = Row.objects.filter(result=result)
-            for row in rows:
-                signal_data = {
-                    "filename": result.filename,
-                    "average": row.result_number
-                }
-                if row.signal_name not in signal_names:
-                    signal_names.append(row.signal_name)
-            config_name = result.config_name
-
-    return render(request, 'fileuploads/result_graph.html',
-                  {'group_name': group_name,
-                   'processed_time': processed_time,
-                   'signal_names': signal_names,
-                   'config_name': config_name})
-
-
-def get_graph_data(request):
-    group_name = request.GET['group_name']
-    processed_time = request.GET['processed_time']
-    signal_name = request.GET['signal_name']
-
-    data = []
-
-    processed_time_object = datetime.strptime(processed_time,
-                                              "%Y-%m-%d %H:%M:%S")
-    processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
-
-    temp = Result.objects.filter(group_name=group_name)
-    results = temp.filter(processed_time=processed_time_object)
-
-    for result in results:
-        temprows = Row.objects.filter(result=result)
-        rows = temprows.filter(signal_name=signal_name)
-        for row in rows:
-            signal_data = {
-                "filename": result.filename,
-                "average": row.result_number
-            }
-            data.append(signal_data)
-    return JsonResponse(data, safe=False)
+                  {'files': files})
 
 
 def status(request):
@@ -399,14 +186,22 @@ def upload(request):
     videos = Video.objects.all()
 
     # Render list page with the documents and the form
-    return render(request, 'fileuploads/upload.html',
+    return render(request, 'fileuploads/list.html',
                   {'videos': videos, 'form': form})
 
 
 def list(request):
     # Handle file upload
-    form = ConfigForm()
+    form = VideoForm()
     videos = Video.objects.all()
+    if request.method == 'POST':
+        start_field = request.POST['start_field']
+        end_field = request.POST['end_field']
+        keyword = request.POST['keyword']
+        files = search_result(start_field, end_field, keyword)
+        return render(request, 'fileuploads/list.html',
+                      {'videos': videos, 'form': form, 'start': start_field,
+                       'end': end_field, 'keyword': keyword, 'files': files})
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',

@@ -1,0 +1,40 @@
+{% include 'base.html' %}
+{% block body_block %}
+    <div class="container-fluid">
+        <h2>Group Process Status </h2>
+        {% if group_results %}
+            <h3> In Progress </h3>
+            {% for key, values in  group_results.items %}
+                {% if key in not_completed %}
+                    <li>{{ key }} Config: {{values.0.config_name}}</li>
+
+
+                {% endif %}
+            {% endfor %}
+            <h3> Completed </h3>
+             {% for key, values in  group_results.items %}
+                {% if key not in not_completed %}
+                        <li>{{ key }} Config: {{values.0.config_name}}</li>
+                        <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
+                            <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
+                            <p><input type="submit" value="Show the result Graph of this group" /></p>
+                        </form>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+
+
+            </br>
+            </br>
+            </br>
+            <li><a href="/">Go back to file list</a></li>
+            <li><a href="/operations/">Go to config list</a></li>
+            <li><a href="/search/">Go to file search and group</a></li>
+            <li><a href="/save_group/">Go to group list</a></li>
+            <li><a href="../group_result/">Go to results of all group process</a></li>
+            <li><a href="/status/">Go to status of all the file process list</li>
+
+{% endblock %}

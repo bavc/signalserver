@@ -7,6 +7,9 @@ from django.core.urlresolvers import reverse
 from .models import Configuration
 from .models import Operation
 
+from fileuploads.models import Result
+from fileuploads.models import Row
+
 from .forms import ConfigNameForm
 from .forms import ConfigForm
 from .forms import OperationForm
@@ -35,9 +38,11 @@ def index(request):
             return HttpResponseRedirect(
                 reverse('operations:index'))
 
-    else:
-        form = ConfigForm()  # A empty, unbound form
+    return render_index(request)
 
+
+def render_index(request):
+    form = ConfigForm()  # A empty, unbound form
     # Load documents for the list page
     configurations = Configuration.objects.order_by('display_order')
 
@@ -93,6 +98,23 @@ def show(request, config_name):
     return render(request, 'operations/show.html',
                   {'configuration': configuration,
                    'form': form, 'operation': operation})
+
+
+def rename(request):
+    if request.method == 'POST':
+        old_name = request.POST['old_name']
+        new_name = request.POST['new_name']
+        configuration = Configuration.objects.filter(
+            configuration_name=old_name)
+        results = Result.objects.filter(config_name=old_name)
+        for result in results:
+            result.config_name = new_name
+            result.save()
+        for conf in configuration:
+            conf.configuration_name = new_name
+            conf.save()
+
+    return HttpResponseRedirect(reverse('operations:index'))
 
 
 def results(request, configuration_id):

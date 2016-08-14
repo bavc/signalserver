@@ -83,8 +83,10 @@ def process_file(file_name, config_id, original_name, processed_time_str):
                 if key in specialdict and float(value) > valuedict[key]:
                     specialdict[key] += 1
                 if key in highdict:
+                    value = elem.get("value")
                     yhigh = float(value)
                 if key in lowdict:
+                    value = elem.get("value")
                     ylow = float(value)
                     diff = abs(yhigh - ylow)
                     datadict[new_key] += diff
@@ -100,19 +102,28 @@ def process_file(file_name, config_id, original_name, processed_time_str):
     for k in datadict.keys():
         v = datadict[k]
         ave = v/count
-        new_row = Row(
-            result=result,
-            signal_name=k,
-            result_number=ave,
-            op_name='average'
-        )
+        if "-" in k:
+            new_row = Row(
+                result=result,
+                signal_name=k,
+                result_number=ave,
+                op_name='average_difference'
+            )
+        else:
+            new_row = Row(
+                result=result,
+                signal_name=k,
+                result_number=ave,
+                op_name='average'
+            )
         new_row.save()
     for k, v in specialdict.items():
         new_row = Row(
             result=result,
             signal_name=k,
             result_number=v,
-            op_name='exceeded (out of {0} frames)'.format(count),
+            op_name='exceeded',
+            frame_number=count,
             cut_off_number=valuedict[k]
         )
         new_row.save()
