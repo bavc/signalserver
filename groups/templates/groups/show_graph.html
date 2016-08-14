@@ -1,0 +1,80 @@
+{% include 'base.html' %}
+<script type="text/javascript" src="/frontend/bower_components/d3/d3.min.js"></script>
+{% block content %}
+<span>
+    <div class ="container-fluid">
+        <h1> Graphs from Lastest Results</h1>
+
+        <div class="row">
+            <h4> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
+            <h4> Config Name : {{ config_name }} </h4>
+            <div class="col-md-6">
+            {% if operations %}
+                {% for operation in operations %}
+                    <div class="container">
+                        <h4> Signal Name : {{ operation.signal_name }} Second Signal Name : {{ operation.second_signal_name }}
+                        <h4> Operation: {{ operation.op_name }} </h4>
+
+
+                        {% if operation.cut_off_number %}
+                        <h4> The value exceeds {{ operation.cut_off_number }}. </h3>
+                        <h4> The graph value is percentage, the number that exceeds the cut of number devided by total number of frames </h4>
+                        {% endif %}
+
+                        <div id="chart{{ forloop.counter }}"></div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            </div>
+
+            <div class="col-md-6">
+            {% if operations %}
+                {% for operation in operations %}
+                    <div class="container">
+                        <h4> Signal Name : {{ operation.signal_name }} Second Signal Name : {{ operation.second_signal_name }}
+                             Operation: {{ operation.op_name }}
+                        </h4>
+
+                        {% if operation.cut_off_number %}
+                        <h4> The value exceeds {{ operation.cut_off_number }}. </h3>
+                        <h4> The graph value is percentage, the number that exceeds the cut of number devided by total number of frames </h4>
+                        {% endif %}
+
+                        <div id="chart{{ forloop.counter }}"></div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            </div>
+        </div>
+
+    </div>
+</span>
+<script type="text/javascript" src="/frontend/static/js/linechart.js"></script>
+<script>
+signal_names = [
+{% for name in signal_names %}
+    "{{name}}"{% if not forloop.last %}, {% endif %}
+{% endfor %}
+];
+op_names = [
+{% for op_name in op_names %}
+    "{{op_name}}"{% if not forloop.last %}, {% endif %}
+{% endfor %}
+];
+
+function graph_for_signal(name, op_name, idx) {
+    d3.json("{% url 'groups:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name,
+        function(error, data) {
+            createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
+        }
+    );
+}
+
+for (i = 0; i < signal_names.length; i++) {
+    graph_for_signal(signal_names[i], op_names[i], i + 1);
+}
+
+</script>
+{% endblock %}
+
+
