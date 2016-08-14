@@ -15,7 +15,7 @@
              {% for key, values in  group_results.items %}
                 {% if key not in not_completed %}
                         <li>{{ key }} Config: {{values.0.config_name}}</li>
-                        <form action="{% url 'fileuploads:result_graph' %}" method="post" enctype="multipart/form-data">
+                        <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
                             <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />

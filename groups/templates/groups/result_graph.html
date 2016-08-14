@@ -49,7 +49,7 @@ op_names = [
 ];
 
 function graph_for_signal(name, op_name, idx) {
-    d3.json("{% url 'fileuploads:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name,
+    d3.json("{% url 'groups:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name,
         function(error, data) {
             createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
         }

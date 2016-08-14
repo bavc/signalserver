@@ -1,5 +1,7 @@
-{% include 'base.html' %}
-{% block body_block %}
+{% extends 'base.html' %}
+{% block content %}
+
+
 <span>
     <div class = "container-fluid">
     <h1>File List, Search and Upload</h1>
@@ -72,54 +74,8 @@
             {% endif %}
         </div>
     </div>
-        <ul>
-            <li><a href="/upload/">Go to Upload file</a></li>
-            <li><a href="/operations/">Go to config list</a></li>
-            <li><a href="/search/">Go to file search and Create group</a></li>
-            <li><a href="/save_group/">Go to list of group and submit process</a></li>
-            <li><a href="/fileuploads/group_process/">Go to group process status</a></li>
-            <li><a href="/fileuploads/group_process/">Go to result of group process</a></li>
-            <li><a href="/status/">Go to status of all the file process list</li>
-        </ul>
     </div>
 </span>
+
 {% endblock %}
-<script type="text/javascript">
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-        var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-        var td = tomorrow.getDate();
-        var tm = tomorrow.getMonth()+1;
 
-        if(dd<10) {
-            dd='0'+dd;
-        }
-        if(td<10) {
-            td='0'+td;
-        }
-        if(mm<10) {
-            mm='0'+ mm;
-        }
-        if(tm<10) {
-            tm='0'+ tm;
-        }
-
-
-        endday = yyyy+'/'+tm+'/'+td;
-        endday = endday + " 00:00";
-        lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
-
-
-
-        jQuery(function(){
-            jQuery('#datetimepicker').datetimepicker();
-            jQuery('#datetimepicker').datetimepicker({value:lastyear});
-            jQuery('#datetimepicker2').datetimepicker();
-            jQuery('#datetimepicker2').datetimepicker({value:endday});
-        });
-        </script>
-<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
-<script src="/frontend/bower_components/jquery/jquery.js"></script>
-<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
