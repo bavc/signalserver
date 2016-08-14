@@ -292,7 +292,49 @@ def result_graph(request):
 
 
 def show_graphs(request):
-    return HttpResponse("You're looking at question")
+    signal_names = []
+    op_names = []
+    values = []
+    processed_time = ''
+    config_name = ''
+    results = []
+    operations = []
+
+    result = Result.objects.order_by('-processed_time').first()
+    group_name = result.group_name
+    pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
+    processed_time_object = datetime.strptime(pro_time,
+                                              "%Y-%m-%d %H:%M:%S")
+    processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
+
+    temp = Result.objects.filter(group_name=group_name)
+    results = temp.filter(processed_time=processed_time_object)
+
+    for result in results:
+        config_name = result.config_name
+        configuration = Configuration.objects.filter(
+            configuration_name=config_name)
+        operations = Operation.objects.filter(
+            configuration=configuration).order_by('display_order')
+        for operation in operations:
+            op_names.append(operation.op_name)
+            signal_name = operation.signal_name
+            if operation.op_name == 'exceeds':
+                temprows = Row.objects.filter(result=result)
+                rows = temprows.filter(op_name='exceeded')
+            if operation.op_name == 'average_difference':
+                signal_name = operation.signal_name + "-" +  \
+                    operation.second_signal_name
+            signal_names.append(signal_name)
+
+    return render(request, 'groups/show_graph.html',
+                  {'group_name': group_name,
+                   'processed_time': pro_time,
+                   'signal_names': signal_names,
+                   'config_name': config_name,
+                   'operations': operations,
+                   'op_names': op_names
+                   })
 
 
 def get_graph_data(request):

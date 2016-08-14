@@ -91,47 +91,6 @@ def process(request):
                       {'result': result})
 
 
-def file_process(file_name, config_id, config_name, current_time_str,
-                 current_time, group_name=None):
-    original_name = file_name
-    file_name = get_full_path_file_name(original_name)
-    status = process_file.delay(file_name, config_id,
-                                original_name, current_time_str)
-    result = Result(
-        filename=original_name,
-        config_id=config_id,
-        config_name=config_name,
-        processed_time=current_time,
-        task_id=status.task_id,
-        status=AsyncResult(status.task_id).ready(),
-        group_name=group_name)
-    result.save()
-
-
-def update_results(results):
-    for result in results:
-        if not result.status:
-            task_id = result.task_id
-            work_status = AsyncResult(task_id).ready()
-            result.status = work_status
-            result.save()
-
-
-def bulk_process(request):
-    if request.method == 'POST':
-        videos = Video.objects.all()
-        config_id = request.POST['config_fields']
-        config_name = Configuration.objects.get(
-            id=config_id).configuration_name
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        current_time = datetime.strptime(current_time_str,
-                                         "%Y-%m-%d %H:%M:%S")
-        for v in videos:
-            file_process(v.filename, config_id, config_name,
-                         current_time_str, current_time)
-    return HttpResponseRedirect("../status")
-
-
 def search_result(start_field, end_field, keyword):
     start = datetime.strptime(start_field,
                               "%Y/%m/%d %H:%M")
