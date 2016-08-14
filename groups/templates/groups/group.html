@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-md-4">
                 {% if group %}
-                    <form action="{% url 'fileuploads:group_process' %}" method="post" enctype="multipart/form-data">
+                    <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     <h3> {{group.group_name}} is saved.</h3>
                     <p> Files in this group :
                         {% csrf_token %}
@@ -25,7 +25,7 @@
                     <button type="button" class="btn btn-primary btn-sm">Process</button>
                     </form>
                 {% endif %}
-                <form action="{% url 'fileuploads:search_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+                <form action="{% url 'groups:search_group' %}" name="group_name" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <h3>Name Based Search</h3>
                 <p>Please enter the name of group or keyword (case sensitive).</p>
@@ -39,7 +39,7 @@
                     <h3> Search Result</h3>
                     <h4> Search keyword : {{keyword}}</h4>
                     {% for group in result_groups %}
-                    <form action="{% url 'fileuploads:group_process' %}" method="post" enctype="multipart/form-data">
+                    <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     <h3> Group Name: {{group.group_name}} </h3>
                     <p> Files in this group :
                         {% csrf_token %}
@@ -63,10 +63,10 @@
                 <ul>
                 {% for group in groups %}
                     <li>
-                    <form action="{% url 'fileuploads:group_process' %}" method="post" enctype="multipart/form-data">
+                    <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
-                    <h4>Group name: {{ group.group_name }}<a href="../fileuploads/edit_group/{{group.group_name}}"> Edit </a></h4>
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a></h4>
                     <ul>Creation time: {{group.creation_time}}
                     {{ form.config_fields.errors }}
                     <label for="id_signal">Config</label>
@@ -88,8 +88,8 @@
             <li><a href="/upload/">Go to Upload file</a></li>
             <li><a href="/save_group/">Go to group list</a></li>
             <li><a href="/search/">Go to file search and group</a></li>
-            <li><a href="../fileuploads/group_process/">Go to status of group process </a></li>
-            <li><a href="../fileuploads/group_result/">Go to results of group process</a></li>
+            <li><a href="../group_process/">Go to status of group process </a></li>
+            <li><a href="../group_result/">Go to results of group process</a></li>
             <li><a href="/status/">Go to status of all the file process list</li>
             <li><a href="/">Go back to file list</a></li>
         </ul>

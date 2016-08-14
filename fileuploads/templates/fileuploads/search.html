@@ -1,5 +1,5 @@
 {% include 'base.html' %}
-{% block body_block %}
+{% block content %}
 <span>
     <div class = "container-fluid">
         <h1>File Search and Group Creation</h1>
@@ -22,7 +22,7 @@
                     </form>
                     {% if videos %}
                         <h3> Search Results </h3>
-                            <form action="{% url 'fileuploads:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+                            <form action="{% url 'groups:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
                             <h4> Search keywords </h4>
                             {% if start %}
                                 <input type="hidden" name="start" id="start" value="{{ start }}" />
@@ -78,56 +78,6 @@
 
             </div>
         </div>
-        <ul>
-            <li><a href="/operations/">Go to config list</a></li>
-            <li><a href="/upload/">Go to Upload file</a></li>
-            <li><a href="/operations/">Go to config list</a></li>
-            <li><a href="/upload/">Go to Upload file</a></li>
-            <li><a href="/search/">Go to file search and group</a></li>
-            <li><a href="/save_group/">Go to list of group and submit process</a></li>
-            <li><a href="/fileuploads/group_process/">Go to status group process </a></li>
-            <li><a href="/fileuploads/group_result/">Go to results of group process</a></li>
-            <li><a href="/status/">Go to status of all the file process list</li>
-            <li><a href="/">Go back to file list</a></li>
-        </ul>
     </div>
 </span>
-    {% endblock %}
-    <script type="text/javascript">
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-
-        if(dd<10) {
-            dd='0'+dd;
-        }
-
-        if(mm<10) {
-            mm='0'+ mm;
-        }
-        var lm = mm - 1
-        if (lm == 0){
-            mm = 12;
-        }
-        if (lm < 10) {
-            lm = '0' + lm;
-        }
-
-
-        today = yyyy+'/'+mm+'/'+dd;
-        today = today + " 00:00";
-        lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
-
-
-
-        jQuery(function(){
-            jQuery('#datetimepicker').datetimepicker();
-            jQuery('#datetimepicker').datetimepicker({value:lastyear});
-            jQuery('#datetimepicker2').datetimepicker();
-            jQuery('#datetimepicker2').datetimepicker({value:today});
-        });
-        </script>
-<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
-<script src="/frontend/bower_components/jquery/jquery.js"></script>
-<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+{% endblock %}
