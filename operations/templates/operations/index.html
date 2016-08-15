@@ -1,53 +1,58 @@
 {% include 'base.html' %}
 {% block body_block %}
-
-        <h1>List of Configurations</h1>
-
-    <!-- List of already created configurations -->
-    {% if configurations %}
-        <ul>
-        {% for config in configurations %}
-
-            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}
-           </a>
-                Createtion time  {{config.creation_time}}
-                <a href="delete-config/{{config.configuration_name}}">Delete</a>
-                <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
-        <div id="rename_form{{ forloop.counter }}">
-           <form id="form_rename" action="{% url 'operations:rename' %}" name = "rename" method="post" class="form">
-            {% csrf_token %}
-            <input name='old_name' type="hidden" value="{{ config.configuration_name }}">
-            <input name='new_name' type="text" default="{{ config.configuration_name }}">
-            <button type="search" class="btn btn-primary">
-                Rename
-            </button></li>
-            </form>
+<span>
+    <div class = "container-fluid">
+        <h1>Configurations</h1>
+        <h4>List of configuration and create the new configuration.</h4>
+        <div class="row">
+            <div class="col-md-6">
+                    <h3> All configurations </h3>
+                    <!-- List of already created configurations -->
+                    {% if configurations %}
+                        <ul>
+                        {% for config in configurations %}
+                            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}
+                           </a>
+                                Createtion time  {{config.creation_time}}
+                                <a href="delete-config/{{config.configuration_name}}">Delete</a>
+                                <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></li>
+                        <div id="rename_form{{ forloop.counter }}">
+                           <form id="form_rename" action="{% url 'operations:rename' %}" name = "rename" method="post" class="form">
+                            {% csrf_token %}
+                            <input name='old_name' type="hidden" value="{{ config.configuration_name }}">
+                            <input name='new_name' type="text" default="{{ config.configuration_name }}">
+                            <button type="search" class="btn btn-primary">
+                                Rename
+                            </button>
+                          </form>
+                        </div>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No Configuration is set.</p>
+                    {% endif %}
+            </div>
+            <div class="col-md-6">
+                 <h3> Create new configurations </h3>
+                <form action="{% url 'operations:index' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p>{{ form.non_field_errors }}</p>
+                    <p>{{ form.config_name.label_tag }} {{ form.config_name.help_text }}</p>
+                    <p>
+                        {{ form.config_name.errors }}
+                        {{ form.config_name }}
+                    </p>
+                     <p>{{ form.non_field_errors }}</p>
+                    <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
+                    <p>
+                        {{ form.display_order.errors }}
+                        {{ form.display_order }}
+                    </p>
+                    <p><input type="submit" value="Create" /></p>
+                </form>
+            </div>
         </div>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No Configuration is set.</p>
-    {% endif %}
-        <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url 'operations:index' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p>{{ form.non_field_errors }}</p>
-            <p>{{ form.config_name.label_tag }} {{ form.config_name.help_text }}</p>
-            <p>
-                {{ form.config_name.errors }}
-                {{ form.config_name }}
-            </p>
-             <p>{{ form.non_field_errors }}</p>
-            <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
-            <p>
-                {{ form.display_order.errors }}
-                {{ form.display_order }}
-            </p>
-            <p><input type="submit" value="Create" /></p>
-        </form>
-        <ul>
-            <li><a href="/">Go back to file list</a></li>
-        </ul>
+    </div>
 
 {% endblock %}
     <script>
