@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>SignalServer</title>
+        {% load staticfiles %}
+        <script type="text/javascript" src="/frontend/bower_components/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="/frontend/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="/frontend/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    </head>
+    <body>
+       <div class="page-header">
+        <h1>  Signal Server  <small> Video Signal Data Anomaly Detection Tool</small></h1>
+        </div>
+    <nav class="navbar navbar-default">
+    <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Home</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/fileuploads/list">Files :) <span class="sr-only">(current)</span></a></li>
+        <li><a href="/operations">Configuration</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Group <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/fileuploads/search/">Create Group</a></li>
+            <li><a href="/groups/save_group/">Submit Process by Group</a></li>
+            <li><a href="/groups/group_process">Group Process Status </a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Result Graph</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">About</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+        <div id="content">
+
+        {% block content %}
+        {% endblock %}
+      </div>
+</body>
+<script type="text/javascript">
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+        var td = tomorrow.getDate();
+        var tm = tomorrow.getMonth()+1;
+
+        if(dd<10) {
+            dd='0'+dd;
+        }
+        if(td<10) {
+            td='0'+td;
+        }
+        if(mm<10) {
+            mm='0'+ mm;
+        }
+        if(tm<10) {
+            tm='0'+ tm;
+        }
+
+
+        endday = yyyy+'/'+tm+'/'+td;
+        endday = endday + " 00:00";
+        lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
+
+
+
+        jQuery(function(){
+            jQuery('#datetimepicker').datetimepicker();
+            jQuery('#datetimepicker').datetimepicker({value:lastyear});
+            jQuery('#datetimepicker2').datetimepicker();
+            jQuery('#datetimepicker2').datetimepicker({value:endday});
+        });
+        </script>
+<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
+<script src="/frontend/bower_components/jquery/jquery.js"></script>
+<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+</html>
+
