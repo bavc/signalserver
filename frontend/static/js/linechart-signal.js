@@ -65,7 +65,7 @@ function createLineGraph(data, chartId, svgId) {
 
     var myGroup = d3.select(chartId).append('svg')
       .attr('id',svgId)
-      .style('background', '#E7E0CB')
+      .style('background', '#F7F5EF')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
