@@ -1,0 +1,25 @@
+{% include 'base.html' %}
+{% block body_block %}
+
+
+
+<div class="container">
+    <h2>Frame Base Signal Data</h2>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% for output in outputs %}
+    <div class="container-fluid">
+        <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
+        <ul><h4>{{ output.file_name }}</h4></ul>
+
+            <ul> {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+             {% csrf_token %}
+             <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
+            </ul>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

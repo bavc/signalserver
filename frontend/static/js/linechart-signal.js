@@ -34,18 +34,23 @@ function createLineGraph(data, chartId, svgId) {
     var margin = {top:30, right:30, bottom:150, left:50}
 
     var height = 500 - margin.top - margin.bottom,
-      width = 600 - margin.left - margin.right;
+      width = window.innerWidth - margin.left - margin.right;
 
     var tempColor;
 
-    var circleWidth = 5;
+    var circleWidth = 1;
 
-    var maxValue = 1.2 * d3.max(averagedata)
+    var maxValue = 1.2 * d3.max(averagedata);
+    var minValue = 0
+    if (d3.min(averagedata) > 0)
+      minValue = 0.8 * d3.min(averagedata);
+    else
+      minValue = 1.2 * d3.min(averagedata);
 
     var xOffset = (width/(averagedata.length + 1))/2
 
     var yScale = d3.scale.linear()
-      .domain([0, maxValue])
+      .domain([minValue, maxValue])
       .range([0,height], .2);
 
     var xScale = d3.scale.ordinal()
@@ -60,7 +65,7 @@ function createLineGraph(data, chartId, svgId) {
 
     var myGroup = d3.select(chartId).append('svg')
       .attr('id',svgId)
-      .style('background', '#E7E0CB')
+      .style('background', '#F7F5EF')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
@@ -76,7 +81,7 @@ function createLineGraph(data, chartId, svgId) {
           .attr('cx', function(d, i) { return i * width/averagedata.length + xOffset; })
           .attr('cy', function(d) { return height-yScale(d); })
           .attr('r', circleWidth )
-          .attr('fill', palette.pink)
+          .attr('fill', palette.darkblue)
 
       .on('mouseover', function(d) {
 
@@ -101,7 +106,7 @@ function createLineGraph(data, chartId, svgId) {
 
 
     var vGuideScale = d3.scale.linear()
-      .domain([0, maxValue])
+      .domain([minValue, maxValue])
       .range([height,0]);
 
     var vAxis = d3.svg.axis()
@@ -120,12 +125,23 @@ function createLineGraph(data, chartId, svgId) {
     var hAxis = d3.svg.axis()
       .scale(xScale)
       .orient('bottom')
+      .tickValues(function(d,i){
+        var values = [0];
+        var distance = 20;
+        var value = distance;
+        while (value < filenames.length){
+          values.push(value)
+          value += 20;
+        }
+        return values;
+      })
       .tickFormat(function(d,i){
           name = filenames[i];
           if (name.length > 20)
             return name.slice(0, 17) + '...';
           return name;
       });
+
 
     var hGuide = d3.select('svg#'+svgId).append('g')
       hAxis(hGuide)
@@ -138,11 +154,13 @@ function createLineGraph(data, chartId, svgId) {
           .style({ stroke: "#000"});
 
 
+
       hGuide.selectAll("text")
-              .style("text-anchor", "end")
-              .attr("dx", "-.8em")
-              .attr("dy", ".15em")
+              .style("text-anchor", 'end')
+              .attr("dx", "-.02em")
+              .attr("dy", ".05em")
               .attr("transform", "rotate(-65)" )
+
 
     var lineGen = d3.svg.line()
     .x(function(d, i) {
