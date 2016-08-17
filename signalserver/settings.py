@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'fileuploads.apps.FileuploadsConfig',
     'groups.apps.GroupsConfig',
     'operations.apps.OperationsConfig',
+    'signals.apps.SignalsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
