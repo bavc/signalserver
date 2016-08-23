@@ -12,6 +12,8 @@ from signalserver.celery import app as celery
 from .models import Video
 from operations.models import Configuration
 from operations.models import Operation
+from signals.models import Output
+from signals.models import Signal
 from .models import Result
 from .models import Row
 from celery import shared_task
@@ -40,6 +42,71 @@ def process_bulk(file_names, config_id, original_names):
                                     original_name).ready()
         results.append(result)
     return results
+
+
+@celery.task
+def process_signal(file_name, signal_name, original_name, processed_time_str):
+    count = 0
+    datadict = {}
+    timedict = {}
+    timestdict = {}
+    outputs = []
+    datadict[signal_name] = []
+    timedict[signal_name] = []
+
+    f_time = ''
+    tstamp = 0
+
+    for event, elem in ET.iterparse(file_name,
+                                    events=('start',
+                                            'end')):
+        if event == 'start':
+            if elem.tag == 'frame':
+                count += 1
+                f_time = elem.attrib.get('pkt_dts_time')
+                if f_time is not None:
+                    tstamp = float(f_time)
+
+        if event == 'end':
+            key = elem.get("key")
+            if key is not None:
+                if key in datadict:
+                    value = elem.get("value")
+                    datadict[key].append(float(value))
+                    timedict[key].append(tstamp)
+            elem.clear()
+
+    file_name = original_name + ".xml"
+
+    processed_time = datetime.strptime(processed_time_str,
+                                       "%Y-%m-%d %H:%M:%S")
+
+    output = Output.objects.get(file_name=original_name,
+                                processed_time=processed_time,
+                                signal_name=signal_name)
+
+    for k, v in datadict.items():
+        index = 0
+        i = 0
+        if len(v) == 0:
+            output.delete()
+            return 'success'
+        else:
+            while i < len(v):
+                next_i = i + 500000
+                if next_i > len(v):
+                    next_i = len(v)
+                new_signal = Signal(
+                    output=output,
+                    index=index,
+                    signal_values=v[i:next_i],
+                    frame_times=timedict[k],
+                    frame_count=count
+                )
+                new_signal.save()
+                i = next_i
+                index += 1
+    return 'success'
 
 
 @celery.task

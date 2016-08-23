@@ -5,20 +5,30 @@
 
 <div class="container">
     <h2>Frame Base Signal Data</h2>
+    {{ signals }}
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    {% for output in not_completed %}
+            <div class="container-fluid">
+                <ul><h4>In Progress</h4></ul>
+                <ul><h4>{{ output.file_name }}:  </h4>
+                    <ul>processed : {{ output.processed_time }}
+                    </ul>
 
+            </div>
+    {% endfor %}
     {% for output in outputs %}
-    <div class="container-fluid">
-        <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-        <ul><h4>{{ output.file_name }}</h4></ul>
+            <div class="container-fluid">
+                <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
+                <ul><h4>{{ output.file_name }}</h4></ul>
 
-            <ul> {{ output.frame_count }} frames, processed : {{ output.processed_time }}
-             {% csrf_token %}
-             <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
-             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
-            </ul>
-        </form>
-    </div>
+                    <ul> {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+                     {% csrf_token %}
+                     <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+                     <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
+                    </ul>
+                </form>
+            </div>
+
     {% endfor %}
 </div>
 

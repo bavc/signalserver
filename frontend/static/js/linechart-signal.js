@@ -127,11 +127,11 @@ function createLineGraph(data, chartId, svgId) {
       .orient('bottom')
       .tickValues(function(d,i){
         var values = [0];
-        var distance = 20;
+        var distance = Math.ceil(filenames.length/20);
         var value = distance;
         while (value < filenames.length){
           values.push(value)
-          value += 20;
+          value += distance;
         }
         return values;
       })
