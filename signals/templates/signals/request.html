@@ -1,30 +1,18 @@
 {% include 'base.html' %}
 {% block content %}
         <h1>File Signal Process Request</h1>
-
-
-    <!-- config will go here -->
-
-
             {% for video in videos %}
             <form action="{% url 'signals:process' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <li><a href="result/{{ video.filename }}">{{ video.filename }}</a>
-                Uploaded time{{video.upload_time}}
+            <ul><h4>{{ video.filename }}</h4>
+                <ul>Uploaded time :{{video.upload_time}}
                 <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
                 {{ form.config_fields.errors }}
                 <label for="id_signal">Config</label>
-                {{ form.config_fields }} </li>
-             <p><button type="submit" value="Process" class="btn btn-primary">Process</button></p>
-        </form>
+                {{ form.config_fields }}
+                <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
+            </ul>
+            </form>
+
             {% endfor %}
-            </br>
-            </br>
-            </br>
-            <li><a href="/operations/">Go to config list</a></li>
-
-
-            <li><a href="/">Go back to file list</a></li>
-        </ul>
-
    {% endblock %}
