@@ -28,6 +28,7 @@
             <h3> File upload </h3>
             <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
             <p>{{ form.non_field_errors }}</p>
             <p>{{ form.videofile.label_tag }} {{ form.videofile.help_text }}</p>
             <p>
