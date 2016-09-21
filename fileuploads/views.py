@@ -183,25 +183,31 @@ def upload(request):
 
     # Load documents for the list page
     current_user = request.user
-    videos = Video.objects.all()
+    shared_videos = Video.objects.filter(shared=True)
+    videos = Video.objects.filter(user_name=current_user.username)
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
-                  {'videos': videos, 'user': current_user, 'form': form})
+                  {'shared_videos': shared_videos, 'videos': videos,
+                   'user': current_user, 'form': form})
 
 
 def list(request):
     # Handle file upload
     form = VideoForm()
-    videos = Video.objects.all()
+    #videos = Video.objects.all()
     current_user = request.user
+    shared_videos = Video.objects.filter(shared=True)
+    videos = Video.objects.filter(user_name=current_user.username)
+
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
         keyword = request.POST['keyword']
         files = search_result(start_field, end_field, keyword)
         return render(request, 'fileuploads/list.html',
-                      {'videos': videos, 'form': form, 'start': start_field,
+                      {'videos': videos, 'shared_videos': shared_videos,
+                       'form': form, 'start': start_field,
                        'end': end_field, 'keyword': keyword, 'files': files,
                        'user': current_user})
 
@@ -235,7 +241,7 @@ def custom_login(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect('fileuploads/list', user)
+        return HttpResponseRedirect('fileuploads/list')
 
     else:
         return HttpResponseRedirect('../login')
