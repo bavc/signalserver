@@ -18,10 +18,17 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from groups import views
+from fileuploads.views import register
+from fileuploads.views import custom_login
+
 
 urlpatterns = [
     url(r'^$', views.show_graphs, name='show_graphs'),
+    url(r'^register/', register, name='register'),
+    url(r'^redirect', custom_login, name='redirect'),
     url(r'^fileuploads/', include('fileuploads.urls')),
+    url('^', include('django.contrib.auth.urls')),
+    url(r'^', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^operations/', include('operations.urls')),
     url(r'^groups/', include('groups.urls')),

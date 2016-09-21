@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from . import views
 
@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^(?P<filename_id>[0-9]+)/$', views.detail, name='detail'),
     url(r'^(?P<filename_id>[0-9]+)/results/$', views.results, name='results'),
     url(r'^list/$', views.list, name='list'),
+    url(r'^register/$', views.register, name='register'),
     url(r'^upload/$', views.upload, name='upload'),
     url(r'^process/$', views.process, name='process'),
     url(r'^status/$', views.status, name='status'),
