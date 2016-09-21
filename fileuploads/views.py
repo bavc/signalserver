@@ -9,8 +9,6 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
-from django.views import generic
-from django.utils import timezone
 from .forms import UploadFileForm
 from .models import Video
 from .models import Result
@@ -20,19 +18,18 @@ from groups.models import Member
 from .forms import VideoForm
 from .forms import ConfigForm
 from .forms import GroupForm
+from .forms import UserForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
 from .processfiles import process_file_with_config
 from .processfiles import get_full_path_file_name
 from celery import group
 from .tasks import add
-from .tasks import process_bulk
-from .tasks import process_file
 from celery.result import AsyncResult
 from operations.models import Configuration
 from operations.models import Operation
-from django.http import JsonResponse
-from django.db import IntegrityError
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -151,6 +148,7 @@ def upload(request):
     if request.method == 'POST':
 
         form = VideoForm(request.POST, request.FILES)
+        user_name = request.POST['user_name']
         files = request.FILES.getlist('videofile')
         #original_name = request.FILES['videofile'].name
         #name = get_filename(original_name)
@@ -171,6 +169,7 @@ def upload(request):
                 newvideo = Video(
                     videofile=f,
                     filename=name,
+                    user_name=user_name
                 )
                 newvideo.save()
             #videos = Video.objects.all()
@@ -183,26 +182,66 @@ def upload(request):
      #           reverse('fileuploads:list'))
 
     # Load documents for the list page
-    videos = Video.objects.all()
+    current_user = request.user
+    shared_videos = Video.objects.filter(shared=True)
+    videos = Video.objects.filter(user_name=current_user.username)
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
-                  {'videos': videos, 'form': form})
+                  {'shared_videos': shared_videos, 'videos': videos,
+                   'user': current_user, 'form': form})
 
 
 def list(request):
     # Handle file upload
     form = VideoForm()
-    videos = Video.objects.all()
+    #videos = Video.objects.all()
+    current_user = request.user
+    shared_videos = Video.objects.filter(shared=True)
+    videos = Video.objects.filter(user_name=current_user.username)
+
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
         keyword = request.POST['keyword']
         files = search_result(start_field, end_field, keyword)
         return render(request, 'fileuploads/list.html',
-                      {'videos': videos, 'form': form, 'start': start_field,
-                       'end': end_field, 'keyword': keyword, 'files': files})
+                      {'videos': videos, 'shared_videos': shared_videos,
+                       'form': form, 'start': start_field,
+                       'end': end_field, 'keyword': keyword, 'files': files,
+                       'user': current_user})
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
-                  {'videos': videos, 'form': form})
+                  {'videos': videos, 'form': form, 'user': current_user})
+
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', False)
+        password = request.POST.get('password', False)
+        user = User.objects.create_user(
+            username=username,
+            password=password
+        )
+        user.save()
+        return HttpResponseRedirect('../login')
+
+    else:
+        uf = UserForm()
+
+    uf = UserForm()
+    return render_to_response('registration/register.html', dict(userform=uf),
+                              context_instance=RequestContext(request))
+
+
+def custom_login(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return HttpResponseRedirect('fileuploads/list')
+
+    else:
+        return HttpResponseRedirect('../login')

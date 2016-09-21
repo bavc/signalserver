@@ -8,6 +8,8 @@ class Video(models.Model):
     videofile = models.FileField(upload_to=STORED_FILEPATH)
     filename = models.CharField(max_length=400)
     upload_time = models.DateTimeField(auto_now_add=True)
+    user_name = models.CharField(max_length=400, default=None, null=True)
+    shared = models.BooleanField(default=True)
 
 
 class Result(models.Model):
@@ -20,6 +22,8 @@ class Result(models.Model):
     task_id = models.CharField(max_length=200)
     status = models.BooleanField(default=False)
     group_name = models.CharField(max_length=400, default=None, null=True)
+    user_name = models.CharField(max_length=400, default=None, null=True)
+    shared = models.BooleanField(default=True)
 
 
 class Row(models.Model):

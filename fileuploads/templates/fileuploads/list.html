@@ -7,13 +7,26 @@
     <h1>File List, Search and Upload</h1>
     <div class="row">
         <div class="col-md-6">
-             <h3>List of of all loaded files </h3>
+             <h3>List of of all loaded files by you </h3>
                 {% if videos %}
                 <ul>
                 {% for video in videos %}
                     <li>{{ video.filename }}
                     Uploaded time{{video.upload_time}}
-                    <a href="delete-video/{{video.filename}}">Delete</a></li>
+                    <a href="../delete-video/{{video.filename}}">Delete</a></li>
+                {% endfor %}
+                </ul>
+
+                {% else %}
+                    <p>No file.</p>
+                {% endif %}
+             <h3>List of of all shared uploaded files</h3>
+                {% if shared_videos %}
+                <ul>
+                {% for video in shared_videos %}
+                    <li>{{ video.filename }}
+                    Uploaded time{{video.upload_time}}
+                    <a href="../delete-video/{{video.filename}}">Delete</a></li>
                 {% endfor %}
                 </ul>
 
@@ -28,6 +41,7 @@
             <h3> File upload </h3>
             <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
             <p>{{ form.non_field_errors }}</p>
             <p>{{ form.videofile.label_tag }} {{ form.videofile.help_text }}</p>
             <p>
@@ -67,7 +81,7 @@
                             <li>
                             {{ video.filename }}
                             <ul>Uploaded time : {{video.upload_time}}
-                            <a href="delete-video/{{video.filename}}">Delete</a></ul>
+                            <a href="../delete-video/{{video.filename}}">Delete</a></ul>
                             </li>
                         {% endfor %}
                         </ul>
