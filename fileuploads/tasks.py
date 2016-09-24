@@ -63,7 +63,10 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
         if event == 'start':
             if elem.tag == 'frame':
                 count += 1
-                f_time = elem.attrib.get('pkt_dts_time')
+                if 'ffv1' in file_name:
+                    f_time=elem.elem.attrib.get('pkt_pts_time')
+                else:
+                    f_time = elem.attrib.get('pkt_dts_time')
                 if f_time is not None:
                     tstamp = float(f_time)
 
