@@ -1,27 +1,38 @@
 {% include 'base.html' %}
+<style>
+#div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
+</style>
 {% block body_block %}
 
-<h1>{{ configuration.configuration_name }}</h1>
+<span>
+    <div class = "container-fluid">
+    <h1> Add/Delete Filter on Policies </h1>
+    <div class="row">
+    <div class="col-md-6">
+    <h3>Policy Name: {{ configuration.configuration_name }}</h3>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-{% for choice in operation %}
-    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
-    <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
-    {{ choice.get_second_signal_name_display }}
-    {{ choice.get_op_name_display }} {{ choice.cut_off_number }} {{ choice.display_order }}</label><a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">Delete</a></br>
-{% endfor %}
-
-<form action="{% url 'operations:show' configuration.configuration_name %}" method="post">
+    {% for choice in operation %}
+        <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
+         {% ifnotequal choice.get_second_signal_name_display 'None' %}
+           <p> {{ choice.get_second_signal_name_display }} </p>
+        {% endifnotequal %}
+        {{ choice.get_op_name_display }}
+        {% ifequal choice.get_op_name 'exceeds'  %}
+            {{ choice.cut_off_number }}
+        {% endifequal %}
+        </label>    <a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">  Delete  </a></br>
+    {% endfor %}
+     <form action="{% url 'operations:show' configuration.configuration_name %}" method="post">
     {% csrf_token %}
 
     <!-- variable -->
     {{ form.signal_fields.errors }}
-    <label for="id_signal">Signal</label>
+    <label for="id_signal">Filter</label>
     {{ form.signal_fields }}
 
     {{ form.second_signal_fields.errors }}
-    <label for="id_signal2">Signal2</label>
+    <label for="id_signal2">Filter2</label>
     {{ form.second_signal_fields }}
 
     {{ form.operation.errors }}
@@ -40,10 +51,8 @@
     <input type="submit" value="Add" />
     </form>
 
-    <ul>
-        <li><a href="/operations/">Go back to config list</a></li>
-        <li><a href="/">Go back to file list</a></li>
-
-    </ul>
+    </div>
+</div>
+</div>
 
 {% endblock %}
