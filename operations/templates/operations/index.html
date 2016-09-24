@@ -2,11 +2,11 @@
 {% block body_block %}
 <span>
     <div class = "container-fluid">
-        <h1>Configurations</h1>
-        <h4>List of configuration and create the new configuration.</h4>
+        <h1>Policies</h1>
+        <h4>List of policy and create the new policy.</h4>
         <div class="row">
             <div class="col-md-6">
-                    <h3> All configurations </h3>
+                    <h3> All policies </h3>
                     <!-- List of already created configurations -->
                     {% if configurations %}
                         <ul>
@@ -29,11 +29,11 @@
                         {% endfor %}
                         </ul>
                     {% else %}
-                        <p>No Configuration is set.</p>
+                        <p>No policy is set.</p>
                     {% endif %}
             </div>
             <div class="col-md-6">
-                 <h3> Create new configurations </h3>
+                 <h3> Create new policy </h3>
                 <form action="{% url 'operations:index' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <p>{{ form.non_field_errors }}</p>
