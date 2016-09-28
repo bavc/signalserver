@@ -2,6 +2,11 @@
 
 {% block content %}
 
+<span>
+<div class = "container-fluid">
+<div class="row">
+    <div class="col-md-6">
+
 {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
@@ -34,5 +39,10 @@
 
 {# Assumes you setup the password_reset view in your URLconf #}
 <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<p>If you do not have an account, please register <a href="{% url 'register' %}">here</a>. </p>
+
+</div>
+</div>
+</div>
 
 {% endblock %}

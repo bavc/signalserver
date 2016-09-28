@@ -2,19 +2,33 @@
 
 {% block content %}
 
+<span>
+<div class = "container-fluid">
+<div class="row">
+    <div class="col-md-6">
+    <h4>Registration </h4>
+    {%if message %}
+        <p>The username {{ message }} is taken, please select different username.</p>
+    {% endif %}
+
 <form method="POST" action="{% url 'register' %}">
     {% csrf_token %}
+
     <p> <ul>{{ userform.username.label_tag }}
         {{ userform.username}}</ul></p>
     <p><ul>{{ userform.password.label_tag }}{{ userform.password}}</ul></p>
     <p><ul>{{userform.password2.label_tag}}
         {{ userform.password2}}</ul></p>
     <p><ul> Optional </ul>
-    <p><ul>{{userform.email.label_tag}}{{userform.email}}</ul></p>
+    <p><ul>{{userform.email.label_tag}}{{userform.email}} (If you want to reset password later)</ul></p>
     <p><ul>{{userform.first_name.label_tag}}{{userform.first_name}}</ul></p>
     <p><ul>{{userform.last_name.label_tag}}{{userform.last_name}}</ul></p>
     <p><ul><button type="submit" class="btn btn-primary">Register
     </button></ul></p>
 </form>
+
+</div>
+</div>
+</div>
 
 {% endblock %}

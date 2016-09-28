@@ -30,6 +30,7 @@ from operations.models import Configuration
 from operations.models import Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -192,7 +193,8 @@ def upload(request):
                    'user': current_user, 'form': form})
 
 
-def list(request):
+@login_required(login_url="login/")
+def list_file(request):
     # Handle file upload
     form = VideoForm()
     #videos = Video.objects.all()
@@ -213,16 +215,30 @@ def list(request):
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
-                  {'videos': videos, 'form': form, 'user': current_user})
+                  {'videos': videos, 'shared_videos': shared_videos,
+                   'form': form, 'user': current_user})
 
 
 def register(request):
     if request.method == 'POST':
         username = request.POST.get('username', False)
         password = request.POST.get('password', False)
+        email = request.POST.get('email', False)
+        first_name = request.POST.get('first_name', False)
+        last_name = request.POST.get('last_name', False)
+        exist = User.objects.filter(username=username)
+        if len(exist) > 0:
+            uf = uf = UserForm()
+            message = username
+            return render(request, 'registration/register.html',
+                          {'userform': uf, 'message': message})
+
         user = User.objects.create_user(
             username=username,
-            password=password
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
         )
         user.save()
         return HttpResponseRedirect('../login')
@@ -231,7 +247,7 @@ def register(request):
         uf = UserForm()
 
     uf = UserForm()
-    return render_to_response('registration/register.html', dict(userform=uf),
+    return render_to_response('registration/register.html', {'userform': uf},
                               context_instance=RequestContext(request))
 
 
@@ -245,3 +261,8 @@ def custom_login(request):
 
     else:
         return HttpResponseRedirect('../login')
+
+
+def custom_logout(request):
+    logout(request)
+    return render(request, 'registration/logout.html')
