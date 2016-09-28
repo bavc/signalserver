@@ -8,6 +8,7 @@ services:
             - "8000:8000"
         volumes:
             - ${FILES_VOLUME_PATH}:/var/signalserver/files
+            - weblogs:/logs
     db:
         image: postgres:9.5
         env_file: ./signalservers.env
@@ -38,5 +39,6 @@ services:
             - web
 
 volumes:
+    weblogs: {}
     dbdata: {}
     files: {}
