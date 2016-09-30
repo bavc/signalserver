@@ -9,6 +9,7 @@ class Output(models.Model):
     status = models.BooleanField(default=False)
     task_id = models.CharField(max_length=200)
     frame_count = models.IntegerField(default=0)
+    user_name = models.CharField(max_length=100)
 
 
 class Signal(models.Model):
