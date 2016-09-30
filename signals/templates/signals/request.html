@@ -1,7 +1,29 @@
 {% include 'base.html' %}
 {% block content %}
-        <h1>File Signal Process Request</h1>
+    <div class = "container-fluid">
+    <div class="row">
+    <h1>Frame by Frame Filter Data Request</h1>
+    <div class="col-md-6">
+
+
+            <h2> Files uploaded by you. </h2>
             {% for video in videos %}
+            <form action="{% url 'signals:process' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <ul><h4>{{ video.filename }}</h4>
+                <ul>Uploaded time :{{video.upload_time}}
+                <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
+                {{ form.config_fields.errors }}
+                <label for="id_signal"> Policy </label>
+                {{ form.config_fields }}
+                <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
+            </ul>
+            </form>
+            {% endfor %}
+    </div>
+    <div class="col-md-6">
+            <h2> All other shared uploaded files </h2>
+            {% for video in shared_videos %}
             <form action="{% url 'signals:process' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <ul><h4>{{ video.filename }}</h4>
@@ -15,4 +37,7 @@
             </form>
 
             {% endfor %}
+    </div>
+</div>
+</div>
    {% endblock %}
