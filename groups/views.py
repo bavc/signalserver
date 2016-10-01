@@ -27,10 +27,14 @@ from operations.models import Configuration
 from operations.models import Operation
 from django.http import JsonResponse
 from django.db import IntegrityError
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
 
+@login_required(login_url="/login/")
 def save_group(request):
     if request.method == 'POST':
         group_name = request.POST['group_name']
@@ -77,6 +81,7 @@ def save_group(request):
                       {'groups': groups, 'form': form})
 
 
+@login_required(login_url="/login/")
 def edit_group(request, group_name):
     group = Group.objects.get(group_name=group_name)
     files = Video.objects.all()
@@ -108,7 +113,37 @@ def search_group(request):
                    'keyword': group_name})
 
 
+def add_to_result(key, group_results, result):
+    if key in group_results:
+        entry = group_results[key]
+        entry.append(result)
+        group_results[key] = entry
+    else:
+        group_results[key] = [result]
+    return group_results
+
+
+def sort_results(results):
+    group_results = {}
+    for result in results:
+        pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
+        key = result.group_name + "-" + pro_time
+        group_results = add_to_result(key, group_results, result)
+    return group_results
+
+
+def check_not_complete(group_results):
+    not_completed = []
+    for key, values in group_results.items():
+        for value in values:
+            if not value.status:
+                not_completed.append(key)
+    return not_completed
+
+
+@login_required(login_url="/login/")
 def group_process(request):
+    user_name = request.user.username
     if request.method == 'POST':
         group_name = request.POST['group_name']
         group = Group.objects.get(group_name=group_name)
@@ -119,41 +154,30 @@ def group_process(request):
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         current_time = datetime.strptime(current_time_str,
                                          "%Y-%m-%d %H:%M:%S")
+
         for member in members:
             file_process(member.file_name, config_id, config_name,
-                         current_time_str, current_time, group_name)
+                         current_time_str, current_time, user_name, group_name)
 
-    groups = Group.objects.all()
-    group_results = {}
-    for group in groups:
-        members = Member.objects.filter(group=group)
-        for member in members:
-            temp = Result.objects.filter(group_name=group.group_name)
-            results = temp.filter(filename=member.file_name)
-            update_results(results)
-            for result in results:
-                pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-                key = result.group_name + "-" + pro_time
-                if key in group_results:
-                    entry = group_results[key]
-                    entry.append(result)
-                    group_results[key] = entry
-                else:
-                    group_results[key] = [result]
+    results = Result.objects.filter(user_name=user_name)
+    results = update_results(results)
+    shared_results = Result.objects.exclude(user_name=user_name)
+    shared_results = update_results(shared_results)
+    group_results = sort_results(results)
+    shared_group_results = sort_results(shared_results)
 
-    not_completed = []
-    for key, values in group_results.items():
-        for value in values:
-            if not value.status:
-                not_completed.append(key)
-
+    not_completed = check_not_complete(group_results)
+    shared_not_completed = check_not_complete(shared_group_results)
     return render(request, 'groups/group_process.html',
                   {'group_results': group_results,
-                   'not_completed': not_completed})
+                   'shared_group_results': shared_group_results,
+                   'not_completed': not_completed,
+                   'shared_not_completed': shared_not_completed
+                   })
 
 
 def file_process(file_name, config_id, config_name, current_time_str,
-                 current_time, group_name=None):
+                 current_time, user_name, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
     status = process_file.delay(file_name, config_id,
@@ -165,7 +189,9 @@ def file_process(file_name, config_id, config_name, current_time_str,
         processed_time=current_time,
         task_id=status.task_id,
         status=AsyncResult(status.task_id).ready(),
-        group_name=group_name)
+        group_name=group_name,
+        user_name=user_name
+    )
     result.save()
 
 
@@ -176,6 +202,7 @@ def update_results(results):
             work_status = AsyncResult(task_id).ready()
             result.status = work_status
             result.save()
+    return results
 
 
 def save_member(group, file_name):
@@ -220,28 +247,6 @@ def remove_file(request, group_name, file_name):
     files = Video.objects.all()
     return HttpResponseRedirect(reverse('groups:edit_group',
                                         args=(group_name,)))
-
-
-def group_result(request):
-    groups = Group.objects.all()
-    group_results = {}
-    for group in groups:
-        members = Member.objects.filter(group=group)
-        for member in members:
-            temp = Result.objects.filter(group_name=group.group_name)
-            results = temp.filter(filename=member.file_name)
-            for result in results:
-                pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-                key = result.group_name + "-" + pro_time
-                if key in group_results:
-                    entry = group_results[key]
-                    entry.append(result)
-                    group_results[key] = entry
-                else:
-                    group_results[key] = [result]
-
-    return render(request, 'groups/group_result.html',
-                  {'group_results': group_results})
 
 
 def result_graph(request):
