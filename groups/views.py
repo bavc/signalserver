@@ -40,7 +40,9 @@ def save_group(request):
     if request.method == 'POST':
         group_name = request.POST['group_name']
         if " " in group_name:
-            group_name = group_name.replace(' ', '-')
+            group_name = group_name.replace(' ', '_')
+        if "-" in group_name:
+            group_name = group_name.replace('-', '_')
         count = Group.objects.filter(group_name=group_name).count()
         if count > 0:
             form = GroupForm()
