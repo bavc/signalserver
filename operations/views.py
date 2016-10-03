@@ -15,14 +15,20 @@ from .forms import ConfigForm
 from .forms import OperationForm
 
 
+def replace_letters(config_name):
+    if " " in config_name:
+        config_name = config_name.replace(' ', '_')
+    if "-" in config_name:
+        config_name = config_name.replace('-', '_')
+    return config_name
+
+
 def index(request):
     if request.method == 'POST':
         form = ConfigForm(request.POST)
         config_name = request.POST['config_name']
-        if " " in config_name:
-            config_name = config_name.replace(' ', '_')
-        if "-" in config_name:
-            config_name = config_name.replace('-', '_')
+        config_name = replace_letters(config_name)
+
         count = Configuration.objects.filter(
             configuration_name=config_name).count()
         display_order = request.POST['display_order']
@@ -100,6 +106,9 @@ def rename(request):
     if request.method == 'POST':
         old_name = request.POST['old_name']
         new_name = request.POST['new_name']
+        new_name = request.POST['new_name']
+        new_name = replace_letters(new_name)
+
         configuration = Configuration.objects.filter(
             configuration_name=old_name)
         results = Result.objects.filter(config_name=old_name)
