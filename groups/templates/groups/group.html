@@ -8,10 +8,31 @@
         <div class="row">
 
             <div class="col-md-6">
-            <h2> List of all groups </h2>
+            <h2> Group List</h2>
+            <h3> Groups created by you.</h3>
             {% if groups %}
                 <ul>
                 {% for group in groups %}
+                    <li>
+                    <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a></h4>
+                    <ul>Creation time: {{group.creation_time}}
+                    {{ form.config_fields.errors }}
+                    <label for="id_signal"> Policy </label>
+                    {{ form.config_fields }}
+                    <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul> </li>
+                    </form>
+                {% endfor %}
+                </ul>
+            {% else %}
+            <p>No groups.</p>
+            {% endif %}
+             <h3> All groups</h3>
+            {% if shared_groups %}
+                <ul>
+                {% for group in shared_groups %}
                     <li>
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
