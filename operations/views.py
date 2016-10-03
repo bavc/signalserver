@@ -16,19 +16,13 @@ from .forms import OperationForm
 
 
 def index(request):
-#     latest_config_list = Configuration.objects.order_by('-creation_date')[:5]
-#     template = loader.get_template('operations/index.html')
-#     context = {
-#         'latest_config_list': latest_config_list,
-#     }
-#     return HttpResponse(template.render(context, request))
-# def list(request):
-#     # Handle file upload
     if request.method == 'POST':
         form = ConfigForm(request.POST)
         config_name = request.POST['config_name']
         if " " in config_name:
-            config_name = config_name.replace(' ', '-')
+            config_name = config_name.replace(' ', '_')
+        if "-" in config_name:
+            config_name = config_name.replace('-', '_')
         count = Configuration.objects.filter(
             configuration_name=config_name).count()
         display_order = request.POST['display_order']
