@@ -172,3 +172,7 @@ def delete_file(file_name):
     Video.objects.get(filename=file_name).delete()
     full_path_file_name = get_full_path_file_name(file_name)
     os.remove(full_path_file_name)
+    #check xml.gz file
+    full_path_file_name_with_gz = full_path_file_name + ".gz"
+    if os.path.isfile(full_path_file_name_with_gz) is True:
+        os.remove(full_path_file_name_with_gz)
