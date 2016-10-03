@@ -30,6 +30,7 @@ from operations.models import Configuration
 from operations.models import Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -99,8 +100,11 @@ def search_result(start_field, end_field, keyword):
     return results
 
 
+@login_required(login_url="/login/")
 def search(request):
-    files = Video.objects.all()
+    user_name = request.user.username
+    files = Video.objects.filter(user_name=user_name)
+    shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
@@ -112,7 +116,7 @@ def search(request):
                        'end': end_field, 'keyword': keyword, 'files': files})
 
     return render(request, 'fileuploads/search.html',
-                  {'files': files})
+                  {'files': files, 'shared_files': shared_files})
 
 
 def status(request):
@@ -124,24 +128,11 @@ def status(request):
         result.save()
 
     results = Result.objects.all()
-        #
-        #    results = group(process_file.s(i, config_id, j)
-        #                    for i, j in zip(file_names,
-        #
-        #task_id = status.task_id
-
-        #status = AsyncResult(task_id).ready()
-        #if status:
-        #    results = "yay it is done"
-        #else:
-        #    results = "still working on it"
-
-            #results.append(result)
-
     return render(request, 'fileuploads/status.html',
                   {'results': results})
 
 
+@login_required(login_url="/login/")
 def upload(request):
     # Handle file upload
     form = VideoForm()
@@ -150,15 +141,6 @@ def upload(request):
         form = VideoForm(request.POST, request.FILES)
         user_name = request.POST['user_name']
         files = request.FILES.getlist('videofile')
-        #original_name = request.FILES['videofile'].name
-        #name = get_filename(original_name)
-
-        #count = Video.objects.filter(filename=name).count()
-        #num = 1
-        #while item > 0:
-        #    name = name + '(' + str(num) + ')'
-        #    item = Video.objects.filter(filename=name).count()
-        #    num += 1
         if form.is_valid():
             for f in files:
                 original_name = f.name
@@ -172,14 +154,6 @@ def upload(request):
                     user_name=user_name
                 )
                 newvideo.save()
-            #videos = Video.objects.all()
-            #return HttpResponseRedirect(reverse('fileuploads:list',
-            #                            kwargs={
-            #                                'videos': videos,
-            #                                'form': form
-            #                                    }))
-     #       return HttpResponseRedirect(
-     #           reverse('fileuploads:list'))
 
     # Load documents for the list page
     current_user = request.user
@@ -192,7 +166,8 @@ def upload(request):
                    'user': current_user, 'form': form})
 
 
-def list(request):
+@login_required(login_url="/login/")
+def list_file(request):
     # Handle file upload
     form = VideoForm()
     #videos = Video.objects.all()
@@ -213,16 +188,30 @@ def list(request):
 
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
-                  {'videos': videos, 'form': form, 'user': current_user})
+                  {'videos': videos, 'shared_videos': shared_videos,
+                   'form': form, 'user': current_user})
 
 
 def register(request):
     if request.method == 'POST':
         username = request.POST.get('username', False)
         password = request.POST.get('password', False)
+        email = request.POST.get('email', False)
+        first_name = request.POST.get('first_name', False)
+        last_name = request.POST.get('last_name', False)
+        exist = User.objects.filter(username=username)
+        if len(exist) > 0:
+            uf = uf = UserForm()
+            message = username
+            return render(request, 'registration/register.html',
+                          {'userform': uf, 'message': message})
+
         user = User.objects.create_user(
             username=username,
-            password=password
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
         )
         user.save()
         return HttpResponseRedirect('../login')
@@ -231,7 +220,7 @@ def register(request):
         uf = UserForm()
 
     uf = UserForm()
-    return render_to_response('registration/register.html', dict(userform=uf),
+    return render_to_response('registration/register.html', {'userform': uf},
                               context_instance=RequestContext(request))
 
 
@@ -245,3 +234,8 @@ def custom_login(request):
 
     else:
         return HttpResponseRedirect('../login')
+
+
+def custom_logout(request):
+    logout(request)
+    return render(request, 'registration/logout.html')
