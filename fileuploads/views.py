@@ -100,8 +100,11 @@ def search_result(start_field, end_field, keyword):
     return results
 
 
+@login_required(login_url="/login/")
 def search(request):
-    files = Video.objects.all()
+    user_name = request.user.username
+    files = Video.objects.filter(user_name=user_name)
+    shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
@@ -113,7 +116,7 @@ def search(request):
                        'end': end_field, 'keyword': keyword, 'files': files})
 
     return render(request, 'fileuploads/search.html',
-                  {'files': files})
+                  {'files': files, 'shared_files': shared_files})
 
 
 def status(request):
@@ -125,24 +128,11 @@ def status(request):
         result.save()
 
     results = Result.objects.all()
-        #
-        #    results = group(process_file.s(i, config_id, j)
-        #                    for i, j in zip(file_names,
-        #
-        #task_id = status.task_id
-
-        #status = AsyncResult(task_id).ready()
-        #if status:
-        #    results = "yay it is done"
-        #else:
-        #    results = "still working on it"
-
-            #results.append(result)
-
     return render(request, 'fileuploads/status.html',
                   {'results': results})
 
 
+@login_required(login_url="/login/")
 def upload(request):
     # Handle file upload
     form = VideoForm()
@@ -151,15 +141,6 @@ def upload(request):
         form = VideoForm(request.POST, request.FILES)
         user_name = request.POST['user_name']
         files = request.FILES.getlist('videofile')
-        #original_name = request.FILES['videofile'].name
-        #name = get_filename(original_name)
-
-        #count = Video.objects.filter(filename=name).count()
-        #num = 1
-        #while item > 0:
-        #    name = name + '(' + str(num) + ')'
-        #    item = Video.objects.filter(filename=name).count()
-        #    num += 1
         if form.is_valid():
             for f in files:
                 original_name = f.name
@@ -173,14 +154,6 @@ def upload(request):
                     user_name=user_name
                 )
                 newvideo.save()
-            #videos = Video.objects.all()
-            #return HttpResponseRedirect(reverse('fileuploads:list',
-            #                            kwargs={
-            #                                'videos': videos,
-            #                                'form': form
-            #                                    }))
-     #       return HttpResponseRedirect(
-     #           reverse('fileuploads:list'))
 
     # Load documents for the list page
     current_user = request.user
@@ -193,7 +166,7 @@ def upload(request):
                    'user': current_user, 'form': form})
 
 
-@login_required(login_url="login/")
+@login_required(login_url="/login/")
 def list_file(request):
     # Handle file upload
     form = VideoForm()

@@ -36,6 +36,7 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url="/login/")
 def save_group(request):
+    user_name = request.user.username
     if request.method == 'POST':
         group_name = request.POST['group_name']
         if " " in group_name:
@@ -56,7 +57,9 @@ def save_group(request):
                            })
         else:
             new_group = Group(
-                group_name=group_name
+                group_name=group_name,
+                user_name=user_name,
+                shared=True
             )
             new_group.save()
             group = Group.objects.get(group_name=group_name)
@@ -70,15 +73,19 @@ def save_group(request):
                     save_member(group, file_name)
                 counter += 1
                 newkey = newkey = "file" + str(counter)
-            groups = Group.objects.all()
+            groups = Group.objects.filter(user_name=user_name)
+            shared_groups = Group.objects.filter(shared=True)
             form = ConfigForm()
             return render(request, 'groups/group.html',
-                          {'groups': groups, 'group': group, 'form': form})
+                          {'groups': groups, 'shared_groups': shared_groups,
+                           'group': group, 'form': form})
     else:
-        groups = Group.objects.all()
+        groups = Group.objects.filter(user_name=user_name)
+        shared_groups = Group.objects.filter(shared=True)
         form = ConfigForm()
         return render(request, 'groups/group.html',
-                      {'groups': groups, 'form': form})
+                      {'groups': groups, 'shared_groups': shared_groups,
+                       'form': form})
 
 
 @login_required(login_url="/login/")

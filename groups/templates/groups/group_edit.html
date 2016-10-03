@@ -1,6 +1,12 @@
 {% include 'base.html' %}
 <style>
-#div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
+#div1 {
+    width:500px;
+    height:200px;
+    padding:10px;
+    border:1px solid #aaaaaa;
+    margin:0 0 10px 0;
+}
 </style>
 {% block body_block %}
 <span>
@@ -14,17 +20,18 @@
                 {% if group %}
                     <form action="{% url 'groups:update_group' %}" method="post" enctype="multipart/form-data">
                     <h3> Group Name : {{group.group_name}} </h3>
-                    <h4> Files in this group : <h4>
+                    <h4> Files in this group : </h4>
                     <p>
                         {% csrf_token %}
                         <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
                         {% for member in group.member_set.all %}
-                            <ul>{{member.file_name}} {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.group_name %}">remove</a>
+                            <ul><h4>{{member.file_name}} </h4> Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.group_name %}">remove</a>
                             </ul>
                         {% endfor %}
-
+                    </p>
                     <h4> This is the area to drop.</h4>
-                    <div class="container-fluid" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="container-fluid" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"
+                    >
                     </div>
                     <div class="container-fluid">
                     <button type="submit" value="update group" class="btn btn-primary">Add Files</button>
@@ -82,18 +89,6 @@
             </div>
             </div>
 
-
-        <ul>
-            <li><a href="/">Go file list</a></li>
-            <li><a href="/operations/">Go to config list</a></li>
-            <li><a href="/upload/">Go to Upload file</a></li>
-            <li><a href="/save_group/">Go to group list</a></li>
-            <li><a href="/search/">Go to file search and group</a></li>
-            <li><a href="../groups/group_process/">Go to status of group process </a></li>
-            <li><a href="../groups/group_result/">Go to results of group process</a></li>
-            <li><a href="/status/">Go to status of all the file process list</li>
-            <li><a href="/">Go back to file list</a></li>
-        </ul>
     </div>
 </div>
 </span>
