@@ -13,15 +13,18 @@
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
-        <label for="choice{{ forloop.counter }}">{{ choice.get_signal_name_display }}
-         {% ifnotequal choice.get_second_signal_name_display 'None' %}
-           <p> {{ choice.get_second_signal_name_display }} </p>
-        {% endifnotequal %}
-        {{ choice.get_op_name_display }}
-        {% ifequal choice.get_op_name 'exceeds'  %}
-            {{ choice.cut_off_number }}
-        {% endifequal %}
-        </label>    <a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">  Delete  </a></br>
+        <li><label for="choice{{ forloop.counter }}">
+            {% if choice.get_second_signal_name_display != "None" %}
+                <p> Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}" </p>
+            {% elif choice.get_op_name_display == "exceeds"  %}
+                <p> {{ choice.get_signal_name_display }} exceeds {{ choice.cut_off_number }} </p>
+            {% else %}
+                <p> Average of  "{{ choice.get_signal_name_display }}"</p>
+            {% endif %}
+
+
+
+        </label>    <a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">  Delete  </a></li>
     {% endfor %}
      <form action="{% url 'operations:show' configuration.configuration_name %}" method="post">
     {% csrf_token %}
@@ -31,24 +34,30 @@
     <label for="id_signal">Filter</label>
     {{ form.signal_fields }}
 
+    {{ form.operation_fields.errors}}
+    <label for="id_name">Operation</label>
+    {{ form.operation_fields}}
+
+
+
+    <div id="secondsignal" style="display:none;">
     {{ form.second_signal_fields.errors }}
     <label for="id_signal2">Filter2</label>
     {{ form.second_signal_fields }}
+    </div>
 
-    {{ form.operation.errors }}
-    <label for="id_name">Operation</label>
-    {{ form.operation_fields }}
-
+    <div id="cutoffnumber" style="display:none;">
     {{ form.cutoff_number.errors }}
     <label for="id_cutoff ">Cutoff Number</label>
     {{ form.cutoff_number }}
+    </div>
 
     {{ form.display_order.errors }}
     <label for="id_cutoff ">Display order</label>
     {{ form.display_order }}
 
 
-    <input type="submit" value="Add" />
+    <button type="submit" class="btn btn-primary"> Add </button>
     </form>
 
     </div>
@@ -56,3 +65,21 @@
 </div>
 
 {% endblock %}
+<script>
+    function operationSelect(that) {
+        if (that.value == "exceeds"){
+            document.getElementById("cutoffnumber").style.display = "block";
+            document.getElementById("secondsignal").style.display = "none";
+
+        }
+        else if (that.value == "average_difference"){
+            document.getElementById("secondsignal").style.display = "block";
+            document.getElementById("cutoffnumber").style.display = "none";
+        }
+        else if (that.value == "average"){
+            document.getElementById("secondsignal").style.display = "none";
+            document.getElementById("cutoffnumber").style.display = "none";
+        }
+
+    }
+</script>

@@ -81,7 +81,11 @@ class ConfigForm(forms.Form):
 
 class OperationForm(forms.Form):
     signal_fields = forms.ChoiceField(choices=SIGNALS, required=True)
-    operation_fields = forms.ChoiceField(choices=OPERATIONS, required=True)
+    operation_fields = forms.ChoiceField(
+        choices=OPERATIONS,
+        required=True,
+        widget=forms.Select(attrs={"onChange": 'operationSelect(this)'})
+    )
     second_signal_fields = forms.ChoiceField(
         choices=SIGNALS, required=False
     )
