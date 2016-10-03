@@ -89,6 +89,28 @@ def save_group(request):
                       {'groups': groups, 'shared_groups': shared_groups,
                        'form': form})
 
+def delete_group(request, group_name):
+    Group.objects.get(group_name=group_name).delete()
+    return HttpResponseRedirect(reverse('groups:save_group'))
+
+
+def rename_group(request):
+    if request.method == 'POST':
+        old_name = request.POST['old_name']
+        new_name = request.POST['new_name']
+        groups = Group.objects.filter(
+            group_name=old_name)
+        results = Result.objects.filter(group_name=old_name)
+        for result in results:
+            result.group_name = new_name
+            result.save()
+        for group in groups:
+            group.group_name = new_name
+            group.save()
+
+    return HttpResponseRedirect(reverse('groups:save_group'))
+
+
 
 @login_required(login_url="/login/")
 def edit_group(request, group_name):
