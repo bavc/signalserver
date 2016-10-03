@@ -14,16 +14,33 @@
                 <ul>
                 {% for group in groups %}
                     <li>
+
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a>
+                    <a href="../delete_group/{{group.group_name}}">Delete</a>
+                    <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></h4>
+                    <div id="rename_form{{ forloop.counter }}">
+                           <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
+                            {% csrf_token %}
+                            <input name='old_name' type="hidden" value="{{ group.group_name }}">
+                            <input name='new_name' type="text" default="{{ group.group_name }}">
+                            <button type="search" class="btn btn-primary">
+                                Rename
+                            </button>
+                          </form>
+                    </div>
+                    <ul>Creation time: {{group.creation_time}}
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a></h4>
-                    <ul>Creation time: {{group.creation_time}}
+
                     {{ form.config_fields.errors }}
+
+
                     <label for="id_signal"> Policy </label>
                     {{ form.config_fields }}
                     <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul> </li>
                     </form>
+
                 {% endfor %}
                 </ul>
             {% else %}
@@ -106,4 +123,17 @@
 </div>
 </span>
 {% endblock %}
+<script>
+
+{% for group in groups %}
+
+   $("#rename_form{{ forloop.counter }}").hide();
+   $(".rename_link{{ forloop.counter }}").click (function(){
+   $("#rename_form{{ forloop.counter }}").show();
+   });
+
+{% endfor %}
+
+
+    </script>
 
