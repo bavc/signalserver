@@ -13,7 +13,7 @@
                         {% for config in configurations %}
                             <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}
                            </a>
-                                Createtion time  {{config.creation_time}}
+                                Creation time  {{config.creation_time}}
                                 <a href="delete-config/{{config.configuration_name}}">Delete</a>
                                 <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></li>
                         <div id="rename_form{{ forloop.counter }}">
