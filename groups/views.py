@@ -25,6 +25,7 @@ from fileuploads.tasks import process_file
 from celery.result import AsyncResult
 from operations.models import Configuration
 from operations.models import Operation
+from operations.views import replace_letters
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -39,10 +40,7 @@ def save_group(request):
     user_name = request.user.username
     if request.method == 'POST':
         group_name = request.POST['group_name']
-        if " " in group_name:
-            group_name = group_name.replace(' ', '_')
-        if "-" in group_name:
-            group_name = group_name.replace('-', '_')
+        group_name = replace_letters(group_name)
         count = Group.objects.filter(group_name=group_name).count()
         if count > 0:
             form = GroupForm()
@@ -89,6 +87,7 @@ def save_group(request):
                       {'groups': groups, 'shared_groups': shared_groups,
                        'form': form})
 
+
 def delete_group(request, group_name):
     Group.objects.get(group_name=group_name).delete()
     return HttpResponseRedirect(reverse('groups:save_group'))
@@ -98,6 +97,7 @@ def rename_group(request):
     if request.method == 'POST':
         old_name = request.POST['old_name']
         new_name = request.POST['new_name']
+        new_name = replace_letters(new_name)
         groups = Group.objects.filter(
             group_name=old_name)
         results = Result.objects.filter(group_name=old_name)
@@ -109,7 +109,6 @@ def rename_group(request):
             group.save()
 
     return HttpResponseRedirect(reverse('groups:save_group'))
-
 
 
 @login_required(login_url="/login/")
