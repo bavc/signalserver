@@ -27,6 +27,8 @@ def index(request):
     if request.method == 'POST':
         form = ConfigForm(request.POST)
         config_name = request.POST['config_name']
+        if " " in config_name:
+            config_name = config_name.replace(' ', '-')
         count = Configuration.objects.filter(
             configuration_name=config_name).count()
         display_order = request.POST['display_order']
