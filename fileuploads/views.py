@@ -220,8 +220,7 @@ def register(request):
         uf = UserForm()
 
     uf = UserForm()
-    return render_to_response('registration/register.html', {'userform': uf},
-                              context_instance=RequestContext(request))
+    return render(request, 'registration/register.html', {'userform': uf})
 
 
 def custom_login(request):
