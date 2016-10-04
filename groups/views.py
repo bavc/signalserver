@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import pytz
+from pytz import timezone
 import json
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -10,7 +11,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
 from django.views import generic
-from django.utils import timezone
 from fileuploads.models import Video
 from fileuploads.models import Result
 from fileuploads.models import Row
@@ -157,6 +157,12 @@ def sort_results(results):
     group_results = {}
     for result in results:
         pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
+        pro_time = result.processed_time
+        pacific = timezone('US/Pacific')
+        local_current_dt = pro_time.astimezone(pacific)
+        fmt = '%Y-%m-%d %H:%M:%S'
+        pro_time = local_current_dt.strftime(fmt)
+
         key = result.group_name + "-" + pro_time
         group_results = add_to_result(key, group_results, result)
     return group_results
@@ -181,6 +187,7 @@ def group_process(request):
         config_id = request.POST['config_fields']
         config_name = Configuration.objects.get(
             id=config_id).configuration_name
+
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         current_time = datetime.strptime(current_time_str,
                                          "%Y-%m-%d %H:%M:%S")
@@ -294,7 +301,6 @@ def result_graph(request):
 
         processed_time_object = datetime.strptime(processed_time,
                                                   "%Y-%m-%d %H:%M:%S")
-        processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
 
         temp = Result.objects.filter(group_name=group_name)
         results = temp.filter(processed_time=processed_time_object)
@@ -340,7 +346,6 @@ def show_graphs(request):
     pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
     processed_time_object = datetime.strptime(pro_time,
                                               "%Y-%m-%d %H:%M:%S")
-    processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
 
     temp = Result.objects.filter(group_name=group_name)
     results = temp.filter(processed_time=processed_time_object)
@@ -382,7 +387,6 @@ def get_graph_data(request):
 
     processed_time_object = datetime.strptime(processed_time,
                                               "%Y-%m-%d %H:%M:%S")
-    processed_time_object = processed_time_object.replace(tzinfo=pytz.UTC)
 
     temp = Result.objects.filter(group_name=group_name)
     results = temp.filter(processed_time=processed_time_object)
