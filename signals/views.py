@@ -79,6 +79,24 @@ def update_output(outputs):
             output.save()
 
 
+def sort_by_user(outputs, current_user_name):
+    users = []
+    shared = []
+    for out in outputs:
+        if out.user_name == current_user_name:
+            users.append(out)
+        else:
+            shared.append(out)
+    return [users, shared]
+
+
+def check_complete(outputs):
+    for out in outputs:
+        if not out.status:
+            return False
+    return True
+
+
 @login_required(login_url="/login/")
 def process(request):
     check = []
@@ -97,30 +115,27 @@ def process(request):
                        original_file_name, current_time_str,
                        current_user_name)
 
-    tempoutputs = Output.objects.all()
-    update_output(tempoutputs)
-    for out in tempoutputs:
+    temp_outputs = Output.objects.all()
+    update_output(temp_outputs)
+    for out in temp_outputs:
         p_time = out.processed_time
         p_time_str = p_time.strftime("%Y-%m-%d %H:%M:%S")
         key = out.file_name + p_time_str
         if key not in check:
             check.append(key)
-            t_outputs = Output.objects.filter(file_name=out.file_name,
-                                              processed_time=p_time)
-            flag = True
-            for t_o in t_outputs:
-                if not t_o.status:
-                    if t_o.user_name == current_user_name:
-                        not_completed.append(out)
-                    else:
-                        shared_not_completed.append(out)
-                    flag = False
-                    break
-            if flag:
-                if t_o.user_name == current_user_name:
-                    outputs.append(out)
-                else:
-                    shared_outputs.append(out)
+            temp_outputs = Output.objects.filter(file_name=out.file_name,
+                                                 processed_time=p_time)
+            if check_complete(temp_outputs):
+                outputs.append(out)
+            else:
+                not_completed.append(out)
+
+    results = sort_by_user(outputs, current_user_name)
+    outputs = results[0]
+    shared_outputs = results[1]
+    results = sort_by_user(not_completed, current_user_name)
+    not_completed = results[0]
+    shared_not_completed = results[1]
 
     return render(request, 'signals/result.html',
                   {'outputs': outputs, 'not_completed': not_completed,
