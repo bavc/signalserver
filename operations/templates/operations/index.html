@@ -1,5 +1,5 @@
-{% include 'base.html' %}
-{% block body_block %}
+{% extends 'base.html' %}
+{% block content %}
 <span>
     <div class = "container-fluid">
         <h1>Policies</h1>
@@ -53,9 +53,7 @@
             </div>
         </div>
     </div>
-
-{% endblock %}
-    <script>
+     <script>
 
 {% for config in configurations %}
 
@@ -68,3 +66,6 @@
 
 
     </script>
+
+
+{% endblock %}
