@@ -1,5 +1,5 @@
-{% include 'base.html' %}
-{% block body_block %}
+{% extends 'base.html' %}
+{% block content %}
     <div class="container-fluid">
         <h1>Group Process Status </h1>
         <div class="row">
@@ -10,13 +10,13 @@
             <h3> In Progress </h3>
             {% for key, values in  group_results.items %}
                 {% if key in not_completed %}
-                    <li>{{ key }} Config: {{values.0.config_name}}</li>
+                    <li><h4>{{ key }} </h4> Config: {{values.0.config_name}}</li>
                 {% endif %}
             {% endfor %}
             <h3> Completed </h3>
              {% for key, values in  group_results.items %}
                 {% if key not in not_completed %}
-                        <ul>{{ key }} Config: {{values.0.config_name}}</li>
+                        <ul><h4>{{ key }} </h4>Config: {{values.0.config_name}}</li>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
@@ -57,5 +57,4 @@
 </div>
 </div>
 </div>
-
 {% endblock %}

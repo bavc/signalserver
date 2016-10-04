@@ -1,4 +1,4 @@
-{% include 'base.html' %}
+{% extends 'base.html' %}
 {% block content %}
 <span>
     <div class = "container-fluid">
@@ -10,7 +10,7 @@
                     <h3> Files uploaded by you </h3>
                     {% if files %}
                     {% for file in files %}
-                            <li>{{ file.filename }}
+                            <li><h4>{{ file.filename }}</h4>
                                  <ul> Uploaded time : {{file.upload_time}}</ul>
                             </li>
                         {% endfor %}
