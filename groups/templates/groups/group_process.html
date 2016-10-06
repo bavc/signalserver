@@ -16,12 +16,14 @@
             <h3> Completed </h3>
              {% for key, values in  group_results.items %}
                 {% if key not in not_completed %}
-                        <ul><h4>{{ key }} </h4>Config: {{values.0.config_name}}</li>
+                        <ul><li><h4>{{ key }}
+                            <a href="../delete_group_result/{{values.0.group_name}}/{{values.0.processed_time|date:"U"}}">Delete</a> Config: {{values.0.config_name}}</h4>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
+
                             <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
-                            <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
+                            <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></li></ul>
 
                         </form>
                 {% endif %}
