@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 import pytz
 from pytz import timezone
@@ -156,7 +157,15 @@ def add_to_result(key, group_results, result):
 def sort_results(results):
     group_results = {}
     for result in results:
-        pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
+        #this is using the timestamp
+
+        #pro_time = result.processed_time
+        #pro_time_stamp = time.mktime(pro_time.timetuple())
+        #key = result.group_name + "-" + str(pro_time_stamp)
+
+        #this is using PST..will revisit
+
+        #pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
         pro_time = result.processed_time
         pacific = timezone('US/Pacific')
         local_current_dt = pro_time.astimezone(pacific)
@@ -178,24 +187,8 @@ def check_not_complete(group_results):
 
 
 @login_required(login_url="/login/")
-def group_process(request):
+def group_process_status(request):
     user_name = request.user.username
-    if request.method == 'POST':
-        group_name = request.POST['group_name']
-        group = Group.objects.get(group_name=group_name)
-        members = Member.objects.filter(group=group)
-        config_id = request.POST['config_fields']
-        config_name = Configuration.objects.get(
-            id=config_id).configuration_name
-
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        current_time = datetime.strptime(current_time_str,
-                                         "%Y-%m-%d %H:%M:%S")
-
-        for member in members:
-            file_process(member.file_name, config_id, config_name,
-                         current_time_str, current_time, user_name, group_name)
-
     results = Result.objects.filter(user_name=user_name)
     results = update_results(results)
     shared_results = Result.objects.exclude(user_name=user_name)
@@ -213,10 +206,39 @@ def group_process(request):
                    })
 
 
+@login_required(login_url="/login/")
+def group_process(request):
+    user_name = request.user.username
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        group = Group.objects.get(group_name=group_name)
+        members = Member.objects.filter(group=group)
+        config_id = request.POST['config_fields']
+        config_name = Configuration.objects.get(
+            id=config_id).configuration_name
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for member in members:
+            file_process(member.file_name, config_id, config_name,
+                         current_time_str, user_name, group_name)
+
+    return HttpResponseRedirect('/groups/group_process_status/')
+
+
+def delete_group_result(request, group_name, processed_time):
+    processed_time_object = datetime.fromtimestamp(
+        int(processed_time))
+    temp = Result.objects.filter(group_name=group_name)
+    temp.filter(processed_time=processed_time_object).delete()
+
+    return HttpResponseRedirect('/groups/group_process_status/')
+
+
 def file_process(file_name, config_id, config_name, current_time_str,
-                 current_time, user_name, group_name=None):
+                 user_name, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
+    current_time = datetime.strptime(current_time_str,
+                                     "%Y-%m-%d %H:%M:%S")
     status = process_file.delay(file_name, config_id,
                                 original_name, current_time_str)
     result = Result(

@@ -6,6 +6,7 @@ from datetime import datetime
 import pytz
 import json
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.views import generic
 from django.utils import timezone
 from fileuploads.models import Video
@@ -98,25 +99,19 @@ def check_complete(outputs):
 
 
 @login_required(login_url="/login/")
-def process(request):
+def file_process_status(request):
     check = []
     outputs = []
     not_completed = []
     shared_outputs = []
     shared_not_completed = []
+
     current_user = request.user
     current_user_name = current_user.username
-    if request.method == 'POST':
-        original_file_name = request.POST['file_name']
-        config_id = request.POST['config_fields']
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        file_name = get_full_path_file_name(original_file_name)
-        process_config(file_name, config_id,
-                       original_file_name, current_time_str,
-                       current_user_name)
 
     temp_outputs = Output.objects.all()
     update_output(temp_outputs)
+
     for out in temp_outputs:
         p_time = out.processed_time
         p_time_str = p_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -141,6 +136,32 @@ def process(request):
                   {'outputs': outputs, 'not_completed': not_completed,
                    'shared_outputs': shared_outputs,
                    'shared_not_completed': shared_not_completed})
+
+
+@login_required(login_url="/login/")
+def process(request):
+    current_user = request.user
+    current_user_name = current_user.username
+    if request.method == 'POST':
+        original_file_name = request.POST['file_name']
+        config_id = request.POST['config_fields']
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        file_name = get_full_path_file_name(original_file_name)
+        process_config(file_name, config_id,
+                       original_file_name, current_time_str,
+                       current_user_name)
+    return HttpResponseRedirect('/signals/file_process_status/')
+
+
+@login_required(login_url="/login/")
+def delete_output(request, output_pk):
+    output = Output.objects.get(pk=output_pk)
+    file_name = output.file_name
+    processed_time = output.processed_time
+    temp = Output.objects.filter(file_name=file_name)
+    outputs = temp.filter(processed_time=processed_time)
+    outputs.delete()
+    return HttpResponseRedirect('/signals/file_process_status/')
 
 
 @login_required(login_url="/login/")
