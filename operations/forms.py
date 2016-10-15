@@ -72,10 +72,10 @@ class ConfigNameForm(forms.Form):
 
 class ConfigForm(forms.Form):
     config_name = forms.CharField(
-        label='Please enter the configuration name'
+        label='Policy name'
     )
     display_order = forms.IntegerField(
-        label='Please enter the display order', initial=0
+        label='Policy order', initial=0
     )
 
 
