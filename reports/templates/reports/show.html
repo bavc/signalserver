@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+<style>
+#div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
+</style>
+{% block content %}
+
+<span>
+    <div class = "container-fluid">
+    <h1> Add/Delete rules on Report </h1>
+    <div class="row">
+    <div class="col-md-6">
+    <h3>Report Name: {{ report.report_name }}</h3>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% for choice in rules %}
+        <li><label for="choice{{ forloop.counter }}">
+            List all filter if it is above or below average more than
+            10%.
+
+            List all files in the group if the average filter value is below or above average
+
+            <!--
+            {% if choice.get_second_signal_name_display != "None" %}
+                <p> Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}" </p>
+            {% elif choice.get_op_name_display == "exceeds"  %}
+                <p> {{ choice.get_signal_name_display }} exceeds {{ choice.cut_off_number }} </p>
+            {% else %}
+                <p> Average of  "{{ choice.get_signal_name_display }}"</p>
+            {% endif %}
+            -->
+
+
+        </label>    <a href="delete_rule/{{choice.id}}/{{ report.report_name }}">  Delete  </a></li>
+    {% endfor %}
+     <form action="{% url 'reports:add_rule' reports.report_name %}" method="post">
+    {% csrf_token %}
+
+    <!-- variable
+    {{ form.signal_fields.errors }}
+    <label for="id_signal">Filter</label>
+    {{ form.signal_fields }}
+
+    {{ form.operation_fields.errors}}
+    <label for="id_name">Operation</label>
+    {{ form.operation_fields}}
+
+
+
+    <div id="secondsignal" style="display:none;">
+    {{ form.second_signal_fields.errors }}
+    <label for="id_signal2">Filter2</label>
+    {{ form.second_signal_fields }}
+    </div>
+
+    <div id="cutoffnumber" style="display:none;">
+    {{ form.cutoff_number.errors }}
+    <label for="id_cutoff ">Cutoff Number</label>
+    {{ form.cutoff_number }}
+    </div>
+
+    {{ form.display_order.errors }}
+    <label for="id_cutoff ">Display order</label>
+    {{ form.display_order }}
+    -->
+
+    <button type="submit" class="btn btn-primary"> Add </button>
+    </form>
+
+    </div>
+</div>
+</div>
+
+{% endblock %}
+<script>
+/*
+    function operationSelect(that) {
+        if (that.value == "exceeds"){
+            document.getElementById("cutoffnumber").style.display = "block";
+            document.getElementById("secondsignal").style.display = "none";
+
+        }
+        else if (that.value == "average_difference"){
+            document.getElementById("secondsignal").style.display = "block";
+            document.getElementById("cutoffnumber").style.display = "none";
+        }
+        else if (that.value == "average"){
+            document.getElementById("secondsignal").style.display = "none";
+            document.getElementById("cutoffnumber").style.display = "none";
+        }
+
+    }
+*/
+</script>

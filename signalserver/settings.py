@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'groups.apps.GroupsConfig',
     'operations.apps.OperationsConfig',
     'signals.apps.SignalsConfig',
+    'reports.apps.ReportsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
