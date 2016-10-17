@@ -44,6 +44,10 @@ def index(request):
         "Hello, world. You're at the file upload index. %s" % st)
 
 
+def about(request):
+    return render(request, 'fileuploads/about.html')
+
+
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % filename_id)
 

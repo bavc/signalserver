@@ -53,5 +53,6 @@ urlpatterns = [
     url(r'^operations/', include('operations.urls')),
     url(r'^groups/', include('groups.urls')),
     url(r'^signals/', include('signals.urls')),
+    url(r'^reports/', include('reports.urls')),
 ] + static(settings.BOWER_COMPONENTS_URL,
            document_root=settings.BOWER_COMPONENTS_ROOT)
