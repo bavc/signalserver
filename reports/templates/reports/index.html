@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<span>
+    <div class = "container-fluid">
+        <h1>Roports</h1>
+        <h4>List of Report Settings and create the new Report Setting.</h4>
+        <div class="row">
+            <div class="col-md-6">
+                    <h3> All Report Settings Created By you </h3>
+                    <!-- List of already created configurations -->
+                    {% if reports %}
+                        <ul>
+                        {% for report in reports %}
+                            <li><h4><a href="show/{{ report.report_name }}">{{ report.report_name }}
+                           </a>
+                                Creation time  {{report.report_time}}
+                                <a href="delete_report/{{report.report_name}}">Delete</a>
+                                <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></h4></li>
+                        <div id="rename_form{{ forloop.counter }}">
+                           <form id="form_rename" action="{% url 'reports:rename' %}" name = "rename" method="post" class="form">
+                            {% csrf_token %}
+                            <input name='old_name' type="hidden" value="{{ report.report_name }}">
+                            <input name='new_name' type="text" default="{{ report.report_name }}">
+                            <button type="search" class="btn btn-primary">
+                                Rename
+                            </button>
+                          </form>
+                        </div>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No policy is set.</p>
+                    {% endif %}
+            </div>
+            <div class="col-md-6">
+                 <h3> Create new report </h3>
+                <form action="{% url 'reports:create_report' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p>{{ form.non_field_errors }}</p>
+                    <p>{{ form.report_name.label_tag }} {{ form.config_name.help_text }}</p>
+                    <p>
+                        {{ form.report_name.errors }}
+                        {{ form.report_name }}
+                    </p>
+                     <p>{{ form.non_field_errors }}</p>
+                    <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
+                    <p>
+                        {{ form.display_order.errors }}
+                        {{ form.display_order }}
+                    </p>
+                    <p><input type="submit" value="Create" /></p>
+                </form>
+            </div>
+        </div>
+    </div>
+     <script>
+
+{% for report in reports %}
+
+   $("#rename_form{{ forloop.counter }}").hide();
+   $(".rename_link{{ forloop.counter }}").click (function(){
+   $("#rename_form{{ forloop.counter }}").show();
+   });
+
+{% endfor %}
+
+
+    </script>
+
+
+{% endblock %}
