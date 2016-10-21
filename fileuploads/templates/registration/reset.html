@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 
-<span>
+
+
 <div class = "container-fluid">
 <div class="row">
     <div class="col-md-6">
@@ -10,21 +12,23 @@
    <div id="content" class="colM">
 
         <h1>Enter new password</h1>
+        {% if validlink %}
 
         <p>Please enter your new password twice so we can verify you typed it in correctly.</p>
 
-        <form action="{% url 'password_reset_complete' %}" method="post">
-            {% csrf_token %}
+        <form method="post">{% csrf_token %}
+        {{ form.new_password1.errors }}
+        <p class="aligned wide"><label for="id_new_password1">New Password</label>{{ form.new_password1 }}</p>
+        {{ form.new_password2.errors }}
+        <p class="aligned wide"><label for="id_new_password2">Confirm password</label>{{ form.new_password2 }}</p>
+        <p><input type="submit" value="{% trans 'Change my password' %}" /></p>
+        </form>
 
-        <p class="aligned wide"><label for="id_new_password1">New password:</label><input id="id_new_password1" name="new_password1" type="password" /></p>
+{% else %}
 
-        <p class="aligned wide"><label for="id_new_password2">Confirm password:</label><input id="id_new_password2" name="new_password2" type="password" /></p>
-        <p><input type="submit" value="Change my password" /></p>
-</form>
+<p>"The password reset link was invalid, possibly because it has already been used.  Please request a new password reset."</p>
 
-
-</table>
-
+{% endif %}
 
 
 </div>
