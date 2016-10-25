@@ -67,6 +67,7 @@ class Policy(models.Model):
     policy_name = models.CharField(max_length=200, unique=True)
     creation_time = models.DateTimeField(auto_now_add=True)
     display_order = models.IntegerField(default=0)
+    description = models.CharField(max_length=500)
 
 
 class Operation(models.Model):
@@ -78,3 +79,4 @@ class Operation(models.Model):
     op_name = models.CharField(max_length=20, choices=OPERATIONS)
     cut_off_number = models.IntegerField(default=0)
     display_order = models.IntegerField(default=0)
+    description = models.CharField(max_length=500)

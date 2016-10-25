@@ -74,8 +74,11 @@ class PolicyForm(forms.Form):
     policy_name = forms.CharField(
         label='Policy name'
     )
+    description = forms.CharField(
+        label='Policy Description', initial=0
+    )
     display_order = forms.IntegerField(
-        label='Policy order', initial=0
+        label='Display Location No.', initial=0
     )
 
 
@@ -94,4 +97,7 @@ class OperationForm(forms.Form):
     )
     display_order = forms.IntegerField(
         label='Please enter the display order', initial=0
+    )
+    description = forms.CharField(
+        label='Policy Description', initial=0
     )

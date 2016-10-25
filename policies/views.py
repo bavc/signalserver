@@ -27,14 +27,17 @@ def index(request):
         form = PolicyForm(request.POST)
         policy_name = request.POST['policy_name']
         policy_name = replace_letters(policy_name)
+        description = request.POST['description']
 
         count = Policy.objects.filter(
             policy_name=policy_name).count()
-        display_order = request.POST['display_order']
+        #display_order = request.POST['display_order']
+        display_order = 0
         if form.is_valid() and count == 0:
             new_policy = Policy(
                 policy_name=policy_name,
-                display_order=display_order)
+                display_order=display_order,
+                description=description)
             new_policy.save()
             return HttpResponseRedirect(
                 reverse('policies:index'))
@@ -72,7 +75,9 @@ def show(request, policy_name):
         sig_name = request.POST['signal_fields']
         sig2_name = request.POST['second_signal_fields']
         op_name = request.POST['operation_fields']
-        display_order = request.POST['display_order']
+        #display_order = request.POST['display_order']
+        display_order = 0
+        description = request.POST['description']
         if form.is_valid():
             new_operation = Operation(
                 policy=policy,
@@ -80,7 +85,9 @@ def show(request, policy_name):
                 signal_name=sig_name,
                 second_signal_name=sig2_name,
                 op_name=op_name,
-                display_order=display_order)
+                display_order=display_order,
+                description=description
+            )
             new_operation.save()
 
     operation = Operation.objects.filter(
@@ -94,7 +101,6 @@ def show(request, policy_name):
 def rename(request):
     if request.method == 'POST':
         old_name = request.POST['old_name']
-        new_name = request.POST['new_name']
         new_name = request.POST['new_name']
         new_name = replace_letters(new_name)
 

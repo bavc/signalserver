@@ -9,13 +9,10 @@
                     <h3> All policies </h3>
                     <!-- List of already created policies -->
                     {% if policies %}
-                        <ul>
                         {% for policy in policies %}
-                            <li><a href="show/{{ policy.policy_name }}">{{ policy.policy_name }}
-                           </a>
-                                Creation time  {{policy.creation_time}}
-                                <a href="delete_policy/{{policy.policy_name}}">Delete</a>
-                                <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></li>
+                        <a href="show/{{ policy.policy_name }}">{{ policy.policy_name }}
+                            </a>
+                            <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
                         <div id="rename_form{{ forloop.counter }}">
                            <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
                             {% csrf_token %}
@@ -26,6 +23,16 @@
                             </button>
                           </form>
                         </div>
+                        <a href="delete_policy/{{policy.policy_name}}">Delete</a>
+                        <p>
+                        Description {{policy.description }}
+                        </p>
+                        <p>
+                        Creation time {{policy.creation_time}}
+                        </p>
+
+
+
                         {% endfor %}
                         </ul>
                     {% else %}
@@ -38,16 +45,17 @@
                     {% csrf_token %}
                     <p>{{ form.non_field_errors }}</p>
                     <p>{{ form.policy_name.label_tag }} {{ form.policy_name.help_text }}</p>
+
                     <p>
                         {{ form.policy_name.errors }}
                         {{ form.policy_name }}
                     </p>
-                     <p>{{ form.non_field_errors }}</p>
-                    <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
-                    <p>
-                        {{ form.display_order.errors }}
-                        {{ form.display_order }}
+                    <div>
+                    <p>{{ form.description.label_tag }} {{ form.description.help_text }}
+                        {{ form.description.errors }}
+                        {{ form.description }}
                     </p>
+                    </div>
                     <p><input type="submit" value="Create" /></p>
                 </form>
             </div>
