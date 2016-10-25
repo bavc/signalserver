@@ -76,7 +76,7 @@
 </div>
 <script>
     function operationSelect(that) {
-        if (that.value == "exceeds"){
+        if (that.value === "exceeds" || that.value === "equals" || that.value === "belows" ) {
             document.getElementById("cutoffnumber").style.display = "block";
             document.getElementById("secondsignal").style.display = "none";
 

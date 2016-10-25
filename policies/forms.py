@@ -56,7 +56,9 @@ SIGNALS = (
 )
 OPERATIONS = (
     ('average', 'average'),
-    ('exceeds', 'exceeds'),
+    ('exceeds', 'count of frames with value above'),
+    ('equals', 'count of frames with value equal to'),
+    ('belows', 'count of frames with value below'),
     ('average_difference', 'average_difference'),
 )
 
