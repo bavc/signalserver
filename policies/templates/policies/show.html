@@ -9,7 +9,7 @@
     <h1> Add/Delete Filter on Policies </h1>
     <div class="row">
     <div class="col-md-6">
-    <h3>Policy Name: {{ configuration.configuration_name }}</h3>
+    <h3>Policy Name: {{ policy.policy_name }}</h3>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
@@ -24,9 +24,9 @@
 
 
 
-        </label>    <a href="delete-op/{{choice.id}}/{{ configuration.configuration_name }}">  Delete  </a></li>
+        </label>    <a href="delete-op/{{choice.id}}/{{ policy.policy_name }}">  Delete  </a></li>
     {% endfor %}
-     <form action="{% url 'policies:show' configuration.configuration_name %}" method="post">
+     <form action="{% url 'policies:show' policy.policy_name %}" method="post">
     {% csrf_token %}
 
     <!-- variable -->

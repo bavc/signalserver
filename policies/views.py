@@ -4,39 +4,38 @@ from django.template import loader
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from .models import Configuration
-from .models import Operation
+from .models import Policy, Operation
 
 from fileuploads.models import Result
 from fileuploads.models import Row
 
-from .forms import ConfigNameForm
-from .forms import ConfigForm
+from .forms import PolicyNameForm
+from .forms import PolicyForm
 from .forms import OperationForm
 
 
-def replace_letters(config_name):
-    if " " in config_name:
-        config_name = config_name.replace(' ', '_')
-    if "-" in config_name:
-        config_name = config_name.replace('-', '_')
-    return config_name
+def replace_letters(policy_name):
+    if " " in policy_name:
+        policy_name = policy_name.replace(' ', '_')
+    if "-" in policy_name:
+        policy_name = policy_name.replace('-', '_')
+    return policy_name
 
 
 def index(request):
     if request.method == 'POST':
-        form = ConfigForm(request.POST)
-        config_name = request.POST['config_name']
-        config_name = replace_letters(config_name)
+        form = PolicyForm(request.POST)
+        policy_name = request.POST['policy_name']
+        policy_name = replace_letters(policy_name)
 
-        count = Configuration.objects.filter(
-            configuration_name=config_name).count()
+        count = Policy.objects.filter(
+            policy_name=policy_name).count()
         display_order = request.POST['display_order']
         if form.is_valid() and count == 0:
-            new_configuration = Configuration(
-                configuration_name=config_name,
+            new_policy = Policy(
+                policy_name=policy_name,
                 display_order=display_order)
-            new_configuration.save()
+            new_policy.save()
             return HttpResponseRedirect(
                 reverse('policies:index'))
 
@@ -44,33 +43,28 @@ def index(request):
 
 
 def render_index(request):
-    form = ConfigForm()  # A empty, unbound form
+    form = PolicyForm()  # A empty, unbound form
     # Load documents for the list page
-    configurations = Configuration.objects.order_by('display_order')
+    policies = Policy.objects.order_by('display_order')
 
     # Render list page with the documents and the form
     return render(request, 'policies/index.html',
-                  {'configurations': configurations, 'form': form})
+                  {'policies': policies, 'form': form})
 
 
-def delete_config(request, config_name):
-    Configuration.objects.get(configuration_name=config_name).delete()
+def delete_policy(request, policy_name):
+    Policy.objects.get(policy_name=policy_name).delete()
     return HttpResponseRedirect(reverse('policies:index'))
 
 
-def delete_op(request, op_id, config_name):
-    #configuration = Configuration.objects.get(configuration_name=config_name)
-    #name = configuration
+def delete_op(request, op_id, policy_name):
     Operation.objects.get(id=op_id).delete()
     return HttpResponseRedirect(reverse('policies:show',
-                                kwargs={'config_name': config_name}))
-    #form = OperationForm()
-    #return render(request, 'policies/show.html',
-    #              {'configuration': configuration, 'form': form})
+                                kwargs={'policy_name': policy_name}))
 
 
-def show(request, config_name):
-    configuration = Configuration.objects.get(configuration_name=config_name)
+def show(request, policy_name):
+    policy = Policy.objects.get(policy_name=policy_name)
 
     if request.method == 'POST':
         form = OperationForm(request.POST)
@@ -81,24 +75,19 @@ def show(request, config_name):
         display_order = request.POST['display_order']
         if form.is_valid():
             new_operation = Operation(
-                configuration=configuration,
+                policy=policy,
                 cut_off_number=cutoff_num,
                 signal_name=sig_name,
                 second_signal_name=sig2_name,
                 op_name=op_name,
                 display_order=display_order)
             new_operation.save()
-            #return HttpResponseRedirect(
-            #    reverse('policies:show'))
 
-    #else:
     operation = Operation.objects.filter(
-        configuration=configuration).order_by('display_order')
+        policy=policy).order_by('display_order')
     form = OperationForm()  # A empty, unbound form
-    #response = "resuot of configured policies %s."
-    #return HttpResponse(response % config_name)
     return render(request, 'policies/show.html',
-                  {'configuration': configuration,
+                  {'policy': policy,
                    'form': form, 'operation': operation})
 
 
@@ -109,25 +98,25 @@ def rename(request):
         new_name = request.POST['new_name']
         new_name = replace_letters(new_name)
 
-        configuration = Configuration.objects.filter(
-            configuration_name=old_name)
-        results = Result.objects.filter(config_name=old_name)
+        policy = Policy.objects.filter(
+            policy_name=old_name)
+        results = Result.objects.filter(policy_name=old_name)
         for result in results:
-            result.config_name = new_name
+            result.policy_name = new_name
             result.save()
-        for conf in configuration:
-            conf.configuration_name = new_name
+        for conf in policy:
+            conf.policy_name = new_name
             conf.save()
 
     return HttpResponseRedirect(reverse('policies:index'))
 
 
-def results(request, configuration_id):
-    response = "result of configured policies %s."
-    return HttpResponse(response % configuration_id)
+def results(request, policy_id):
+    response = "result of policies %s."
+    return HttpResponse(response % policy_id)
 
 
-def detail(request, configuration_id):
+def detail(request, policy_id):
     try:
         operation = Operation.objects.get(pk=operation_id)
     except Operation.DoesNotExist:

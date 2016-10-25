@@ -1,5 +1,5 @@
 from django import forms
-from .models import Configuration, Operation
+from .models import Policy, Operation
 
 SIGNALS = (
     ('None', 'None'),
@@ -61,8 +61,8 @@ OPERATIONS = (
 )
 
 
-class ConfigNameForm(forms.Form):
-    config_name = forms.CharField(label='Configuration name', max_length=200)
+class PolicyNameForm(forms.Form):
+    policy_name = forms.CharField(label='Policy name', max_length=200)
 
 
 #class UploadFileForm(forms.Form):
@@ -70,8 +70,8 @@ class ConfigNameForm(forms.Form):
 #    file_name = forms.CharField()
 
 
-class ConfigForm(forms.Form):
-    config_name = forms.CharField(
+class PolicyForm(forms.Form):
+    policy_name = forms.CharField(
         label='Policy name'
     )
     display_order = forms.IntegerField(

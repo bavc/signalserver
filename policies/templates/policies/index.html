@@ -7,20 +7,20 @@
         <div class="row">
             <div class="col-md-6">
                     <h3> All policies </h3>
-                    <!-- List of already created configurations -->
-                    {% if configurations %}
+                    <!-- List of already created policies -->
+                    {% if policies %}
                         <ul>
-                        {% for config in configurations %}
-                            <li><a href="show/{{ config.configuration_name }}">{{ config.configuration_name }}
+                        {% for policy in policies %}
+                            <li><a href="show/{{ policy.policy_name }}">{{ policy.policy_name }}
                            </a>
-                                Creation time  {{config.creation_time}}
-                                <a href="delete-config/{{config.configuration_name}}">Delete</a>
+                                Creation time  {{policy.creation_time}}
+                                <a href="delete_policy/{{policy.policy_name}}">Delete</a>
                                 <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></li>
                         <div id="rename_form{{ forloop.counter }}">
                            <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
                             {% csrf_token %}
-                            <input name='old_name' type="hidden" value="{{ config.configuration_name }}">
-                            <input name='new_name' type="text" default="{{ config.configuration_name }}">
+                            <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
+                            <input name='new_name' type="text" default="{{ policy.policy_name }}">
                             <button type="search" class="btn btn-primary">
                                 Rename
                             </button>
@@ -37,10 +37,10 @@
                 <form action="{% url 'policies:index' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <p>{{ form.non_field_errors }}</p>
-                    <p>{{ form.config_name.label_tag }} {{ form.config_name.help_text }}</p>
+                    <p>{{ form.policy_name.label_tag }} {{ form.policy_name.help_text }}</p>
                     <p>
-                        {{ form.config_name.errors }}
-                        {{ form.config_name }}
+                        {{ form.policy_name.errors }}
+                        {{ form.policy_name }}
                     </p>
                      <p>{{ form.non_field_errors }}</p>
                     <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
@@ -55,7 +55,7 @@
     </div>
      <script>
 
-{% for config in configurations %}
+{% for policy in policies %}
 
    $("#rename_form{{ forloop.counter }}").hide();
    $(".rename_link{{ forloop.counter }}").click (function(){

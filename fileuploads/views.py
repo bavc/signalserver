@@ -16,17 +16,17 @@ from .models import Row
 from groups.models import Group
 from groups.models import Member
 from .forms import VideoForm
-from .forms import ConfigForm
+from .forms import PolicyForm
 from .forms import GroupForm
 from .forms import UserForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
-from .processfiles import process_file_with_config
+from .processfiles import process_file_with_policy
 from .processfiles import get_full_path_file_name
 from celery import group
 from .tasks import add
 from celery.result import AsyncResult
-from policies.models import Configuration, Operation
+from policies.models import Policy, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -64,7 +64,7 @@ def show_result(request, video_videofile_name):
 
 def show_video(request, video_videofile_name):
     video = Video.objects.get(filename=video_videofile_name)
-    form = ConfigForm()
+    form = PolicyForm()
     return render(request, 'fileuploads/show.html',
                   {'video': video, 'form': form})
 
@@ -84,10 +84,10 @@ def get_filename(original_name):
 def process(request):
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
-        config_id = request.POST['config_fields']
+        policy_id = request.POST['policy_fields']
         file_name = get_full_path_file_name(original_file_name)
-        result = process_file_with_config(
-            file_name, config_id, original_file_name)
+        result = process_file_with_policy(
+            file_name, policy_id, original_file_name)
         return render(request, 'fileuploads/process.html',
                       {'result': result})
 

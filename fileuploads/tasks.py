@@ -10,7 +10,7 @@ from signalserver.celery import app as celery
 #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 #from django.conf import settings  # noqa
 from .models import Video, Result, Row
-from policies.models import Configuration, Operation
+from policies.models import Policy, Operation
 from signals.models import Output, Signal
 from celery import shared_task
 from datetime import datetime
@@ -30,11 +30,11 @@ def add(x, y):
 
 
 @celery.task
-def process_bulk(file_names, config_id, original_names):
+def process_bulk(file_names, policy_id, original_names):
     results = []
     for file_name, original_name in zip(file_names, original_names):
         result = process_file.delay(file_name,
-                                    config_id,
+                                    policy_id,
                                     original_name).ready()
         results.append(result)
     return results
@@ -108,7 +108,7 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
 
 
 @celery.task
-def process_file(file_name, config_id, original_name, processed_time_str):
+def process_file(file_name, policy_id, original_name, processed_time_str):
     count = 0
     datadict = {}
     specialdict = {}
@@ -117,8 +117,8 @@ def process_file(file_name, config_id, original_name, processed_time_str):
     lowdict = {}
     newst = ''
     new_key = ''
-    config = Configuration.objects.get(id=config_id)
-    operations = Operation.objects.filter(configuration=config)
+    policy = Policy.objects.get(id=policy_id)
+    operations = Operation.objects.filter(policy=policy)
     for op in operations:
         if op.op_name == 'average':
             datadict[op.signal_name] = 0

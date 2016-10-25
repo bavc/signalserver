@@ -33,11 +33,11 @@
                     {% csrf_token %}
                     <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
 
-                    {{ form.config_fields.errors }}
+                    {{ form.policy_fields.errors }}
 
 
                     <label for="id_signal"> Policy </label>
-                    {{ form.config_fields }}
+                    {{ form.policy_fields }}
                     <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul> </li>
                     </form>
 

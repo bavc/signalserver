@@ -13,9 +13,9 @@
             <ul><h4>{{ video.filename }}</h4>
                 <ul>Uploaded time :{{video.upload_time}}
                 <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
-                {{ form.config_fields.errors }}
+                {{ form.policy_fields.errors }}
                 <label for="id_signal"> Policy </label>
-                {{ form.config_fields }}
+                {{ form.policy_fields }}
                 <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
             </ul>
             </form>
@@ -29,9 +29,9 @@
             <ul><h4>{{ video.filename }}</h4>
                 <ul>Uploaded time :{{video.upload_time}}
                 <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
-                {{ form.config_fields.errors }}
+                {{ form.policy_fields.errors }}
                 <label for="id_signal"> Policy </label>
-                {{ form.config_fields }}
+                {{ form.policy_fields }}
                 <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
             </ul>
             </form>
