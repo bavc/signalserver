@@ -24,9 +24,8 @@ from fileuploads.views import search_result
 from celery import group
 from fileuploads.tasks import process_file
 from celery.result import AsyncResult
-from operations.models import Configuration
-from operations.models import Operation
-from operations.views import replace_letters
+from policies.models import Configuration, Operation
+from policies.views import replace_letters
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User

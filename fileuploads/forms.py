@@ -1,5 +1,5 @@
 from django import forms
-from operations.models import Configuration
+from policies.models import Configuration
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 

@@ -4,8 +4,8 @@ import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from .models import Video
-from operations.models import Configuration
-from operations.models import Operation
+from policies.models import Configuration
+from policies.models import Operation
 from .models import Result
 from .models import Row
 from .constants import STORED_FILEPATH

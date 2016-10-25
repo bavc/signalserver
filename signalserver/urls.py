@@ -50,7 +50,7 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^operations/', include('operations.urls')),
+    url(r'^policies/', include('policies.urls')),
     url(r'^groups/', include('groups.urls')),
     url(r'^signals/', include('signals.urls')),
     url(r'^reports/', include('reports.urls')),

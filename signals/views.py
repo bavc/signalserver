@@ -10,8 +10,7 @@ from django.http import HttpResponseRedirect
 from django.views import generic
 from django.utils import timezone
 from fileuploads.models import Video
-from operations.models import Configuration
-from operations.models import Operation
+from policies.models import Configuration, Operation
 from .models import Output
 from .models import Signal
 from fileuploads.forms import ConfigForm

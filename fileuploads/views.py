@@ -26,8 +26,7 @@ from .processfiles import get_full_path_file_name
 from celery import group
 from .tasks import add
 from celery.result import AsyncResult
-from operations.models import Configuration
-from operations.models import Operation
+from policies.models import Configuration, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required

@@ -38,7 +38,7 @@ def index(request):
                 display_order=display_order)
             new_configuration.save()
             return HttpResponseRedirect(
-                reverse('operations:index'))
+                reverse('policies:index'))
 
     return render_index(request)
 
@@ -49,23 +49,23 @@ def render_index(request):
     configurations = Configuration.objects.order_by('display_order')
 
     # Render list page with the documents and the form
-    return render(request, 'operations/index.html',
+    return render(request, 'policies/index.html',
                   {'configurations': configurations, 'form': form})
 
 
 def delete_config(request, config_name):
     Configuration.objects.get(configuration_name=config_name).delete()
-    return HttpResponseRedirect(reverse('operations:index'))
+    return HttpResponseRedirect(reverse('policies:index'))
 
 
 def delete_op(request, op_id, config_name):
     #configuration = Configuration.objects.get(configuration_name=config_name)
     #name = configuration
     Operation.objects.get(id=op_id).delete()
-    return HttpResponseRedirect(reverse('operations:show',
+    return HttpResponseRedirect(reverse('policies:show',
                                 kwargs={'config_name': config_name}))
     #form = OperationForm()
-    #return render(request, 'operations/show.html',
+    #return render(request, 'policies/show.html',
     #              {'configuration': configuration, 'form': form})
 
 
@@ -89,15 +89,15 @@ def show(request, config_name):
                 display_order=display_order)
             new_operation.save()
             #return HttpResponseRedirect(
-            #    reverse('operations:show'))
+            #    reverse('policies:show'))
 
     #else:
     operation = Operation.objects.filter(
         configuration=configuration).order_by('display_order')
     form = OperationForm()  # A empty, unbound form
-    #response = "resuot of configured operations %s."
+    #response = "resuot of configured policies %s."
     #return HttpResponse(response % config_name)
-    return render(request, 'operations/show.html',
+    return render(request, 'policies/show.html',
                   {'configuration': configuration,
                    'form': form, 'operation': operation})
 
@@ -119,11 +119,11 @@ def rename(request):
             conf.configuration_name = new_name
             conf.save()
 
-    return HttpResponseRedirect(reverse('operations:index'))
+    return HttpResponseRedirect(reverse('policies:index'))
 
 
 def results(request, configuration_id):
-    response = "resuot of configured operations %s."
+    response = "result of configured policies %s."
     return HttpResponse(response % configuration_id)
 
 
@@ -132,4 +132,4 @@ def detail(request, configuration_id):
         operation = Operation.objects.get(pk=operation_id)
     except Operation.DoesNotExist:
         raise Http404("Operation does not exist")
-    return render(request, 'operations/detail.html', {'operation': operation})
+    return render(request, 'policies/detail.html', {'operation': operation})

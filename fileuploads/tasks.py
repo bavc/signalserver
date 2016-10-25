@@ -9,13 +9,9 @@ from signalserver.celery import app as celery
 # set the default Django settings module for the 'celery' program.
 #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 #from django.conf import settings  # noqa
-from .models import Video
-from operations.models import Configuration
-from operations.models import Operation
-from signals.models import Output
-from signals.models import Signal
-from .models import Result
-from .models import Row
+from .models import Video, Result, Row
+from policies.models import Configuration, Operation
+from signals.models import Output, Signal
 from celery import shared_task
 from datetime import datetime
 

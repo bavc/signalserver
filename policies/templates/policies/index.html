@@ -17,7 +17,7 @@
                                 <a href="delete-config/{{config.configuration_name}}">Delete</a>
                                 <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></li>
                         <div id="rename_form{{ forloop.counter }}">
-                           <form id="form_rename" action="{% url 'operations:rename' %}" name = "rename" method="post" class="form">
+                           <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
                             {% csrf_token %}
                             <input name='old_name' type="hidden" value="{{ config.configuration_name }}">
                             <input name='new_name' type="text" default="{{ config.configuration_name }}">
@@ -34,7 +34,7 @@
             </div>
             <div class="col-md-6">
                  <h3> Create new policy </h3>
-                <form action="{% url 'operations:index' %}" method="post" enctype="multipart/form-data">
+                <form action="{% url 'policies:index' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <p>{{ form.non_field_errors }}</p>
                     <p>{{ form.config_name.label_tag }} {{ form.config_name.help_text }}</p>

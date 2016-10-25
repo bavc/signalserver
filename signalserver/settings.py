@@ -38,7 +38,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'fileuploads.apps.FileuploadsConfig',
     'groups.apps.GroupsConfig',
-    'operations.apps.OperationsConfig',
+    'policies.apps.PoliciesConfig',
     'signals.apps.SignalsConfig',
     'reports.apps.ReportsConfig',
     'django.contrib.admin',
