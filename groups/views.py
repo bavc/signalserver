@@ -310,6 +310,7 @@ def remove_file(request, group_name, file_name):
 def result_graph(request):
     signal_names = []
     op_names = []
+    c_numbers = []
     values = []
     group_name = ''
     processed_time = ''
@@ -332,6 +333,7 @@ def result_graph(request):
             policy=policy).order_by('display_order')
         for operation in operations:
             op_names.append(operation.op_name)
+            c_numbers.append(operation.cut_off_number)
             signal_name = operation.signal_name
             if operation.op_name == 'average_difference':
                 signal_name = operation.signal_name + "-" +  \
@@ -344,7 +346,9 @@ def result_graph(request):
                    'signal_names': signal_names,
                    'policy_name': policy_name,
                    'operations': operations,
-                   'op_names': op_names
+                   'op_names': op_names,
+                   'c_numbers': c_numbers,
+                   'hello_world': "helllo world"
                    })
 
 
@@ -384,7 +388,7 @@ def show_graphs(request):
                    'signal_names': signal_names,
                    'policy_name': policy_name,
                    'operations': operations,
-                   'op_names': op_names
+                   'op_names': op_names,
                    })
 
 
@@ -393,6 +397,8 @@ def get_graph_data(request):
     processed_time = request.GET['processed_time']
     signal_name = request.GET['signal_name']
     op_name = request.GET['op_name']
+    op_name_set = ['exceeds', 'belows', 'equals']
+    cut_off_value = request.GET['cut_off_number']
 
     data = []
 
@@ -406,9 +412,11 @@ def get_graph_data(request):
         temprows = Row.objects.filter(result=result)
         sigrows = temprows.filter(signal_name=signal_name)
         rows = sigrows.filter(op_name=op_name)
+        if op_name in op_name_set:
+            rows = rows.filter(cut_off_number=cut_off_value)
 
         for row in rows:
-            if op_name == 'exceeds':
+            if op_name in op_name_set:
                 percent = (row.result_number / row.frame_number) * 100
                 signal_data = {
                     "filename": result.filename,

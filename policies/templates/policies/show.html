@@ -8,24 +8,32 @@
     <div class = "container-fluid">
     <h1> Add/Delete Rules on Policies </h1>
     <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-9">
     <h3>Policy Name: {{ policy.policy_name }}</h3>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
-        <p>
+          <p>
         <label for="choice{{ forloop.counter }}">
+
             {% if choice.get_second_signal_name_display != "None" %}
                 Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}"
             {% elif choice.get_op_name_display == "exceeds"  %}
-                {{ choice.get_signal_name_display }} exceeds {{ choice.cut_off_number }}
+                {{ choice.get_signal_name_display }} count of the frames with value above {{ choice.cut_off_number }}
+            {% elif choice.get_op_name_display == "belows"  %}
+                {{ choice.get_signal_name_display }} count of the frame with value below {{ choice.cut_off_number }}
+            {% elif choice.get_op_name_display == "equals"  %}
+                {{ choice.get_signal_name_display }} count of the frame with value euqal to {{ choice.cut_off_number }}
             {% else %}
                 Average of  "{{ choice.get_signal_name_display }}"
             {% endif %}
-                 Description:  "{{ choice.description }}"
-               <a href="delete-op/{{choice.id}}/{{ policy.policy_name }}"> Delete </a></p>
+            <a href="delete-op/{{choice.id}}/{{ policy.policy_name }}"> Delete </a>
+
+                 <p> Description:  "{{ choice.description }}" </p>
+
         </label>
-        </p>
+            </p>
+
     {% endfor %}
 
     <form action="{% url 'policies:show' policy.policy_name %}" method="post">

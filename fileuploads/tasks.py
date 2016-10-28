@@ -111,8 +111,15 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
 def process_file(file_name, policy_id, original_name, processed_time_str):
     count = 0
     datadict = {}
-    specialdict = {}
-    valuedict = {}
+    check_exceeds = []
+    exceed_dict = {}
+    exceed_cutoff_dict = {}
+    check_belows = []
+    below_dict = {}
+    below_cutoff_dict = {}
+    check_equals = []
+    equal_dict = {}
+    equal_value_dict = {}
     highdict = {}
     lowdict = {}
     newst = ''
@@ -123,10 +130,31 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
         if op.op_name == 'average':
             datadict[op.signal_name] = 0
         elif op.op_name == 'exceeds':
-            specialdict[op.signal_name] = 0
-            valuedict[op.signal_name] = op.cut_off_number
+            check_exceeds.append(op.signal_name)
+            key_name = op.signal_name + "-" + str(op.cut_off_number)
+            exceed_dict[key_name] = 0
+            if op.signal_name not in exceed_cutoff_dict:
+                exceed_cutoff_dict[op.signal_name] = [op.cut_off_number]
+            else:
+                exceed_cutoff_dict[op.signal_name].append(op.cut_off_number)
+        elif op.op_name == 'belows':
+            check_belows.append(op.signal_name)
+            key_name = op.signal_name + "-" + str(op.cut_off_number)
+            below_dict[key_name] = 0
+            if op.signal_name not in below_cutoff_dict:
+                below_cutoff_dict[op.signal_name] = [op.cut_off_number]
+            else:
+                below_cutoff_dict[op.signal_name].append(op.cut_off_number)
+        elif op.op_name == 'equals':
+            check_equals.append(op.signal_name)
+            key_name = op.signal_name + "-" + str(op.cut_off_number)
+            equal_dict[key_name] = 0
+            if op.signal_name not in equal_value_dict:
+                equal_value_dict[op.signal_name] = [op.cut_off_number]
+            else:
+                equal_value_dict[op.signal_name].append(op.cut_off_number)
         else:
-            new_key = op.signal_name + "-" + op.second_signal_name
+            new_key = op.signal_name + "-" + str(op.second_signal_name)
             datadict[new_key] = 0
             highdict[op.signal_name] = 0
             lowdict[op.second_signal_name] = 0
@@ -145,8 +173,24 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
                 if key in datadict:
                     value = elem.get("value")
                     datadict[key] += float(value)
-                if key in specialdict and float(value) > valuedict[key]:
-                    specialdict[key] += 1
+                if key in check_exceeds:
+                    cut_off_values = exceed_cutoff_dict[key]
+                    for number in cut_off_values:
+                        if float(value) > number:
+                            key_name = key + "-" + str(number)
+                            exceed_dict[key_name] += 1
+                if key in check_belows:
+                    cut_off_values = below_cutoff_dict[key]
+                    for number in cut_off_values:
+                        if float(value) < number:
+                            key_name = key + "-" + str(number)
+                            below_dict[key_name] += 1
+                if key in check_equals:
+                    cut_off_values = equal_value_dict[key]
+                    for number in cut_off_values:
+                        if float(value) == number:
+                            key_name = key + "-" + str(number)
+                            equal_dict[key_name] += 1
                 if key in highdict:
                     value = elem.get("value")
                     yhigh = float(value)
@@ -182,14 +226,37 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
                 op_name='average'
             )
         new_row.save()
-    for k, v in specialdict.items():
+    for k, v in exceed_dict.items():
+        name, cut_off = k.split("-")
         new_row = Row(
             result=result,
-            signal_name=k,
+            signal_name=name,
             result_number=v,
             op_name='exceeds',
             frame_number=count,
-            cut_off_number=valuedict[k]
+            cut_off_number=int(cut_off)
+        )
+        new_row.save()
+    for k, v in below_dict.items():
+        name, cut_off = k.split("-")
+        new_row = Row(
+            result=result,
+            signal_name=name,
+            result_number=v,
+            op_name='belows',
+            frame_number=count,
+            cut_off_number=int(cut_off)
+        )
+        new_row.save()
+    for k, v in equal_dict.items():
+        name, cut_off = k.split("-")
+        new_row = Row(
+            result=result,
+            signal_name=name,
+            result_number=v,
+            op_name='equals',
+            frame_number=count,
+            cut_off_number=int(cut_off)
         )
         new_row.save()
     return 'success'

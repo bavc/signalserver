@@ -8,7 +8,9 @@
         <h2> Graphs from the processed data</h4>
         <h4> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
         <h4>Policy Name : {{ policy_name }} </h4>
-
+        cut of numbers : {{c_numbers}}
+        hello world: {{hello_world}}
+        op_names  {{op_names}}
         {% if operations %}
 
                 {% for operation in operations %}
@@ -16,10 +18,23 @@
                         <h3> Signal Name : {{ operation.signal_name }} Second Signal Name : {{ operation.second_signal_name }}
                              Operation: {{ operation.op_name }}
                         </h3>
-
-                        {% if operation.cut_off_number %}
-                        <h3> The value exceeds {{ operation.cut_off_number }}. </h3>
-                        <h4> The graph value is percentage, the number that exceeds the cut of number devided by total number of frames </h4>
+                        {% if operation.op_name == "exceeds" %}
+                            <div>
+                            <h3> The value exceeds {{ operation.cut_off_number }}. </h3>
+                            <h4> The graph value is percentage, the number that exceeds the cut of number divided by total number of frames </h4>
+                            </div>
+                        {% endif %}
+                        {% if operation.op_name == "belows" %}
+                            <div>
+                            <h3> The value belows {{ operation.cut_off_number }}. </h3>
+                            <h4> The graph value is percentage, the number that belows the cut of number divided by total number of frames </h4>
+                            </div>
+                        {% endif %}
+                        {% if operation.op_name == "equals" %}
+                            <div>
+                            <h3> The value equals {{ operation.cut_off_number }}. </h3>
+                            <h4> The graph value is percentage, the number that equals the cut of number divided by total number of frames </h4>
+                            </div>
                         {% endif %}
 
                         <div id="chart{{ forloop.counter }}"></div>
@@ -39,9 +54,14 @@ op_names = [
     "{{op_name}}"{% if not forloop.last %}, {% endif %}
 {% endfor %}
 ];
+cut_off_numbers = [
+{% for op in c_numbers %}
+    "{{op}}"{% if not forloop.last %}, {% endif %}
+{% endfor %}
+];
 
-function graph_for_signal(name, op_name, idx) {
-    d3.json("{% url 'groups:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name,
+function graph_for_signal(name, op_name, cut_off_number, idx) {
+    d3.json("{% url 'groups:get_graph_data' %}?group_name={{group_name}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name + "&cut_off_number=" + cut_off_number,
         function(error, data) {
             createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
         }
@@ -49,7 +69,7 @@ function graph_for_signal(name, op_name, idx) {
 }
 
 for (i = 0; i < signal_names.length; i++) {
-    graph_for_signal(signal_names[i], op_names[i], i + 1);
+    graph_for_signal(signal_names[i], op_names[i], cut_off_numbers[i], i + 1);
 }
 
 </script>
