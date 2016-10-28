@@ -63,18 +63,20 @@ OPERATIONS = (
 )
 
 
-class Configuration(models.Model):
-    configuration_name = models.CharField(max_length=200, unique=True)
+class Policy(models.Model):
+    policy_name = models.CharField(max_length=200, unique=True)
     creation_time = models.DateTimeField(auto_now_add=True)
     display_order = models.IntegerField(default=0)
+    description = models.CharField(max_length=500)
 
 
 class Operation(models.Model):
-    configuration = models.ForeignKey(
-        Configuration, on_delete=models.CASCADE)
+    policy = models.ForeignKey(
+        Policy, on_delete=models.CASCADE)
     signal_name = models.CharField(max_length=200, choices=SIGNALS)
     second_signal_name = models.CharField(
         max_length=100, choices=SIGNALS, default=None)
     op_name = models.CharField(max_length=20, choices=OPERATIONS)
     cut_off_number = models.IntegerField(default=0)
     display_order = models.IntegerField(default=0)
+    description = models.CharField(max_length=500)

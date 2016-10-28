@@ -1,5 +1,5 @@
 from django import forms
-from operations.models import Configuration
+from policies.models import Policy
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -13,21 +13,21 @@ class UploadFileForm(forms.Form):
     file_name = forms.FileField()
 
 
-def get_configurations():
-    config_dic = {}
+def get_policies():
+    policy_dic = {}
 
-    cons = Configuration.objects.all().order_by('display_order')
+    cons = Policy.objects.all().order_by('display_order')
     for con in cons:
         con_id = con.id
-        con_name = con.configuration_name
-        config_dic[con_id] = con_name
+        con_name = con.policy_name
+        policy_dic[con_id] = con_name
 
-    return ((k, v) for k, v in config_dic.items())
+    return ((k, v) for k, v in policy_dic.items())
 
 
-class ConfigForm(forms.Form):
-    config_fields = forms.ChoiceField(
-        choices=get_configurations, required=True
+class PolicyForm(forms.Form):
+    policy_fields = forms.ChoiceField(
+        choices=get_policies, required=True
     )
 
 
