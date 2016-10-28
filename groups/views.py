@@ -17,16 +17,15 @@ from fileuploads.models import Result
 from fileuploads.models import Row
 from .models import Group
 from .models import Member
-from fileuploads.forms import ConfigForm
+from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
 from fileuploads.views import search_result
 from celery import group
 from fileuploads.tasks import process_file
 from celery.result import AsyncResult
-from operations.models import Configuration
-from operations.models import Operation
-from operations.views import replace_letters
+from policies.models import Policy, Operation
+from policies.views import replace_letters
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -76,14 +75,14 @@ def save_group(request):
                 newkey = newkey = "file" + str(counter)
             groups = Group.objects.filter(user_name=user_name)
             shared_groups = Group.objects.filter(shared=True)
-            form = ConfigForm()
+            form = PolicyForm()
             return render(request, 'groups/group.html',
                           {'groups': groups, 'shared_groups': shared_groups,
                            'group': group, 'form': form})
     else:
         groups = Group.objects.filter(user_name=user_name)
         shared_groups = Group.objects.filter(shared=True)
-        form = ConfigForm()
+        form = PolicyForm()
         return render(request, 'groups/group.html',
                       {'groups': groups, 'shared_groups': shared_groups,
                        'form': form})
@@ -136,7 +135,7 @@ def search_group(request):
         group_name = request.POST['group_name']
         result_groups = Group.objects.filter(group_name__contains=group_name)
     groups = Group.objects.all()
-    form = ConfigForm()
+    form = PolicyForm()
     return render(request, 'groups/group.html',
                   {'groups': groups,
                    'result_groups': result_groups,
@@ -213,12 +212,12 @@ def group_process(request):
         group_name = request.POST['group_name']
         group = Group.objects.get(group_name=group_name)
         members = Member.objects.filter(group=group)
-        config_id = request.POST['config_fields']
-        config_name = Configuration.objects.get(
-            id=config_id).configuration_name
+        policy_id = request.POST['policy_fields']
+        policy_name = Policy.objects.get(
+            id=policy_id).policy_name
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for member in members:
-            file_process(member.file_name, config_id, config_name,
+            file_process(member.file_name, policy_id, policy_name,
                          current_time_str, user_name, group_name)
 
     return HttpResponseRedirect('/groups/group_process_status/')
@@ -233,18 +232,18 @@ def delete_group_result(request, group_name, processed_time):
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
-def file_process(file_name, config_id, config_name, current_time_str,
+def file_process(file_name, policy_id, policy_name, current_time_str,
                  user_name, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
     current_time = datetime.strptime(current_time_str,
                                      "%Y-%m-%d %H:%M:%S")
-    status = process_file.delay(file_name, config_id,
+    status = process_file.delay(file_name, policy_id,
                                 original_name, current_time_str)
     result = Result(
         filename=original_name,
-        config_id=config_id,
-        config_name=config_name,
+        policy_id=policy_id,
+        policy_name=policy_name,
         processed_time=current_time,
         task_id=status.task_id,
         status=AsyncResult(status.task_id).ready(),
@@ -311,10 +310,11 @@ def remove_file(request, group_name, file_name):
 def result_graph(request):
     signal_names = []
     op_names = []
+    c_numbers = []
     values = []
     group_name = ''
     processed_time = ''
-    config_name = ''
+    policy_name = ''
     results = []
     operations = []
     if request.method == 'POST':
@@ -327,30 +327,28 @@ def result_graph(request):
         temp = Result.objects.filter(group_name=group_name)
         results = temp.filter(processed_time=processed_time_object)
 
-        for result in results:
-            config_name = result.config_name
-            configuration = Configuration.objects.filter(
-                configuration_name=config_name)
-            operations = Operation.objects.filter(
-                configuration=configuration).order_by('display_order')
-            for operation in operations:
-                op_names.append(operation.op_name)
-                signal_name = operation.signal_name
-                if operation.op_name == 'exceeds':
-                    temprows = Row.objects.filter(result=result)
-                    rows = temprows.filter(op_name='exceeded')
-                if operation.op_name == 'average_difference':
-                    signal_name = operation.signal_name + "-" +  \
-                        operation.second_signal_name
-                signal_names.append(signal_name)
+        policy_name = results[0].policy_name
+        policy = Policy.objects.filter(policy_name=policy_name)
+        operations = Operation.objects.filter(
+            policy=policy).order_by('display_order')
+        for operation in operations:
+            op_names.append(operation.op_name)
+            c_numbers.append(operation.cut_off_number)
+            signal_name = operation.signal_name
+            if operation.op_name == 'average_difference':
+                signal_name = operation.signal_name + "-" +  \
+                    operation.second_signal_name
+            signal_names.append(signal_name)
 
     return render(request, 'groups/result_graph.html',
                   {'group_name': group_name,
                    'processed_time': processed_time,
                    'signal_names': signal_names,
-                   'config_name': config_name,
+                   'policy_name': policy_name,
                    'operations': operations,
-                   'op_names': op_names
+                   'op_names': op_names,
+                   'c_numbers': c_numbers,
+                   'hello_world': "helllo world"
                    })
 
 
@@ -359,7 +357,7 @@ def show_graphs(request):
     op_names = []
     values = []
     processed_time = ''
-    config_name = ''
+    policy_name = ''
     results = []
     operations = []
 
@@ -372,30 +370,25 @@ def show_graphs(request):
     temp = Result.objects.filter(group_name=group_name)
     results = temp.filter(processed_time=processed_time_object)
 
-    for result in results:
-        config_name = result.config_name
-        configuration = Configuration.objects.filter(
-            configuration_name=config_name)
-        operations = Operation.objects.filter(
-            configuration=configuration).order_by('display_order')
-        for operation in operations:
-            op_names.append(operation.op_name)
-            signal_name = operation.signal_name
-            if operation.op_name == 'exceeds':
-                temprows = Row.objects.filter(result=result)
-                rows = temprows.filter(op_name='exceeded')
-            if operation.op_name == 'average_difference':
-                signal_name = operation.signal_name + "-" +  \
-                    operation.second_signal_name
+    policy_name = results[0].policy_name
+    policy = Policy.objects.filter(policy_name=policy_name)
+    operations = Operation.objects.filter(
+        policy=policy).order_by('display_order')
+    for operation in operations:
+        op_names.append(operation.op_name)
+        signal_name = operation.signal_name
+        if operation.op_name == 'average_difference':
+            signal_name = operation.signal_name + "-" +  \
+                operation.second_signal_name
             signal_names.append(signal_name)
 
     return render(request, 'groups/show_graph.html',
                   {'group_name': group_name,
                    'processed_time': pro_time,
                    'signal_names': signal_names,
-                   'config_name': config_name,
+                   'policy_name': policy_name,
                    'operations': operations,
-                   'op_names': op_names
+                   'op_names': op_names,
                    })
 
 
@@ -404,6 +397,8 @@ def get_graph_data(request):
     processed_time = request.GET['processed_time']
     signal_name = request.GET['signal_name']
     op_name = request.GET['op_name']
+    op_name_set = ['exceeds', 'belows', 'equals']
+    cut_off_value = request.GET['cut_off_number']
 
     data = []
 
@@ -416,13 +411,12 @@ def get_graph_data(request):
     for result in results:
         temprows = Row.objects.filter(result=result)
         sigrows = temprows.filter(signal_name=signal_name)
-        if op_name == 'exceeds':
-            rows = sigrows.filter(op_name='exceeded')
-        else:
-            rows = sigrows.filter(op_name=op_name)
+        rows = sigrows.filter(op_name=op_name)
+        if op_name in op_name_set:
+            rows = rows.filter(cut_off_number=cut_off_value)
 
         for row in rows:
-            if op_name == 'exceeds':
+            if op_name in op_name_set:
                 percent = (row.result_number / row.frame_number) * 100
                 signal_data = {
                     "filename": result.filename,

@@ -3,11 +3,8 @@ import gzip
 import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from .models import Video
-from operations.models import Configuration
-from operations.models import Operation
-from .models import Result
-from .models import Row
+from .models import Video, Result, Row
+from policies.models import Policy, Operation
 from .constants import STORED_FILEPATH
 
 
@@ -84,7 +81,7 @@ def process_file_original(file_name):
     return resultst
 
 
-def process_file_with_config(file_name, config_id, original_name):
+def process_file_with_policy(file_name, policy_id, original_name):
     count = 0
     datadict = {}
     specialdict = {}
@@ -93,8 +90,8 @@ def process_file_with_config(file_name, config_id, original_name):
     lowdict = {}
     newst = ''
     new_key = ''
-    config = Configuration.objects.get(id=config_id)
-    operations = Operation.objects.filter(configuration=config)
+    policy = Policy.objects.get(id=policy_id)
+    operations = Operation.objects.filter(policy=policy)
     for op in operations:
         if op.op_name == 'average':
             datadict[op.signal_name] = 0
@@ -138,8 +135,8 @@ def process_file_with_config(file_name, config_id, original_name):
                                      "%Y-%m-%d %H:%M:%S")
     new_result = Result(
         filename=result_name,
-        config_id=config_id,
-        config_name=config.configuration_name,
+        policy_id=policy_id,
+        policy_name=policy.policy_name,
         processed_time=current_time,
         task_id=1,
         status=True)

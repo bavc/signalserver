@@ -1,5 +1,5 @@
 from django import forms
-from .models import Configuration, Operation
+from .models import Policy, Operation
 
 SIGNALS = (
     ('None', 'None'),
@@ -56,13 +56,15 @@ SIGNALS = (
 )
 OPERATIONS = (
     ('average', 'average'),
-    ('exceeds', 'exceeds'),
+    ('exceeds', 'count of frames with value above'),
+    ('equals', 'count of frames with value equal to'),
+    ('belows', 'count of frames with value below'),
     ('average_difference', 'average_difference'),
 )
 
 
-class ConfigNameForm(forms.Form):
-    config_name = forms.CharField(label='Configuration name', max_length=200)
+class PolicyNameForm(forms.Form):
+    policy_name = forms.CharField(label='Policy name', max_length=200)
 
 
 #class UploadFileForm(forms.Form):
@@ -70,12 +72,15 @@ class ConfigNameForm(forms.Form):
 #    file_name = forms.CharField()
 
 
-class ConfigForm(forms.Form):
-    config_name = forms.CharField(
+class PolicyForm(forms.Form):
+    policy_name = forms.CharField(
         label='Policy name'
     )
+    description = forms.CharField(
+        label='Policy Description', initial=0
+    )
     display_order = forms.IntegerField(
-        label='Policy order', initial=0
+        label='Display Location No.', initial=0
     )
 
 
@@ -94,4 +99,7 @@ class OperationForm(forms.Form):
     )
     display_order = forms.IntegerField(
         label='Please enter the display order', initial=0
+    )
+    description = forms.CharField(
+        label='Policy Description', initial=0
     )

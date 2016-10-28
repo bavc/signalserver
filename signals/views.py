@@ -10,11 +10,10 @@ from django.http import HttpResponseRedirect
 from django.views import generic
 from django.utils import timezone
 from fileuploads.models import Video
-from operations.models import Configuration
-from operations.models import Operation
+from policies.models import Policy, Operation
 from .models import Output
 from .models import Signal
-from fileuploads.forms import ConfigForm
+from fileuploads.forms import PolicyForm
 from fileuploads.processfiles import get_full_path_file_name
 from celery import group
 from celery.result import AsyncResult
@@ -30,16 +29,16 @@ def index(request):
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
 
-    form = ConfigForm()
+    form = PolicyForm()
     return render(request, 'signals/request.html',
                   {'videos': videos,
                    'shared_videos': shared_videos, 'form': form})
 
 
-def process_config(file_name, config_id, original_file_name,
+def process_policy(file_name, policy_id, original_file_name,
                    current_time_str, current_user):
-    config = Configuration.objects.get(id=config_id)
-    operations = Operation.objects.filter(configuration=config)
+    policy = Policy.objects.get(id=policy_id)
+    operations = Operation.objects.filter(policy=policy)
     current_time = datetime.strptime(current_time_str,
                                      "%Y-%m-%d %H:%M:%S")
     signal_lists = []
@@ -144,10 +143,10 @@ def process(request):
     current_user_name = current_user.username
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
-        config_id = request.POST['config_fields']
+        policy_id = request.POST['policy_fields']
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file_name = get_full_path_file_name(original_file_name)
-        process_config(file_name, config_id,
+        process_policy(file_name, policy_id,
                        original_file_name, current_time_str,
                        current_user_name)
     return HttpResponseRedirect('/signals/file_process_status/')
