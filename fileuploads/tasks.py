@@ -187,7 +187,7 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
             result=result,
             signal_name=k,
             result_number=v,
-            op_name='exceeded',
+            op_name='exceeds',
             frame_number=count,
             cut_off_number=valuedict[k]
         )

@@ -326,22 +326,17 @@ def result_graph(request):
         temp = Result.objects.filter(group_name=group_name)
         results = temp.filter(processed_time=processed_time_object)
 
-        for result in results:
-            policy_name = result.policy_name
-            policy = Policy.objects.filter(
-                policy_name=policy_name)
-            operations = Operation.objects.filter(
-                policy=policy).order_by('display_order')
-            for operation in operations:
-                op_names.append(operation.op_name)
-                signal_name = operation.signal_name
-                if operation.op_name == 'exceeds':
-                    temprows = Row.objects.filter(result=result)
-                    rows = temprows.filter(op_name='exceeded')
-                if operation.op_name == 'average_difference':
-                    signal_name = operation.signal_name + "-" +  \
-                        operation.second_signal_name
-                signal_names.append(signal_name)
+        policy_name = results[0].policy_name
+        policy = Policy.objects.filter(policy_name=policy_name)
+        operations = Operation.objects.filter(
+            policy=policy).order_by('display_order')
+        for operation in operations:
+            op_names.append(operation.op_name)
+            signal_name = operation.signal_name
+            if operation.op_name == 'average_difference':
+                signal_name = operation.signal_name + "-" +  \
+                    operation.second_signal_name
+            signal_names.append(signal_name)
 
     return render(request, 'groups/result_graph.html',
                   {'group_name': group_name,
@@ -371,20 +366,16 @@ def show_graphs(request):
     temp = Result.objects.filter(group_name=group_name)
     results = temp.filter(processed_time=processed_time_object)
 
-    for result in results:
-        policy_name = result.policy_name
-        policy = Policy.objects.filter(policy_name=policy_name)
-        operations = Operation.objects.filter(
-            policy=policy).order_by('display_order')
-        for operation in operations:
-            op_names.append(operation.op_name)
-            signal_name = operation.signal_name
-            if operation.op_name == 'exceeds':
-                temprows = Row.objects.filter(result=result)
-                rows = temprows.filter(op_name='exceeded')
-            if operation.op_name == 'average_difference':
-                signal_name = operation.signal_name + "-" +  \
-                    operation.second_signal_name
+    policy_name = results[0].policy_name
+    policy = Policy.objects.filter(policy_name=policy_name)
+    operations = Operation.objects.filter(
+        policy=policy).order_by('display_order')
+    for operation in operations:
+        op_names.append(operation.op_name)
+        signal_name = operation.signal_name
+        if operation.op_name == 'average_difference':
+            signal_name = operation.signal_name + "-" +  \
+                operation.second_signal_name
             signal_names.append(signal_name)
 
     return render(request, 'groups/show_graph.html',
@@ -414,10 +405,7 @@ def get_graph_data(request):
     for result in results:
         temprows = Row.objects.filter(result=result)
         sigrows = temprows.filter(signal_name=signal_name)
-        if op_name == 'exceeds':
-            rows = sigrows.filter(op_name='exceeded')
-        else:
-            rows = sigrows.filter(op_name=op_name)
+        rows = sigrows.filter(op_name=op_name)
 
         for row in rows:
             if op_name == 'exceeds':
