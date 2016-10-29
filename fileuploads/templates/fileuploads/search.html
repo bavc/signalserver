@@ -50,15 +50,16 @@
                             <form action="{% url 'groups:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
                             <h4> Search keywords </h4>
                             {% if start %}
-                                <input type="hidden" name="start" id="start" value="{{ start }}" />
-                                <h4> Start time : {{ start}}
+                                <input type="hidden" name="start_field" id="start_field" value="{{ start }}" />
+                                Start time : {{ start}}
                             {% endif %}
                             {% if end %}
-                                <input type="hidden" name="end" id="end" value="{{ end }}" />
+                                <input type="hidden" name="end_field" id="end_field" value="{{ end }}" />
                                 End time : {{ end }}
                             {% endif %}
                             {% if keyword %}
                                 The filename has a word : {{ keyword }} </h4></br></br>
+                                <input type="hidden" name="keyword" id="keyword" value="{{ keyword }}" />
                             {% endif %}
 
 
@@ -79,7 +80,7 @@
                                 {% csrf_token %}
                                 <p>{{ form.non_field_errors }}</p>
                                 <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
-                                 <p>{{ form.group_name.errors }}
+                                <p>{{ form.group_name.errors }}
                                     {{ form.group_name }}</p>
                             {% endif %}
                             <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
