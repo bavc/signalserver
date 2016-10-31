@@ -6,8 +6,8 @@
         <body>
     <div class ="container-fluid">
         <h2> Graphs from the processed data</h4>
-        <h4> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
-        <h4>Policy Name : {{ policy_name }} </h4>
+        <h4> Group Name : <a href="../edit_group/{{group_name}}">{{ group_name }}</a>, Processed time: {{ processed_time }}</h4>
+        <h4> Policy Name : <a href="/policy/show/{{policy_name}}">{{ policy_name }}</a> </h4>
         cut of numbers : {{c_numbers}}
         hello world: {{hello_world}}
         op_names  {{op_names}}
