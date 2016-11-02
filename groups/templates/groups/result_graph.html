@@ -6,16 +6,16 @@
         <body>
     <div class ="container-fluid">
         <h2> Graphs from the processed data</h4>
-        <h4> Group Name : {{ group_name }}, Processed time: {{ processed_time }}
-        <h4>Policy Name : {{ policy_name }} </h4>
-        cut of numbers : {{c_numbers}}
-        hello world: {{hello_world}}
-        op_names  {{op_names}}
+        <h4> Group Name : <a href="../edit_group/{{group_name}}">{{ group_name }}</a>, Processed time: {{ processed_time }}</h4>
+        <h4> Policy Name : <a href="/policy/show/{{policy_name}}">{{ policy_name }}</a> </h4>
         {% if operations %}
 
                 {% for operation in operations %}
                     <div class="container">
-                        <h3> Signal Name : {{ operation.signal_name }} Second Signal Name : {{ operation.second_signal_name }}
+                        <h3> Filter Name : {{ operation.signal_name }}
+                             {% if operation.second_signal_name != "None" %}
+                                 Second Filter Name : {{ operation.second_signal_name }}
+                             {% endif %}
                              Operation: {{ operation.op_name }}
                         </h3>
                         {% if operation.op_name == "exceeds" %}

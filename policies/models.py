@@ -68,6 +68,8 @@ class Policy(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
     display_order = models.IntegerField(default=0)
     description = models.CharField(max_length=500)
+    user_name = models.CharField(max_length=400, default=None, null=True)
+    last_updated_time = models.DateTimeField(auto_now=True)
 
 
 class Operation(models.Model):

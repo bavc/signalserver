@@ -12,11 +12,8 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
 from django.views import generic
-from fileuploads.models import Video
-from fileuploads.models import Result
-from fileuploads.models import Row
-from .models import Group
-from .models import Member
+from fileuploads.models import Video, Result, Row
+from .models import Group, Member
 from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
@@ -32,29 +29,29 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 
-# Create your views here.
-
-
 @login_required(login_url="/login/")
 def save_group(request):
     user_name = request.user.username
+    files = Video.objects.filter(user_name=user_name)
+    shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
         group_name = request.POST['group_name']
         group_name = replace_letters(group_name)
         count = Group.objects.filter(group_name=group_name).count()
         if count > 0:
-            form = GroupForm()
             message = "the name " + group_name +  \
-                      " is taken, please select differnt name"
-            start_field = request.POST['start']
-            end_field = request.POST['end']
-            videos = search_result(start_field, end_field)
-            return render(request, 'groups/search.html',
+                " is taken, please select differnt name"
+            form = GroupForm()
+            start_field = request.POST['start_field']
+            end_field = request.POST['end_field']
+            keyword = request.POST.get('keyword', None)
+            videos = search_result(start_field, end_field, keyword)
+            return render(request, 'fileuploads/search.html',
                           {'videos': videos, 'form': form,
                            'start': start_field,
-                           'end': end_field,
-                           'message': message
-                           })
+                           'end': end_field, 'keyword': keyword,
+                           'files': files,
+                           'message': message})
         else:
             new_group = Group(
                 group_name=group_name,

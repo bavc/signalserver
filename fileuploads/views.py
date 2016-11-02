@@ -111,7 +111,7 @@ def search(request):
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
-        keyword = request.POST['keyword']
+        keyword = request.POST.get('keyword', None)
         videos = search_result(start_field, end_field, keyword)
         form = GroupForm()
         return render(request, 'fileuploads/search.html',
