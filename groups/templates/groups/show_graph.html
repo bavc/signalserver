@@ -12,7 +12,10 @@
             {% if operations %}
                 {% for operation in operations %}
                     <div class="container">
-                        <h4> Signal Name : {{ operation.signal_name }} Second Signal Name : {{ operation.second_signal_name }}
+                        <h4> Filter Name : {{ operation.signal_name }}
+                             {% if operation.second_signal_name != "None" %}
+                                Second Filter Name : {{ operation.second_signal_name }}
+                             {% endif %} </h4>
                         <h4> Operation: {{ operation.op_name }} </h4>
 
 

@@ -54,7 +54,7 @@
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a></h4>
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a>   <a href="../delete_group/{{group.group_name}}">Delete</a></h4>
                     <ul>Creation time: {{group.creation_time}}
                     {{ form.config_fields.errors }}
                     <label for="id_signal"> Policy </label>
