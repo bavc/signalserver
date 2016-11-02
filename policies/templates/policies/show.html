@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
+{% block content %}
 <style>
 #div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
 </style>
-{% block content %}
+
 
 <span>
     <div class = "container-fluid">
-    <h1> Add/Delete Rules on Policies </h1>
+    <h1> Add/Update/Delete Rules on Policies </h1>
     <div class="row">
     <div class="col-md-9">
     <h3>Policy Name: {{ policy.policy_name }}</h3>
+    <h4>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
@@ -27,14 +29,35 @@
             {% else %}
                 Average of  "{{ choice.get_signal_name_display }}"
             {% endif %}
-            <a href="delete-op/{{choice.id}}/{{ policy.policy_name }}"> Delete </a>
 
-                 <p> Description:  "{{ choice.description }}" </p>
+            <a href="delete_rule/{{choice.id}}/{{ policy.policy_name }}"> Delete</a>
+            <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
+            <div id="edit_form{{ forloop.counter }}">
+               <form id="form_edit" action="{% url 'policies:edit_rule' %}" name = "edit" method="post" class="form">
+                {% csrf_token %}
 
-        </label>
+                <input name='old_name' type="hidden" value="{{ choice.get_signal_name_display }}">
+                <input name='new_name' type="text" default="{{ group.get_signal_name_display }}">
+                <button type="search" class="btn btn-primary">
+                    Update
+                </button>
+              </form>
+            </div>
+            <p> Description:  "{{ choice.description }}"
+
+
             </p>
 
+
+
+
+
+        </label>
+        </p>
+
+
     {% endfor %}
+     </h4>
 
     <form action="{% url 'policies:show' policy.policy_name %}" method="post">
     {% csrf_token %}
@@ -79,25 +102,43 @@
     <button type="submit" class="btn btn-primary"> Add </button>
     </form>
 
+    <h4> Last updated by : {{ policy.user_name}} </h4>
+    <h4> Last Update : {{ policy.last_updated_time }} </h4>
+    <h4> Creation time : {{policy.creation_time}} </h4>
+
     </div>
+
+
 </div>
 </div>
 <script>
-    function operationSelect(that) {
-        if (that.value === "exceeds" || that.value === "equals" || that.value === "belows" ) {
-            document.getElementById("cutoffnumber").style.display = "block";
-            document.getElementById("secondsignal").style.display = "none";
 
-        }
-        else if (that.value == "average_difference"){
-            document.getElementById("secondsignal").style.display = "block";
-            document.getElementById("cutoffnumber").style.display = "none";
-        }
-        else if (that.value == "average"){
-            document.getElementById("secondsignal").style.display = "none";
-            document.getElementById("cutoffnumber").style.display = "none";
-        }
+{% for choice in operation %}
+
+    $("#edit_form{{ forloop.counter }}").hide();
+    $(".edit_link{{ forloop.counter }}").click (function(){
+        $("#edit_form{{ forloop.counter }}").show();
+    });
+
+{% endfor %}
+
+function operationSelect(that) {
+    if (that.value === "exceeds" || that.value === "equals" || that.value === "belows" ) {
+        document.getElementById("cutoffnumber").style.display = "block";
+        document.getElementById("secondsignal").style.display = "none";
 
     }
+    else if (that.value == "average_difference"){
+        document.getElementById("secondsignal").style.display = "block";
+        document.getElementById("cutoffnumber").style.display = "none";
+    }
+    else if (that.value == "average"){
+        document.getElementById("secondsignal").style.display = "none";
+        document.getElementById("cutoffnumber").style.display = "none";
+    }
+
+}
+
+
 </script>
 {% endblock %}

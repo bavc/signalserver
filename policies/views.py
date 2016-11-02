@@ -13,6 +13,9 @@ from .forms import PolicyNameForm
 from .forms import PolicyForm
 from .forms import OperationForm
 
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
 
 def replace_letters(policy_name):
     if " " in policy_name:
@@ -22,6 +25,7 @@ def replace_letters(policy_name):
     return policy_name
 
 
+@login_required(login_url="/login/")
 def index(request):
     if request.method == 'POST':
         form = PolicyForm(request.POST)
@@ -60,12 +64,17 @@ def delete_policy(request, policy_name):
     return HttpResponseRedirect(reverse('policies:index'))
 
 
-def delete_op(request, op_id, policy_name):
+def delete_rule(request, op_id, policy_name):
     Operation.objects.get(id=op_id).delete()
     return HttpResponseRedirect(reverse('policies:show',
                                 kwargs={'policy_name': policy_name}))
 
 
+def edit_rule(request, op_id):
+    pass
+
+
+@login_required(login_url="/login/")
 def show(request, policy_name):
     policy = Policy.objects.get(policy_name=policy_name)
 
@@ -89,6 +98,9 @@ def show(request, policy_name):
                 description=description
             )
             new_operation.save()
+        #policy.last_updated_time = datetime.now()
+        policy.user_name = request.user.username
+        policy.save()
 
     operation = Operation.objects.filter(
         policy=policy).order_by('display_order')
