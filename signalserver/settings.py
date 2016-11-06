@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts.apps.AccountsConfig',
     'fileuploads.apps.FileuploadsConfig',
     'groups.apps.GroupsConfig',
     'policies.apps.PoliciesConfig',
