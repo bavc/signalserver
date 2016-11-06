@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from fileuploads.views import list_file
-from fileuploads.views import register
-from fileuploads.views import custom_login
-from fileuploads.views import custom_logout
-from fileuploads.forms import UserForm
+from accounts.views import register
+from accounts.views import custom_login
+from accounts.views import custom_logout
+from accounts.forms import UserForm
 from django.contrib.auth import views
 
 
@@ -50,6 +50,7 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^accounts/', include('accounts.urls')),
     url(r'^policy/', include('policies.urls')),
     url(r'^groups/', include('groups.urls')),
     url(r'^signals/', include('signals.urls')),
