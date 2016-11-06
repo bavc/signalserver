@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<span>
+    <div class = "container-fluid">
+        <h2>Account Information</h2>
+        <div class="row">
+            <div class="col-md-6">
+                {% if message %}
+                    {{ message }}
+                {% endif %}
+                <form id="form_update" action="{% url 'accounts:update' %}" name = "update" method="post" class="form">
+                <p>
+                    {% csrf_token %}
+                    <b>User Name: </b><input name='user_name' type="text" value="{{ user.username }}" >
+                    <b>email: </b> <input name='email' type="text" value="{{ user.email }}">
+                </p>
+                <p>
+                    <b>First name: </b><input name='first_name' type="text" value="{{ user.first_name }}" >
+                    <b>Last Name: </b> <input name='last_name' type="text" value="{{ user.last_name }}">
+                </p>
+                    <button type="search" class="btn btn-primary">
+                        Save Changes
+                    </button>
+                  </form>
+                <h3> Reset Password </h3>
+                <div id="password_reset_link">
+                  <a href="{% url 'password_reset' %}">I like to reset password</a>
+                </div>
+                <!--a class = "password_reset_link" href="#">I like to reset password</a>
+
+                <div id="password_reset" style="display: none;">
+                <form method="post">
+                {% csrf_token %}
+                    {{ form.new_password.errors }}
+                    <p class="aligned wide"><label for="id_new_password1">New Password : </label>{{ form.password }}</p>
+                    {{ form.password2.errors }}
+                    <p class="aligned wide"><label for="id_new_password2">Confirm password : </label>{{ form.password2 }}</p>
+                    <button type="submit" class="btn btn-primary">
+                    Change my password
+                    </button>
+                </form>
+                </div-->
+            </div>
+
+            </div>
+
+        </div>
+    </div>
+     <script>
+     $("#password_reset").hide();
+     $(".password_reset_link").click (function(){
+        $("#password_reset").show();
+        $("#password_reset_link").hide();
+      });
+    </script>
+
+
+{% endblock %}
