@@ -15,9 +15,8 @@
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
-          <p>
         <label for="choice{{ forloop.counter }}">
-
+            <p>
             {% if choice.get_second_signal_name_display != "None" %}
                 Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}"
             {% elif choice.get_op_name_display == "exceeds"  %}
@@ -29,21 +28,58 @@
             {% else %}
                 Average of  "{{ choice.get_signal_name_display }}"
             {% endif %}
-
-            <a href="delete_rule/{{choice.id}}/{{ policy.policy_name }}"> Delete</a>
-            <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
+            Description:  "{{ choice.description }}"
+            </p>
             <div id="edit_form{{ forloop.counter }}">
                <form id="form_edit" action="{% url 'policies:edit_rule' %}" name = "edit" method="post" class="form">
                 {% csrf_token %}
 
-                <input name='old_name' type="hidden" value="{{ choice.get_signal_name_display }}">
-                <input name='new_name' type="text" default="{{ group.get_signal_name_display }}">
+                <!-- variable -->
+                    {{ form.signal_fields.errors }}
+                    <label for="id_signal">Filter</label>
+                    {{ form.signal_fields }}
+
+                    {{ form.operation_fields.errors}}
+                    <label for="id_name">Operation</label>
+                    {{ form.operation_fields}}
+
+
+
+                    <div id="secondsignal" style="display:none;">
+                    {{ form.second_signal_fields.errors }}
+                    <label for="id_signal2">Filter2</label>
+                    {{ form.second_signal_fields }}
+                    </div>
+
+                    <div id="cutoffnumber" style="display:none;">
+                    {{ form.cutoff_number.errors }}
+                    <label for="id_cutoff ">Cutoff Number</label>
+                    {{ form.cutoff_number }}
+                    </div>
+
+                    <div id="display_order" style="display:none;">
+                    {{ form.display_order.errors }}
+                    <label for="id_cutoff ">Display order</label>
+                    {{ form.display_order }}
+                    </div>
+
+                    <div>
+                    {{ form.description.errors }}
+                    <label for="id_description">Description</label>
+                    {{ form.description }}
+                    </div>
                 <button type="search" class="btn btn-primary">
                     Update
                 </button>
               </form>
             </div>
-            <p> Description:  "{{ choice.description }}"
+
+
+            <p>
+            <a href="delete_rule/{{choice.id}}/{{ policy.policy_name }}"> Delete</a>
+            <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
+
+
 
 
             </p>
