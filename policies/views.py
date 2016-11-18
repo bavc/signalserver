@@ -70,44 +70,61 @@ def delete_rule(request, op_id, policy_name):
                                 kwargs={'policy_name': policy_name}))
 
 
-def edit_rule(request, op_id):
-    pass
+def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+              display_order, description, id_num):
+    operation = Operation.objects.get(id=id_num)
+    operation.policy = policy
+    operation.cut_off_number = cutoff_num
+    operation.signal_name = sig_name
+    operation.second_signal_name = sig2_name
+    operation.op_name = op_name
+    operation.description = description
+    operation.save()
+
+
+def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+             display_order, description):
+    new_operation = Operation(
+        policy=policy,
+        cut_off_number=cutoff_num,
+        signal_name=sig_name,
+        second_signal_name=sig2_name,
+        op_name=op_name,
+        display_order=display_order,
+        description=description
+    )
+    new_operation.save()
 
 
 @login_required(login_url="/login/")
 def show(request, policy_name):
     policy = Policy.objects.get(policy_name=policy_name)
-
     if request.method == 'POST':
         form = OperationForm(request.POST)
-        cutoff_num = request.POST['cutoff_number']
+        cutoff_num = request.POST.get('cutoff_number', 0)
         sig_name = request.POST['signal_fields']
         sig2_name = request.POST['second_signal_fields']
         op_name = request.POST['operation_fields']
         #display_order = request.POST['display_order']
         display_order = 0
         description = request.POST['description']
-        if form.is_valid():
-            new_operation = Operation(
-                policy=policy,
-                cut_off_number=cutoff_num,
-                signal_name=sig_name,
-                second_signal_name=sig2_name,
-                op_name=op_name,
-                display_order=display_order,
-                description=description
-            )
-            new_operation.save()
-        #policy.last_updated_time = datetime.now()
+        action = request.POST['action']
+        if action == 'new':
+            add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+                     display_order, description)
+        else:
+            id_num = request.POST['id_num']
+            edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+                      display_order, description, id_num)
         policy.user_name = request.user.username
         policy.save()
-
     operation = Operation.objects.filter(
         policy=policy).order_by('display_order')
     form = OperationForm()  # A empty, unbound form
     return render(request, 'policies/show.html',
                   {'policy': policy,
-                   'form': form, 'operation': operation})
+                   'form': form,
+                   'operation': operation})
 
 
 def rename(request):
