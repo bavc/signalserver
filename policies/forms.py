@@ -94,7 +94,7 @@ class OperationForm(forms.Form):
     second_signal_fields = forms.ChoiceField(
         choices=SIGNALS, required=False
     )
-    cutoff_number = forms.IntegerField(
+    cutoff_number = forms.FloatField(
         label='Please enter the cut off number', initial=0
     )
     display_order = forms.IntegerField(
