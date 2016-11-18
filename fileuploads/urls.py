@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^(?P<filename_id>[0-9]+)/results/$', views.results, name='results'),
     url(r'^list/$', views.list_file, name='list'),
     url(r'^about/$', views.about, name='about'),
-    url(r'^register/$', views.register, name='register'),
     url(r'^upload/$', views.upload, name='upload'),
     url(r'^process/$', views.process, name='process'),
     url(r'^status/$', views.status, name='status'),
