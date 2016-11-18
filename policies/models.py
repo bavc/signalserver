@@ -79,6 +79,6 @@ class Operation(models.Model):
     second_signal_name = models.CharField(
         max_length=100, choices=SIGNALS, default=None)
     op_name = models.CharField(max_length=20, choices=OPERATIONS)
-    cut_off_number = models.IntegerField(default=0)
+    cut_off_number = models.FloatField(default=0)
     display_order = models.IntegerField(default=0)
     description = models.CharField(max_length=500)
