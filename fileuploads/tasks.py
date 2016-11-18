@@ -174,18 +174,21 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
                     value = elem.get("value")
                     datadict[key] += float(value)
                 if key in check_exceeds:
+                    value = elem.get("value")
                     cut_off_values = exceed_cutoff_dict[key]
                     for number in cut_off_values:
                         if float(value) > number:
                             key_name = key + "-" + str(number)
                             exceed_dict[key_name] += 1
                 if key in check_belows:
+                    value = elem.get("value")
                     cut_off_values = below_cutoff_dict[key]
                     for number in cut_off_values:
                         if float(value) < number:
                             key_name = key + "-" + str(number)
                             below_dict[key_name] += 1
                 if key in check_equals:
+                    value = elem.get("value")
                     cut_off_values = equal_value_dict[key]
                     for number in cut_off_values:
                         if float(value) == number:
