@@ -9,8 +9,6 @@ urlpatterns = [
     url(r'^rename/$', views.rename, name='rename'),
     url(r'^delete_policy/(?P<policy_name>[\w.]{0,256})$',
         views.delete_policy, name='delete_policy'),
-    url(r'^show/edit_rule/$',
-        views.edit_rule, name='edit_rule'),
     url(r'^show/delete_rule/(?P<op_id>[0-9]+)/(?P<policy_name>[\w.]{0,256})$',
         views.delete_rule, name='delete_rule'),
     url(r'^show/(?P<policy_name>[\w.]{0,256})$',
