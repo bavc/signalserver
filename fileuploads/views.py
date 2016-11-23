@@ -29,6 +29,9 @@ from policies.models import Policy, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.parsers import FileUploadParser
+from rest_framework.response import Response
 
 
 def index(request):
@@ -170,9 +173,7 @@ def upload(request):
 
 @login_required(login_url="/login/")
 def list_file(request):
-    # Handle file upload
     form = VideoForm()
-    #videos = Video.objects.all()
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
@@ -194,4 +195,17 @@ def list_file(request):
                    'form': form, 'user': current_user})
 
 
+class FileUploadView(APIView):
+    parser_classes = (FileUploadParser, )
 
+    def post(self, request, format='jpg'):
+        up_file = request.FILES['file']
+        destination = open('/var/signalserver/files/' + up_file.name, 'wb+')
+        for chunk in up_file.chunks():
+            destination.write(chunk)
+            destination.close()
+
+        # ...
+        # do some stuff with uploaded file
+        # ...
+        return Response(up_file.name, status=201)

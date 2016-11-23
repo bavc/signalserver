@@ -31,7 +31,7 @@ SECRET_KEY = 'xa95)v=zj*c^2gq=36wl5!9)4y=lh$ax0nd_96u^n2_)j15zh+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.99.100']
 
 # Application definition
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'policies.apps.PoliciesConfig',
     'signals.apps.SignalsConfig',
     'reports.apps.ReportsConfig',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -194,3 +195,5 @@ EMAIL_USE_TLS = True
 #         },
 #     },
 # }
+
+CONTENT_LENGTH = 50000000000
