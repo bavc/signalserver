@@ -1,4 +1,6 @@
 import os
+from os import listdir
+from os.path import isfile, join
 from datetime import datetime
 import pytz
 import json
@@ -29,6 +31,12 @@ from policies.models import Policy, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.parsers import FileUploadParser
+from rest_framework.response import Response
 
 
 def index(request):
@@ -149,7 +157,7 @@ def upload(request):
                 name = get_filename(original_name)
                 count = Video.objects.filter(filename=name).count()
                 if count > 0:
-                    Video.objects.get(filename=name).delete()
+                    delete_file(name)
                 newvideo = Video(
                     videofile=f,
                     filename=name,
@@ -170,9 +178,7 @@ def upload(request):
 
 @login_required(login_url="/login/")
 def list_file(request):
-    # Handle file upload
     form = VideoForm()
-    #videos = Video.objects.all()
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
@@ -194,4 +200,40 @@ def list_file(request):
                    'form': form, 'user': current_user})
 
 
+class FileUploadView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (FileUploadParser, )
 
+    def post(self, request, format='.xml.gz'):
+        up_file = request.FILES['file']
+        name = up_file.name
+        part = name[:-7]
+        filepath = '/var/signalserver/files/'
+
+        count = Video.objects.filter(filename=name).count()
+        if count > 0:
+            files = [f for f in listdir(filepath) if isfile(join(filepath, f))]
+            for f in files:
+                if part in f and name != f:
+                    os.remove(filepath + f)
+        destination = open(filepath + up_file.name, 'wb+')
+        for chunk in up_file.chunks():
+            destination.write(chunk)
+            destination.close()
+        current_user = request.user
+        newvideo = Video(
+            videofile=up_file,
+            filename=up_file.name,
+            user_name=current_user.username
+        )
+        newvideo.save()
+        files = [f for f in listdir(filepath) if isfile(join(filepath, f))]
+        for f in files:
+            if part in f and name != f:
+                os.remove(filepath + f)
+
+        # ...
+        # do some stuff with uploaded file
+        # ...
+        return Response(up_file.name, status=201)
