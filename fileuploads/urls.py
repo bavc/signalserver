@@ -21,4 +21,5 @@ urlpatterns = [
         views.show_result, name='show_result'),
     url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',
         views.delete_video, name='delete_video'),
+    url(r'^fileUpload', views.FileUploadView.as_view()),
 ]
