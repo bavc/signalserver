@@ -205,26 +205,25 @@ class FileUploadView(APIView):
     permission_classes = (IsAuthenticated,)
     parser_classes = (FileUploadParser, )
 
-    def post(self, request, format='.xml.gz'):
-        up_file = request.FILES['file']
+    def put(self, request, filename, format=None):
+        up_file = request.data['file']
         name = up_file.name
-        part = name[:-7]
+        file_name = get_filename(name)
+        part = name[:-7] + ".xml_"
         filepath = '/var/signalserver/files/'
+        current_user = request.user
 
-        count = Video.objects.filter(filename=name).count()
+        count = Video.objects.filter(filename=file_name).count()
         if count > 0:
             files = [f for f in listdir(filepath) if isfile(join(filepath, f))]
             for f in files:
                 if part in f and name != f:
                     os.remove(filepath + f)
-        destination = open(filepath + up_file.name, 'wb+')
-        for chunk in up_file.chunks():
-            destination.write(chunk)
-            destination.close()
-        current_user = request.user
+            Video.objects.filter(filename=file_name).delete()
+
         newvideo = Video(
             videofile=up_file,
-            filename=up_file.name,
+            filename=file_name,
             user_name=current_user.username
         )
         newvideo.save()
@@ -233,7 +232,4 @@ class FileUploadView(APIView):
             if part in f and name != f:
                 os.remove(filepath + f)
 
-        # ...
-        # do some stuff with uploaded file
-        # ...
-        return Response(up_file.name, status=201)
+        return Response(up_file.name, status=204)

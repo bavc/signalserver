@@ -237,7 +237,7 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
             result_number=v,
             op_name='exceeds',
             frame_number=count,
-            cut_off_number=int(cut_off)
+            cut_off_number=float(cut_off)
         )
         new_row.save()
     for k, v in below_dict.items():
@@ -248,7 +248,7 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
             result_number=v,
             op_name='belows',
             frame_number=count,
-            cut_off_number=int(cut_off)
+            cut_off_number=float(cut_off)
         )
         new_row.save()
     for k, v in equal_dict.items():
@@ -259,7 +259,7 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
             result_number=v,
             op_name='equals',
             frame_number=count,
-            cut_off_number=int(cut_off)
+            cut_off_number=float(cut_off)
         )
         new_row.save()
     return 'success'
