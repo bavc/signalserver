@@ -11,20 +11,20 @@
             {% for key, values in  group_results.items %}
                 {% if key in not_completed %}
                     <li><h4>{{ key }} </h4>
-                        Policy: <a href="/policy/show/{{values.0.policy_name}}">{{values.0.policy_name}}</a>
-                        Group Name: <a href="../edit_group/{{values.0.group_name}}">{{values.0.group_name}}</a></li>
+                        Policy: <a href="/policy/show/{{values.0.policy_id}}">{{values.0.policy_name}}</a>
+                        Group Name: <a href="../edit_group/{{values.0.group_id}}">{{values.0.group_name}}</a></li>
                 {% endif %}
             {% endfor %}
             <h3> Completed </h3>
              {% for key, values in  group_results.items %}
                 {% if key not in not_completed %}
                         <ul><li><h4>{{ key }} </h4>
-                            Policy: <a href="/policy/show/{{values.0.policy_name}}">{{values.0.policy_name}}</a>
-                            Group Name: <a href="../edit_group/{{values.0.group_name}}">{{values.0.group_name}}</a></li>
-                            <a href="../delete_group_result/{{values.0.group_name}}/{{values.0.processed_time|date:"U"}}">Delete</a></h4>
+                            Policy: <a href="/policy/show/{{values.0.policy_id}}">{{values.0.policy_name}}</a>
+                            Group Name: <a href="../edit_group/{{values.0.group_id}}">{{values.0.group_name}}</a></li>
+                            <a href="../delete_group_result/{{values.0.group_id}}/{{values.0.processed_time|date:"U"}}">Delete</a></h4>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
+                            <input type="hidden" name="group_id" id="group_id" value="{{values.0.group_id}}" />
 
                             <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></li></ul>
@@ -51,7 +51,7 @@
                         <ul>{{ key }} Config: {{values.0.config_name}}</li>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <input type="hidden" name="group_name" id="group_name" value="{{values.0.group_name}}" />
+                            <input type="hidden" name="group_id" id="group_id" value="{{values.0.group_id}}" />
                             <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
 

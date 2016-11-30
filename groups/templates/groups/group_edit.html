@@ -27,7 +27,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
                         {% for member in group.member_set.all %}
-                            <ul><h4>{{member.file_name}} </h4> Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.group_name %}">remove</a>
+                            <ul><h4>{{member.file_name}} </h4> Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.id %}">remove</a>
                             </ul>
                         {% endfor %}
                     </p>
@@ -47,7 +47,7 @@
                 {% endif %}
             </div>
             <div class="col-md-6">
-                <form action="{% url 'groups:edit_group' group.group_name %}" name = "search" method="post" class="form">
+                <form action="{% url 'groups:edit_group' group.id %}" name = "search" method="post" class="form">
                     {% csrf_token %}
 
                     <h3>File Search</h3>

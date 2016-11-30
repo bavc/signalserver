@@ -87,8 +87,8 @@ def save_group(request):
                        'form': form})
 
 
-def delete_group(request, group_name):
-    Group.objects.get(group_name=group_name).delete()
+def delete_group(request, group_id):
+    Group.objects.get(id=group_id).delete()
     return HttpResponseRedirect(reverse('groups:save_group'))
 
 
@@ -111,8 +111,8 @@ def rename_group(request):
 
 
 @login_required(login_url="/login/")
-def edit_group(request, group_name):
-    group = Group.objects.get(group_name=group_name)
+def edit_group(request, group_id):
+    group = Group.objects.get(id=group_id)
     files = Video.objects.all()
     if request.method == 'POST':
         start_field = request.POST['start_field']
@@ -200,7 +200,7 @@ def group_process_status(request):
                   {'group_results': group_results,
                    'shared_group_results': shared_group_results,
                    'not_completed': not_completed,
-                   'shared_not_completed': shared_not_completed
+                   'shared_not_completed': shared_not_completed,
                    })
 
 
@@ -208,8 +208,9 @@ def group_process_status(request):
 def group_process(request):
     user_name = request.user.username
     if request.method == 'POST':
-        group_name = request.POST['group_name']
-        group = Group.objects.get(group_name=group_name)
+        group_id = request.POST['group_id']
+        group = Group.objects.get(id=group_id)
+        group_name = group.group_name
         members = Member.objects.filter(group=group)
         policy_id = request.POST['policy_fields']
         policy_name = Policy.objects.get(
@@ -217,22 +218,22 @@ def group_process(request):
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for member in members:
             file_process(member.file_name, policy_id, policy_name,
-                         current_time_str, user_name, group_name)
+                         current_time_str, user_name, group_id, group_name)
 
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
-def delete_group_result(request, group_name, processed_time):
+def delete_group_result(request, group_id, processed_time):
     processed_time_object = datetime.fromtimestamp(
         int(processed_time))
-    temp = Result.objects.filter(group_name=group_name)
+    temp = Result.objects.filter(id=group_id)
     temp.filter(processed_time=processed_time_object).delete()
 
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
 def file_process(file_name, policy_id, policy_name, current_time_str,
-                 user_name, group_name=None):
+                 user_name, group_id, group_name=None):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
     current_time = datetime.strptime(current_time_str,
@@ -247,6 +248,7 @@ def file_process(file_name, policy_id, policy_name, current_time_str,
         task_id=status.task_id,
         status=AsyncResult(status.task_id).ready(),
         group_name=group_name,
+        group_id=group_id,
         user_name=user_name
     )
     result.save()
@@ -306,15 +308,13 @@ def update_group(request):
                   {'group': group, 'files': files})
 
 
-def remove_file(request, group_name, file_name):
-    group_name = group_name
-    group = Group.objects.get(group_name=group_name)
+def remove_file(request, group_id, file_name):
+    group = Group.objects.get(id=group_id)
     members = Member.objects.filter(group=group)
     member = members.filter(file_name=file_name)
     member.delete()
-    files = Video.objects.all()
     return HttpResponseRedirect(reverse('groups:edit_group',
-                                        args=(group_name,)))
+                                        args=(group_id,)))
 
 
 def result_graph(request):
@@ -325,10 +325,14 @@ def result_graph(request):
     group_name = ''
     processed_time = ''
     policy_name = ''
+    policy_id = 0
+    group_id = 0
     results = []
     operations = []
     if request.method == 'POST':
-        group_name = request.POST['group_name']
+        group_id = request.POST['group_id']
+        group = Group.objects.get(id=group_id)
+        group_name = group.group_name
         processed_time = request.POST['processed_time']
 
         processed_time_object = datetime.strptime(processed_time,
@@ -339,6 +343,7 @@ def result_graph(request):
 
         policy_name = results[0].policy_name
         policy = Policy.objects.filter(policy_name=policy_name)
+        policy_id = results[0].policy_id
         operations = Operation.objects.filter(
             policy=policy).order_by('display_order')
         for operation in operations:
@@ -352,13 +357,14 @@ def result_graph(request):
 
     return render(request, 'groups/result_graph.html',
                   {'group_name': group_name,
+                   'group_id': group_id,
                    'processed_time': processed_time,
                    'signal_names': signal_names,
+                   'policy_id': policy_id,
                    'policy_name': policy_name,
                    'operations': operations,
                    'op_names': op_names,
                    'c_numbers': c_numbers,
-                   'hello_world': "helllo world"
                    })
 
 
@@ -370,17 +376,20 @@ def show_graphs(request):
     policy_name = ''
     results = []
     operations = []
+    group_id = 0
+    policy_id = 0
 
     result = Result.objects.order_by('-processed_time').first()
     group_name = result.group_name
+    group_id = result.group_id
     pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
     processed_time_object = datetime.strptime(pro_time,
                                               "%Y-%m-%d %H:%M:%S")
 
     temp = Result.objects.filter(group_name=group_name)
     results = temp.filter(processed_time=processed_time_object)
-
-    policy_name = results[0].policy_name
+    policy_name = results.policy_name
+    policy_id = result.policy_id
     policy = Policy.objects.filter(policy_name=policy_name)
     operations = Operation.objects.filter(
         policy=policy).order_by('display_order')
@@ -394,16 +403,18 @@ def show_graphs(request):
 
     return render(request, 'groups/show_graph.html',
                   {'group_name': group_name,
+                   'group_id': group_id,
                    'processed_time': pro_time,
                    'signal_names': signal_names,
                    'policy_name': policy_name,
+                   'policy_id': policy_id,
                    'operations': operations,
                    'op_names': op_names,
                    })
 
 
 def get_graph_data(request):
-    group_name = request.GET['group_name']
+    group_id = request.GET['group_id']
     processed_time = request.GET['processed_time']
     signal_name = request.GET['signal_name']
     op_name = request.GET['op_name']
@@ -415,7 +426,7 @@ def get_graph_data(request):
     processed_time_object = datetime.strptime(processed_time,
                                               "%Y-%m-%d %H:%M:%S")
 
-    temp = Result.objects.filter(group_name=group_name)
+    temp = Result.objects.filter(group_id=group_id)
     results = temp.filter(processed_time=processed_time_object)
 
     for result in results:

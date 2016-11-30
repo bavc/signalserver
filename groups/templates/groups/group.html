@@ -15,8 +15,8 @@
                 {% for group in groups %}
                     <li>
 
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a>
-                    <a href="../delete_group/{{group.group_name}}">Delete</a>
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.id}}"> Edit </a>
+                    <a href="../delete_group/{{group.id}}">Delete</a>
                     <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></h4>
                     <div id="rename_form{{ forloop.counter }}">
                            <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
@@ -31,7 +31,8 @@
                     <ul>Creation time: {{group.creation_time}}
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
+                    <input type="hidden" name="group_id" id="group{{ forloop.counter }}"
+                     value="{{group.id}}" />
 
                     {{ form.policy_fields.errors }}
 
@@ -53,8 +54,8 @@
                     <li>
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.group_name}}"> Edit </a>   <a href="../delete_group/{{group.group_name}}">Delete</a></h4>
+                    <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
+                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.id}}"> Edit </a>   <a href="../delete_group/{{group.id}}">Delete</a></h4>
                     <ul>Creation time: {{group.creation_time}}
                     {{ form.policy_fields.errors }}
                     <label for="id_signal"> Policy </label>
@@ -73,7 +74,7 @@
                     <h3> {{group.group_name}} is saved.</h3>
                     <p> Files in this group :
                         {% csrf_token %}
-                        <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
+                        <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
                         {% for member in group.member_set.all %}
                             <ul>{{member.file_name}} {{member.upload_time}}</ul>
                         {% endfor %}
@@ -104,7 +105,7 @@
                     <h3> Group Name: {{group.group_name}} </h3>
                     <p> Files in this group :
                         {% csrf_token %}
-                        <input type="hidden" name="group_name" id="group{{ forloop.counter }}" value="{{group.group_name}}" />
+                        <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
                         {% for member in group.member_set.all %}
                             <ul>{{member.file_name}} {{member.upload_time}}</ul>
                         {% endfor %}
