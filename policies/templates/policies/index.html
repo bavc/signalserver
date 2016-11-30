@@ -10,8 +10,8 @@
                     <!-- List of already created policies -->
                     {% if policies %}
                         {% for policy in policies %}
-                        <h4> Policy Name:<a href="show/{{ policy.policy_name }}">{{ policy.policy_name }} </a>
-                            <a href="delete_policy/{{policy.policy_name}}">Delete</a>
+                        <h4> Policy Name:<a href="show/{{ policy.id }}">{{ policy.policy_name }} </a>
+                            <a href="delete_policy/{{policy.id}}">Delete</a>
                             <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
                         <div id="rename_form{{ forloop.counter }}">
                            <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
@@ -37,6 +37,9 @@
             </div>
             <div class="col-md-6">
                  <h3> Create new policy </h3>
+                 {% if message %}
+                    <p> {{ message }} <p>
+                 {% endif %}
                 <form action="{% url 'policies:index' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <p>{{ form.non_field_errors }}</p>

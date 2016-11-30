@@ -21,6 +21,7 @@ class Result(models.Model):
     policy_name = models.CharField(max_length=100)
     task_id = models.CharField(max_length=200)
     status = models.BooleanField(default=False)
+    group_id = models.IntegerField(default=0)
     group_name = models.CharField(max_length=400, default=None, null=True)
     user_name = models.CharField(max_length=400, default=None, null=True)
     shared = models.BooleanField(default=True)

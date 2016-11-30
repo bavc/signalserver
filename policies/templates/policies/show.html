@@ -29,7 +29,7 @@
             {% endif %}
             Description:  "{{ choice.description }}"
             <div id = "edit_form{{ forloop.counter }}">
-            <form id="form_edit" action="{% url 'policies:show' policy.policy_name %}" name = "edit" method="post" class="form">
+            <form id="form_edit" action="{% url 'policies:show' policy.id %}" name = "edit" method="post" class="form">
                 {% csrf_token %}
                 <div id="policy_edit{{ forloop.counter }}">
                 <!-- variable -->
@@ -73,14 +73,14 @@
               </form>
             </div>
             <p>
-            <a href="delete_rule/{{choice.id}}/{{ policy.policy_name }}"> Delete</a>
+            <a href="delete_rule/{{choice.id}}/{{ policy.id }}"> Delete</a>
             <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
             </p>
         </label>
         </p>
     {% endfor %}
 
-    <form action="{% url 'policies:show' policy.policy_name %}" method="post">
+    <form action="{% url 'policies:show' policy.id %}" method="post">
     {% csrf_token %}
 
     {% csrf_token %}
