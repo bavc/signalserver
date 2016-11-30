@@ -67,6 +67,7 @@ def process_policy(file_name, policy_id, original_file_name,
 
 
 def update_output(outputs):
+    all_done = True
     for output in outputs:
         if not output.status:
             task_id = output.task_id
@@ -75,8 +76,17 @@ def update_output(outputs):
                 signals = Signal.objects.filter(output=output)
                 if len(signals) > 0:
                     output.frame_count = signals[0].frame_count
+            else:
+                all_done = False
             output.status = work_status
             output.save()
+
+    if all_done:
+        files = []
+        file_name = STORED_FILEPATH + "/" + outputs[0].file_name + ".xml"
+        if file_name not in files and os.path.isfile(file_name):
+            os.remove(file_name)
+            files.append(file_name)
 
 
 def sort_by_user(outputs, current_user_name):

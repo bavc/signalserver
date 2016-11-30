@@ -146,6 +146,7 @@ def status(request):
 def upload(request):
     # Handle file upload
     form = VideoForm()
+    message = None
     if request.method == 'POST':
 
         form = VideoForm(request.POST, request.FILES)
@@ -154,16 +155,21 @@ def upload(request):
         if form.is_valid():
             for f in files:
                 original_name = f.name
-                name = get_filename(original_name)
-                count = Video.objects.filter(filename=name).count()
-                if count > 0:
-                    delete_file(name)
-                newvideo = Video(
-                    videofile=f,
-                    filename=name,
-                    user_name=user_name
-                )
-                newvideo.save()
+                extension = original_name[-7:]
+                if extension != ".xml.gz":
+                    message = "File format needs to be .xml.gz. Your file is "
+                    message = message + original_name + "\n"
+                else:
+                    name = get_filename(original_name)
+                    count = Video.objects.filter(filename=name).count()
+                    if count > 0:
+                        delete_file(name)
+                    newvideo = Video(
+                        videofile=f,
+                        filename=name,
+                        user_name=user_name
+                    )
+                    newvideo.save()
 
     # Load documents for the list page
     current_user = request.user
@@ -173,7 +179,7 @@ def upload(request):
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
                   {'shared_videos': shared_videos, 'videos': videos,
-                   'user': current_user, 'form': form})
+                   'user': current_user, 'form': form, 'message': message})
 
 
 @login_required(login_url="/login/")
@@ -207,10 +213,16 @@ class FileUploadView(APIView):
 
     def put(self, request, filename, format=None):
         up_file = request.data['file']
+        filepath = '/var/signalserver/files/'
         name = up_file.name
+        extension = name[-7:]
+        if extension != ".xml.gz":
+            message = "File format needs to be .xml.gz. Your file is "
+            message = message + name + "\n"
+            return Response(message, status=204)
         file_name = get_filename(name)
         part = name[:-7] + ".xml_"
-        filepath = '/var/signalserver/files/'
+
         current_user = request.user
 
         count = Video.objects.filter(filename=file_name).count()
@@ -232,4 +244,4 @@ class FileUploadView(APIView):
             if part in f and name != f:
                 os.remove(filepath + f)
 
-        return Response(up_file.name, status=204)
+        return Response(up_file.name + "\n", status=204)
