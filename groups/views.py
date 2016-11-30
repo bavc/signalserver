@@ -12,12 +12,14 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
 from django.views import generic
-from fileuploads.models import Video, Result, Row
+
 from .models import Group, Member
+from fileuploads.models import Video, Result, Row
 from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
 from fileuploads.views import search_result
+from fileuploads.constants import STORED_FILEPATH
 from celery import group
 from fileuploads.tasks import process_file
 from celery.result import AsyncResult
@@ -251,12 +253,23 @@ def file_process(file_name, policy_id, policy_name, current_time_str,
 
 
 def update_results(results):
+    all_done = True
     for result in results:
         if not result.status:
             task_id = result.task_id
             work_status = AsyncResult(task_id).ready()
             result.status = work_status
+            if not result.status:
+                all_done = False
             result.save()
+
+    if all_done:
+        files = []
+        for result in results:
+            file_name = STORED_FILEPATH + "/" + result.filename + ".xml"
+            if file_name not in files and os.path.isfile(file_name):
+                os.remove(file_name)
+                files.append(file_name)
     return results
 
 
