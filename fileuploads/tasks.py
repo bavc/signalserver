@@ -9,7 +9,8 @@ from signalserver.celery import app as celery
 # set the default Django settings module for the 'celery' program.
 #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 #from django.conf import settings  # noqa
-from .models import Video, Result, Row
+from .models import Video
+from groups.models import Result, Row
 from policies.models import Policy, Operation
 from signals.models import Output, Signal
 from celery import shared_task
@@ -108,7 +109,7 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
 
 
 @celery.task
-def process_file(file_name, policy_id, original_name, processed_time_str):
+def process_file(file_name, policy_id, original_name, process_id):
     count = 0
     datadict = {}
     check_exceeds = []
@@ -206,11 +207,8 @@ def process_file(file_name, policy_id, original_name, processed_time_str):
 
     result_name = original_name + ".xml"
 
-    processed_time = datetime.strptime(processed_time_str,
-                                       "%Y-%m-%d %H:%M:%S")
-
     result = Result.objects.get(filename=original_name,
-                                processed_time=processed_time)
+                                process_id=process_id)
     for k in datadict.keys():
         v = datadict[k]
         ave = v/count

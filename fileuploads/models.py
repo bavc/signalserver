@@ -13,14 +13,13 @@ class Video(models.Model):
 
 
 class Result(models.Model):
-    #video = models.ForeignKey(
-    #    Video, on_delete=models.CASCADE)
     filename = models.CharField(max_length=400)
     processed_time = models.DateTimeField()
     policy_id = models.IntegerField(default=0)
     policy_name = models.CharField(max_length=100)
     task_id = models.CharField(max_length=200)
     status = models.BooleanField(default=False)
+    group_id = models.IntegerField(default=0)
     group_name = models.CharField(max_length=400, default=None, null=True)
     user_name = models.CharField(max_length=400, default=None, null=True)
     shared = models.BooleanField(default=True)

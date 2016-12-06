@@ -35,7 +35,10 @@ def index(request):
 
         count = Policy.objects.filter(
             policy_name=policy_name).count()
-        #display_order = request.POST['display_order']
+        if count > 0:
+            message = "policy name : " + policy_name + " is already taken. \
+            Please choose different name. Policy name needs to be unique."
+            return render_index(request, message)
         display_order = 0
         if form.is_valid() and count == 0:
             new_policy = Policy(
@@ -46,21 +49,22 @@ def index(request):
             return HttpResponseRedirect(
                 reverse('policies:index'))
 
-    return render_index(request)
+    return render_index(request, None)
 
 
-def render_index(request):
+def render_index(request, message):
     form = PolicyForm()  # A empty, unbound form
     # Load documents for the list page
     policies = Policy.objects.order_by('display_order')
 
     # Render list page with the documents and the form
     return render(request, 'policies/index.html',
-                  {'policies': policies, 'form': form})
+                  {'policies': policies, 'form': form,
+                   'message': message})
 
 
-def delete_policy(request, policy_name):
-    Policy.objects.get(policy_name=policy_name).delete()
+def delete_policy(request, policy_id):
+    Policy.objects.get(id=policy_id).delete()
     return HttpResponseRedirect(reverse('policies:index'))
 
 
@@ -97,8 +101,8 @@ def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
 
 
 @login_required(login_url="/login/")
-def show(request, policy_name):
-    policy = Policy.objects.get(policy_name=policy_name)
+def show(request, policy_id):
+    policy = Policy.objects.get(id=policy_id)
     if request.method == 'POST':
         form = OperationForm(request.POST)
         cutoff_num = request.POST.get('cutoff_number', 0)
