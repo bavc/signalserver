@@ -6,8 +6,8 @@
         <body>
     <div class ="container-fluid">
         <h2> Graphs from the processed data</h4>
-        <h4> Group Name : <a href="../edit_group/{{group_id}}">{{ group_name }}</a>, Processed time: {{ processed_time }}</h4>
-        <h4> Policy Name : <a href="/policy/show/{{policy_id}}">{{ policy_name }}</a> </h4>
+        <h4> Group Name : <a href="../edit_group/{{process.group_id}}">{{ process.group_name }}</a>, Processed time: {{ process.processed_time }}</h4>
+        <h4> Policy Name : <a href="/policy/show/{{process.policy_id}}">{{ process.policy_name }}</a> </h4>
         {% if operations %}
 
                 {% for operation in operations %}
@@ -61,7 +61,7 @@ cut_off_numbers = [
 ];
 
 function graph_for_signal(name, op_name, cut_off_number, idx) {
-    d3.json("{% url 'groups:get_graph_data' %}?group_id={{group_id}}&processed_time={{processed_time}}&signal_name=" + name + "&op_name=" + op_name + "&cut_off_number=" + cut_off_number,
+    d3.json("{% url 'groups:get_graph_data' %}?process_id={{process.id}}&signal_name=" + name + "&op_name=" + op_name + "&cut_off_number=" + cut_off_number,
         function(error, data) {
             createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
         }

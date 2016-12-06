@@ -6,30 +6,45 @@
         <div class="col-md-6">
         <div class = "container-fluid">
         <h2>Request Submitted By you</h2>
-        {% if group_results %}
+        {% if processes %}
             <h3> In Progress </h3>
-            {% for key, values in  group_results.items %}
-                {% if key in not_completed %}
+            {% for process in  processes %}
+                {% if process.id in not_completed %}
+                    <div id="inprocess_{{process.id}}">
                     <li><h4>{{ key }} </h4>
-                        Policy: <a href="/policy/show/{{values.0.policy_id}}">{{values.0.policy_name}}</a>
-                        Group Name: <a href="../edit_group/{{values.0.group_id}}">{{values.0.group_name}}</a></li>
+                        Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+
+                        Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
+                    <li>Processed time: {{process.processed_time}}</li>
+                    </div>
                 {% endif %}
             {% endfor %}
             <h3> Completed </h3>
-             {% for key, values in  group_results.items %}
-                {% if key not in not_completed %}
-                        <ul><li><h4>{{ key }} </h4>
-                            Policy: <a href="/policy/show/{{values.0.policy_id}}">{{values.0.policy_name}}</a>
-                            Group Name: <a href="../edit_group/{{values.0.group_id}}">{{values.0.group_name}}</a></li>
-                            <a href="../delete_group_result/{{values.0.group_id}}/{{values.0.processed_time|date:"U"}}">Delete</a></h4>
+             {% for process in processes %}
+                {% if process.id not in not_completed %}
+                    <div id="{{process.id}}">
+                        <ul><li><h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                            Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                            Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
+                            <a href="../delete_group_result/{{process.id}}">Delete</a></h4>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <input type="hidden" name="group_id" id="group_id" value="{{values.0.group_id}}" />
-
-                            <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
+                            <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></li></ul>
-
                         </form>
+                    </div>
+                {% else %}
+                    <div id="completed_{{process.id}}" style="display: none;">
+                        <ul><li><h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                            Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                            Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
+                            <a href="../delete_group_result/{{process.id}}">Delete</a></h4>
+                        <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
+                            <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></li></ul>
+                        </form>
+                    </div>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -38,21 +53,20 @@
 <div class="col-md-6">
         <div class = "container-fluid">
         <h2>Request Submitted By Others</h2>
-        {% if shared_group_results %}
+        {% if shared_processes %}
             <h3> In Progress </h3>
-            {% for key, values in  shared_group_results.items %}
-                {% if key in shared_not_completed %}
-                    <li>{{ key }} Config: {{values.0.config_name}}</li>
+            {% for process in processes %}
+                {% if process.id in shared_not_completed %}
+                    <li>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}</li>
                 {% endif %}
             {% endfor %}
             <h3> Completed </h3>
-             {% for key, values in  shared_group_results.items %}
-                {% if key not in shared_not_completed %}
-                        <ul>{{ key }} Config: {{values.0.config_name}}</li>
+             {% for process in  shared_processes %}
+                {% if process.id not in shared_not_completed %}
+                        <ul>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}</li>
                         <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <input type="hidden" name="group_id" id="group_id" value="{{values.0.group_id}}" />
-                            <input type="hidden" name="processed_time" id="processed_time" value="{{values.0.processed_time|date:"Y-m-d H:i:s"}}" />
+                            <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
 
                         </form>
@@ -63,4 +77,58 @@
 </div>
 </div>
 </div>
+<script>
+ids = [
+{% for id in not_completed %}
+    "{{id}}"{% if not forloop.last %}, {% endif %}
+{% endfor %}
+];
+shared_ids = [
+    {% for id in shared_not_completed %}
+    "{{id}}"{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+function handle_page(completed_ids) {
+    for (var i = 0; i < completed_ids.length; i ++) {
+        id = completed_ids[i];
+        $("#inprocess_"+id).hide();
+        $("#completed_"+id).show();
+    }
+}
+
+
+function status_update(requested_ids) {
+    var id = requested_ids[0];
+    for (var i = 1; i < requested_ids.length; i ++) {
+        id = id + "," +requested_ids[i];
+    }
+    var url = "{% url 'groups:get_group_process_status' %}?process_id="+id;
+    $.get(url, function(data) {
+        completed_ids = []
+        not_completed_ids = []
+        for (var i = 0; i < requested_ids.length; i ++) {
+            current_id = requested_ids[i]
+            if (data[current_id]){
+                completed_ids.push(current_id)
+            }
+            else {
+                not_completed_ids.push(current_id)
+            }
+        }
+        handle_page(completed_ids)
+        if (not_completed_ids.length > 0) {
+            setTimeout(status_update, 10000, not_completed_ids);
+        }
+    });
+
+}
+
+if (ids.length > 0) {
+    status_update(ids);
+}
+
+
+
+</script>
 {% endblock %}

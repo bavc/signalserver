@@ -18,8 +18,10 @@ urlpatterns = [
         name='group_process_status'),
     url(r'^result_graph/$', views.result_graph, name='result_graph'),
     url(r'^api/get_graph_data/$', views.get_graph_data, name='get_graph_data'),
+    url(r'^api/get_group_process_status/$', views.get_group_process_status,
+        name='get_group_process_status'),
     url(r'^remove-file/(?P<file_name>[\w.]{0,256})/(?P<group_id>[0-9]+)$',
         views.remove_file, name='remove_file'),
-    url(r'^delete_group_result/(?P<group_id>[0-9]+)/(?P<processed_time>[\w.]{0,256})$',
+    url(r'^delete_group_result/(?P<process_id>[0-9]+)$',
         views.delete_group_result, name='delete_group_result'),
 ]

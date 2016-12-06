@@ -13,8 +13,11 @@ from django.core.urlresolvers import reverse
 from django.template import loader
 from django.views import generic
 
-from .models import Group, Member
-from fileuploads.models import Video, Result, Row
+from .models import Group, Member, Process
+from .models import Result, Row
+
+from fileuploads.models import Video
+
 from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
@@ -142,63 +145,29 @@ def search_group(request):
                    'keyword': group_name})
 
 
-def add_to_result(key, group_results, result):
-    if key in group_results:
-        entry = group_results[key]
-        entry.append(result)
-        group_results[key] = entry
-    else:
-        group_results[key] = [result]
-    return group_results
-
-
-def sort_results(results):
-    group_results = {}
-    for result in results:
-        #this is using the timestamp
-
-        #pro_time = result.processed_time
-        #pro_time_stamp = time.mktime(pro_time.timetuple())
-        #key = result.group_name + "-" + str(pro_time_stamp)
-
-        #this is using PST..will revisit
-
-        #pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-        pro_time = result.processed_time
-        pacific = timezone('US/Pacific')
-        local_current_dt = pro_time.astimezone(pacific)
-        fmt = '%Y-%m-%d %H:%M:%S'
-        pro_time = local_current_dt.strftime(fmt)
-
-        key = result.group_name + "-" + pro_time
-        group_results = add_to_result(key, group_results, result)
-    return group_results
-
-
-def check_not_complete(group_results):
+def check_not_complete(processes):
     not_completed = []
-    for key, values in group_results.items():
-        for value in values:
-            if not value.status:
-                not_completed.append(key)
+    for process in processes:
+        if not process.status:
+                not_completed.append(process.id)
     return not_completed
 
 
 @login_required(login_url="/login/")
 def group_process_status(request):
     user_name = request.user.username
-    results = Result.objects.filter(user_name=user_name)
-    results = update_results(results)
-    shared_results = Result.objects.exclude(user_name=user_name)
-    shared_results = update_results(shared_results)
-    group_results = sort_results(results)
-    shared_group_results = sort_results(shared_results)
+    processes = Process.objects.filter(user_name=user_name)
+    for process in processes:
+        update_process(process)
+    shared_processes = Process.objects.exclude(user_name=user_name)
+    for process in shared_processes:
+        update_process(shared_processes)
 
-    not_completed = check_not_complete(group_results)
-    shared_not_completed = check_not_complete(shared_group_results)
+    not_completed = check_not_complete(processes)
+    shared_not_completed = check_not_complete(shared_processes)
     return render(request, 'groups/group_process.html',
-                  {'group_results': group_results,
-                   'shared_group_results': shared_group_results,
+                  {'processes': processes,
+                   'shared_processes': shared_processes,
                    'not_completed': not_completed,
                    'shared_not_completed': shared_not_completed,
                    })
@@ -216,63 +185,56 @@ def group_process(request):
         policy_name = Policy.objects.get(
             id=policy_id).policy_name
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        process = Process(
+            group_name=group_name,
+            group_id=group_id,
+            policy_name=policy_name,
+            policy_id=policy_id,
+            processed_time=current_time_str,
+            user_name=user_name,
+            status=False
+        )
+        process.save()
         for member in members:
-            file_process(member.file_name, policy_id, policy_name,
-                         current_time_str, user_name, group_id, group_name)
+            file_process(member.file_name, process)
 
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
-def delete_group_result(request, group_id, processed_time):
-    processed_time_object = datetime.fromtimestamp(
-        int(processed_time))
-    temp = Result.objects.filter(id=group_id)
-    temp.filter(processed_time=processed_time_object).delete()
-
+def delete_group_result(request, process_id):
+    Process.objects.filter(id=process_id).delete()
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
-def file_process(file_name, policy_id, policy_name, current_time_str,
-                 user_name, group_id, group_name=None):
+def file_process(file_name, process):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
-    current_time = datetime.strptime(current_time_str,
-                                     "%Y-%m-%d %H:%M:%S")
-    status = process_file.delay(file_name, policy_id,
-                                original_name, current_time_str)
+    status = process_file.delay(file_name, process.policy_id,
+                                original_name, process.id)
     result = Result(
+        process=process,
         filename=original_name,
-        policy_id=policy_id,
-        policy_name=policy_name,
-        processed_time=current_time,
+        process_id=process.id,
         task_id=status.task_id,
-        status=AsyncResult(status.task_id).ready(),
-        group_name=group_name,
-        group_id=group_id,
-        user_name=user_name
+        status=AsyncResult(status.task_id).ready()
     )
     result.save()
 
 
-def update_results(results):
+def update_process(process):
+    results = Result.objects.filter(process=process)
     all_done = True
     for result in results:
+        task_id = result.task_id
+        work_status = AsyncResult(task_id).ready()
+        result.status = work_status
         if not result.status:
-            task_id = result.task_id
-            work_status = AsyncResult(task_id).ready()
-            result.status = work_status
-            if not result.status:
-                all_done = False
-            result.save()
-
+            all_done = False
+        result.save()
     if all_done:
-        files = []
-        for result in results:
-            file_name = STORED_FILEPATH + "/" + result.filename + ".xml"
-            if file_name not in files and os.path.isfile(file_name):
-                os.remove(file_name)
-                files.append(file_name)
-    return results
+        process.status = True
+        process.save()
+    return process
 
 
 def save_member(group, file_name):
@@ -321,29 +283,13 @@ def result_graph(request):
     signal_names = []
     op_names = []
     c_numbers = []
-    values = []
-    group_name = ''
-    processed_time = ''
-    policy_name = ''
-    policy_id = 0
-    group_id = 0
-    results = []
     operations = []
+    process = ''
     if request.method == 'POST':
-        group_id = request.POST['group_id']
-        group = Group.objects.get(id=group_id)
-        group_name = group.group_name
-        processed_time = request.POST['processed_time']
-
-        processed_time_object = datetime.strptime(processed_time,
-                                                  "%Y-%m-%d %H:%M:%S")
-
-        temp = Result.objects.filter(group_name=group_name)
-        results = temp.filter(processed_time=processed_time_object)
-
-        policy_name = results[0].policy_name
-        policy = Policy.objects.filter(policy_name=policy_name)
-        policy_id = results[0].policy_id
+        process_id = request.POST['process_id']
+        process = Process.objects.get(id=process_id)
+        results = Result.objects.filter(process=process)
+        policy = Policy.objects.filter(id=process.policy_id)
         operations = Operation.objects.filter(
             policy=policy).order_by('display_order')
         for operation in operations:
@@ -356,78 +302,33 @@ def result_graph(request):
             signal_names.append(signal_name)
 
     return render(request, 'groups/result_graph.html',
-                  {'group_name': group_name,
-                   'group_id': group_id,
-                   'processed_time': processed_time,
-                   'signal_names': signal_names,
-                   'policy_id': policy_id,
-                   'policy_name': policy_name,
-                   'operations': operations,
-                   'op_names': op_names,
+                  {'process': process, 'signal_names': signal_names,
+                   'operations': operations, 'op_names': op_names,
                    'c_numbers': c_numbers,
                    })
 
 
-def show_graphs(request):
-    signal_names = []
-    op_names = []
-    values = []
-    processed_time = ''
-    policy_name = ''
-    results = []
-    operations = []
-    group_id = 0
-    policy_id = 0
-
-    result = Result.objects.order_by('-processed_time').first()
-    group_name = result.group_name
-    group_id = result.group_id
-    pro_time = result.processed_time.strftime("%Y-%m-%d %H:%M:%S")
-    processed_time_object = datetime.strptime(pro_time,
-                                              "%Y-%m-%d %H:%M:%S")
-
-    temp = Result.objects.filter(group_name=group_name)
-    results = temp.filter(processed_time=processed_time_object)
-    policy_name = results.policy_name
-    policy_id = result.policy_id
-    policy = Policy.objects.filter(policy_name=policy_name)
-    operations = Operation.objects.filter(
-        policy=policy).order_by('display_order')
-    for operation in operations:
-        op_names.append(operation.op_name)
-        signal_name = operation.signal_name
-        if operation.op_name == 'average_difference':
-            signal_name = operation.signal_name + "-" +  \
-                operation.second_signal_name
-            signal_names.append(signal_name)
-
-    return render(request, 'groups/show_graph.html',
-                  {'group_name': group_name,
-                   'group_id': group_id,
-                   'processed_time': pro_time,
-                   'signal_names': signal_names,
-                   'policy_name': policy_name,
-                   'policy_id': policy_id,
-                   'operations': operations,
-                   'op_names': op_names,
-                   })
+def get_group_process_status(request):
+    data = {}
+    process_ids_str = request.GET.get('process_id', False)
+    process_ids = process_ids_str.split(",")
+    for process_id in process_ids:
+        process = Process.objects.get(id=process_id)
+        process = update_process(process)
+        data[process_id] = process.status
+    return JsonResponse(data, safe=False)
 
 
 def get_graph_data(request):
-    group_id = request.GET['group_id']
-    processed_time = request.GET['processed_time']
+    process_id = request.GET['process_id']
     signal_name = request.GET['signal_name']
     op_name = request.GET['op_name']
     op_name_set = ['exceeds', 'belows', 'equals']
     cut_off_value = request.GET['cut_off_number']
 
     data = []
-
-    processed_time_object = datetime.strptime(processed_time,
-                                              "%Y-%m-%d %H:%M:%S")
-
-    temp = Result.objects.filter(group_id=group_id)
-    results = temp.filter(processed_time=processed_time_object)
+    process = Process.objects.get(id=process_id)
+    results = Result.objects.filter(process=process)
 
     for result in results:
         temprows = Row.objects.filter(result=result)

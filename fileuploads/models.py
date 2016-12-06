@@ -13,8 +13,6 @@ class Video(models.Model):
 
 
 class Result(models.Model):
-    #video = models.ForeignKey(
-    #    Video, on_delete=models.CASCADE)
     filename = models.CharField(max_length=400)
     processed_time = models.DateTimeField()
     policy_id = models.IntegerField(default=0)
