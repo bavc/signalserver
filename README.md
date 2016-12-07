@@ -6,9 +6,11 @@ SignalServer is intended to become a web app to accompany [QCTools](https://gith
 
 ### From git
 
+```
 git checkout git@github.com:bavc/signalserver.git
 cd signalserver
 FILES_VOLUME_PATH=/files ./quickstart.sh
+```
 
 
 ### Dependency
