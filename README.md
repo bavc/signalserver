@@ -2,9 +2,14 @@
 
 SignalServer is intended to become a web app to accompany [QCTools](https://github.com/bavc/qctools). Some early planning documentation is available in this [Vision doc](https://docs.google.com/document/d/1zXtVf47LVEYJvc9nPbLY-0pTDouyyNlsbeFu1YdmMlI/edit?usp=sharing).
 
-To test out signalserver, `clone` this repository, `cd` into the directory, and run `./quickstart` in your Terminal window.
-
 ## Installation
+
+### From git
+
+git checkout git@github.com:bavc/signalserver.git
+cd signalserver
+FILES_VOLUME_PATH=/files ./quickstart.sh
+
 
 ### Dependency
 
@@ -43,7 +48,7 @@ FILES_VOLUME_PATH=/files
 
 If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. In docker container, it will be stored in /var/signalserver/files directly.
 
-### Installation
+### Running the application
 
 When you have docker-engine and docker-compose is installed and .env file is created with above value, you just need to run below script.
 
