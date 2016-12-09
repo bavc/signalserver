@@ -227,7 +227,8 @@ class FileUploadView(APIView):
 
         count = Video.objects.filter(filename=file_name).count()
         if count > 0:
-            files = [f for f in listdir(filepath) if isfile(join(filepath, f))]
+            files = [f for f in listdir(filepath)
+                     if isfile(join(filepath, f))]
             for f in files:
                 if part in f and name != f:
                     os.remove(filepath + f)
@@ -245,3 +246,11 @@ class FileUploadView(APIView):
                 os.remove(filepath + f)
 
         return Response(up_file.name + "\n", status=204)
+
+    def get(self, request, filename, format=None):
+        name = get_filename(filename)
+        result = Video.objects.filter(filename=name).count()
+        if result > 0:
+            return Response(True, status=200)
+        else:
+            return Response(False, status=200)
