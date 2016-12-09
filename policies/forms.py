@@ -83,6 +83,9 @@ class PolicyForm(forms.Form):
     display_order = forms.IntegerField(
         label='Display Location No.', initial=0
     )
+    dashboard = forms.FloatField(
+        label='Display in Dashboard', initial=False
+    )
 
 
 class OperationForm(forms.Form):
@@ -104,4 +107,10 @@ class OperationForm(forms.Form):
     description = forms.CharField(
         label='Policy Description',
         initial='rule description'
+    )
+    dashboard = forms.FloatField(
+        label='Display in Dashboard', initial=False
+    )
+    percentage = forms.FloatField(
+        label='Please percentage off from aveage for reporting', initial=0
     )

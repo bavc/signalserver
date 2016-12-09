@@ -70,6 +70,7 @@ class Policy(models.Model):
     description = models.CharField(max_length=500)
     user_name = models.CharField(max_length=400, default=None, null=True)
     last_updated_time = models.DateTimeField(auto_now=True)
+    dashboard = models.BooleanField(default=False)
 
 
 class Operation(models.Model):
@@ -82,3 +83,5 @@ class Operation(models.Model):
     cut_off_number = models.FloatField(default=0)
     display_order = models.IntegerField(default=0)
     description = models.CharField(max_length=500)
+    percentage = models.FloatField(default=0)
+    dashboard = models.BooleanField(default=False)

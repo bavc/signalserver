@@ -11,6 +11,7 @@
     <div class="row">
     <div class="col-md-9">
     <h3>Policy Name: {{ policy.policy_name }}</h3>
+        Show in dashboard: {{policy.dashboard }}
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% for choice in operation %}
@@ -28,6 +29,12 @@
                 Average of  "{{ choice.get_signal_name_display }}"
             {% endif %}
             Description:  "{{ choice.description }}"
+            <p>
+            Percentage for the reporting.
+            If the result value is exceeded higer or lower above  or below from average results among the group, the filename is reported in summary or/and dashboard :
+            "{{ choice.percentage }}"
+            </p>
+            Report in dashboard : "{{choice.dashboard}}"
             <div id = "edit_form{{ forloop.counter }}">
             <form id="form_edit" action="{% url 'policies:show' policy.id %}" name = "edit" method="post" class="form">
                 {% csrf_token %}
@@ -65,6 +72,18 @@
                     {{ form.description.errors }}
                     <label for="id_description">Description</label>
                     {{ form.description }}
+                    </div>
+
+                    <div>
+                    {{ form.percentage.errors }}
+                    <label for="id_percentage">Percentage</label>
+                    {{ form.percentage }}
+                    </div>
+
+                    <div>
+                    {{ form.dashboard.errors }}
+                    <label for="id_percentage">Dashboard</label>
+                    {{ form.dashboard }}
                     </div>
                 <button type="search" class="btn btn-primary">
                     Update
@@ -119,6 +138,19 @@
          <label for="id_description">Description</label>
          {{ form.description }}
          </div>
+
+         <div>
+         {{ form.percentage.errors }}
+         <label for="id_percentage">Percentage</label>
+         {{ form.percentage }}
+         </div>
+
+         <div>
+         {{ form.dashboard.errors }}
+         <label for="id_dashboard">Dashboard</label>
+         {{ form.dashboard }}
+         </div>
+
          <input name='action' type="hidden" value="new">
          <button type="search" class="btn btn-primary">
                     Add
