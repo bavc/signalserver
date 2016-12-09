@@ -70,6 +70,8 @@ FILES_VOLUME_PATH=/data ./quickstart.sh
 
 ### API usage
 
+#### Fileupload
+
 Once you are running the signalserver and you create your credential at the site, you can upload the file not only from the site, but also using the API from signalserver. The curl command is as below.
 
 ```
@@ -82,4 +84,51 @@ and your username and password is user1 and password2
 
 ```
 curl -i -u "user1:password2" 192.168.99.100:8000/fileuploads/upload/ --upload-file 5A_born_digital_ffv1.qctools.xml.gz
+```
+
+#### Check file existance
+
+The file existance check returns true or false by given filename.
+
+```
+curl -i -u "username:password" [signalserver IP]:8000/fileuploads/check_exist/[your file name]
+```
+Example:
+You want to check the filename '5A_born_digital_ffv1.qctools.xml.gz' exist in the server or not. The server is 192.168.99.100
+and your username and password is user1 and password2
+
+```
+curl -i -u "user1:password2" 192.168.99.100:8000/fileuploads/check_exist/5A_born_digital_ffv1.qctools.xml.gz
+```
+
+#### Create a new group
+
+The create group allow you to create a new group. The name needs to be unique.
+(It will return error message if it is not.)
+
+```
+curl -u "username:password" [signalserver IP]:8000/groups/create_group -data="groupname=[your groupname]"
+```
+Example:
+You want to create a new group named  'panda_group'. The server is 192.168.99.100
+and your username and password is user1 and password2
+
+```
+curl -i -u "user1:password2" 192.168.99.100:8000/groups/create_group/ --data "groupname=panda_group"
+```
+
+#### Add a file to a group
+
+The Add file allow you to add a file to a group. Both file and group needs to be exist in the server.
+(It will return error message if one or both of them is not.)
+
+```
+curl -u "username:password" [signalserver IP]:8000/groups/add_file -data="groupname=[your groupname]&filename=[your filename]"
+```
+Example:
+You want to add a file named 'cucumber.gocart.xml.gz' 'panda_group'. The server is 192.168.99.100
+and your username and password is user1 and password2
+
+```
+curl -i -u "user1:password2" 192.168.99.100:8000/groups/add_file/ --data "groupname=panda_group&filename=cucumber.gocart.xml.gz"
 ```

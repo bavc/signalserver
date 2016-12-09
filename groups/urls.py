@@ -24,4 +24,6 @@ urlpatterns = [
         views.remove_file, name='remove_file'),
     url(r'^delete_group_result/(?P<process_id>[0-9]+)$',
         views.delete_group_result, name='delete_group_result'),
+    url(r'^create_group/$', views.GroupCreateView.as_view()),
+    url(r'^add_file/$', views.GroupAddFileView.as_view()),
 ]
