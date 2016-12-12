@@ -111,6 +111,7 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
 @celery.task
 def process_file(file_name, policy_id, original_name, process_id):
     count = 0
+    op_dict = {}
     datadict = {}
     check_exceeds = []
     exceed_dict = {}
@@ -130,10 +131,12 @@ def process_file(file_name, policy_id, original_name, process_id):
     for op in operations:
         if op.op_name == 'average':
             datadict[op.signal_name] = 0
+            op_dict[op.signal_name] = op.id
         elif op.op_name == 'exceeds':
             check_exceeds.append(op.signal_name)
             key_name = op.signal_name + "-" + str(op.cut_off_number)
             exceed_dict[key_name] = 0
+            op_dict[key_name] = op.id
             if op.signal_name not in exceed_cutoff_dict:
                 exceed_cutoff_dict[op.signal_name] = [op.cut_off_number]
             else:
@@ -142,6 +145,7 @@ def process_file(file_name, policy_id, original_name, process_id):
             check_belows.append(op.signal_name)
             key_name = op.signal_name + "-" + str(op.cut_off_number)
             below_dict[key_name] = 0
+            op_dict[key_name] = op.id
             if op.signal_name not in below_cutoff_dict:
                 below_cutoff_dict[op.signal_name] = [op.cut_off_number]
             else:
@@ -150,6 +154,7 @@ def process_file(file_name, policy_id, original_name, process_id):
             check_equals.append(op.signal_name)
             key_name = op.signal_name + "-" + str(op.cut_off_number)
             equal_dict[key_name] = 0
+            op_dict[key_name] = op.id
             if op.signal_name not in equal_value_dict:
                 equal_value_dict[op.signal_name] = [op.cut_off_number]
             else:
@@ -157,6 +162,7 @@ def process_file(file_name, policy_id, original_name, process_id):
         else:
             new_key = op.signal_name + "-" + str(op.second_signal_name)
             datadict[new_key] = 0
+            op_dict[new_key] = op.id
             highdict[op.signal_name] = 0
             lowdict[op.second_signal_name] = 0
 
@@ -217,14 +223,16 @@ def process_file(file_name, policy_id, original_name, process_id):
                 result=result,
                 signal_name=k,
                 result_number=ave,
-                op_name='average_difference'
+                op_name='average_difference',
+                op_id=op_dict[k]
             )
         else:
             new_row = Row(
                 result=result,
                 signal_name=k,
                 result_number=ave,
-                op_name='average'
+                op_name='average',
+                op_id=op_dict[k]
             )
         new_row.save()
     for k, v in exceed_dict.items():
@@ -235,7 +243,8 @@ def process_file(file_name, policy_id, original_name, process_id):
             result_number=v,
             op_name='exceeds',
             frame_number=count,
-            cut_off_number=float(cut_off)
+            cut_off_number=float(cut_off),
+            op_id=op_dict[k]
         )
         new_row.save()
     for k, v in below_dict.items():
@@ -246,7 +255,8 @@ def process_file(file_name, policy_id, original_name, process_id):
             result_number=v,
             op_name='belows',
             frame_number=count,
-            cut_off_number=float(cut_off)
+            cut_off_number=float(cut_off),
+            op_id=op_dict[k]
         )
         new_row.save()
     for k, v in equal_dict.items():
@@ -257,7 +267,8 @@ def process_file(file_name, policy_id, original_name, process_id):
             result_number=v,
             op_name='equals',
             frame_number=count,
-            cut_off_number=float(cut_off)
+            cut_off_number=float(cut_off),
+            op_id=op_dict[k]
         )
         new_row.save()
     return 'success'

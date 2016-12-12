@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from fileuploads.views import list_file
+from reports.views import dashboard
 from accounts.views import register
 from accounts.views import custom_login
 from accounts.views import custom_logout
@@ -26,7 +26,7 @@ from django.contrib.auth import views
 
 
 urlpatterns = [
-    url(r'^$', list_file, name='list'),
+    url(r'^$', dashboard, name='dashboard'),
     url(r'^register/', register, name='register'),
     url(r'^redirect', custom_login,
         name='redirect'),

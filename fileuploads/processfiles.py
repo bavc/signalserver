@@ -3,7 +3,8 @@ import gzip
 import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from .models import Video, Result, Row
+from .models import Video
+from groups.models import Result, Row
 from policies.models import Policy, Operation
 from .constants import STORED_FILEPATH
 
