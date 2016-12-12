@@ -29,6 +29,8 @@ from fileuploads.tasks import process_file
 from celery.result import AsyncResult
 from policies.models import Policy, Operation
 from policies.views import replace_letters
+from reports.models import Summary, Entry
+from reports.views import create_summary
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -241,6 +243,7 @@ def update_process(process):
     if all_done:
         process.status = True
         process.save()
+        create_summary(process)
     return process
 
 
@@ -297,6 +300,8 @@ def result_graph(request):
         process = Process.objects.get(id=process_id)
         results = Result.objects.filter(process=process)
         policy = Policy.objects.filter(id=process.policy_id)
+        summary = Summary.objects.get(process_id=process_id)
+        entries = Entry.objects.filter(summary=summary)
         operations = Operation.objects.filter(
             policy=policy).order_by('display_order')
         for operation in operations:
@@ -311,7 +316,8 @@ def result_graph(request):
     return render(request, 'groups/result_graph.html',
                   {'process': process, 'signal_names': signal_names,
                    'operations': operations, 'op_names': op_names,
-                   'c_numbers': c_numbers,
+                   'c_numbers': c_numbers, 'summary': summary,
+                   'entries': entries
                    })
 
 
