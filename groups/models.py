@@ -28,6 +28,7 @@ class Process(models.Model):
     user_name = models.CharField(max_length=400, default=None, null=True)
     shared = models.BooleanField(default=True)
     status = models.BooleanField(default=False)
+    dashboard = models.BooleanField(default=False)
 
 
 class Result(models.Model):
@@ -47,3 +48,4 @@ class Row(models.Model):
     display_order = models.IntegerField(default=0)
     result_number = models.FloatField(default=0)
     frame_number = models.FloatField(default=0)
+    op_id = models.IntegerField(default=0)
