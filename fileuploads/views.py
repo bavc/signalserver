@@ -11,15 +11,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
-from .forms import UploadFileForm
 from .models import Video
-from .models import Result
-from .models import Row
-from groups.models import Group
-from groups.models import Member
-from .forms import VideoForm
-from .forms import PolicyForm
-from .forms import GroupForm
+from groups.models import Group, Member, Result, Row
+from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
 from .processfiles import process_file_with_policy
