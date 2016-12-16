@@ -248,3 +248,18 @@ class FileUploadView(APIView):
             return Response(True, status=200)
         else:
             return Response(False, status=200)
+
+
+class FileDeleteView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        filename = request.POST['filename']
+        name = get_filename(filename)
+        result = Video.objects.filter(filename=name).count()
+        if result == 0:
+            return Response("File doesn't exist", status=202)
+        else:
+            delete_file(name)
+            return Response("success", status=200)

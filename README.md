@@ -101,6 +101,21 @@ and your username and password is user1 and password2
 curl -i -u "user1:password2" 192.168.99.100:8000/fileuploads/check_exist/5A_born_digital_ffv1.qctools.xml.gz
 ```
 
+#### Delete a file from the server
+
+The delete a file by given filename.
+
+```
+curl -i -u "username:password" [signalserver IP]:8000/fileuploads/delete_file/ --data "filename=[yourfilename]"
+```
+Example:
+You want to delete the filename '5A_born_digital_ffv1.qctools.xml.gz' from the server. The server is 192.168.99.100
+and your username and password is user1 and password2
+
+```
+curl -i -u "user1:password2" 192.168.99.100:8000/fileuploads/delete_file/ --data="filename=5A_born_digital_ffv1.qctools.xml.gz"
+```
+
 #### Create a new group
 
 The create group allow you to create a new group. The name needs to be unique.
