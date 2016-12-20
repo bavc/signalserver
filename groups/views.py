@@ -22,16 +22,25 @@ from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
 from fileuploads.views import search_result
+from fileuploads.views import get_filename
 from fileuploads.constants import STORED_FILEPATH
 from celery import group
 from fileuploads.tasks import process_file
 from celery.result import AsyncResult
 from policies.models import Policy, Operation
 from policies.views import replace_letters
+from reports.models import Summary, Entry
+from reports.views import create_summary
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 @login_required(login_url="/login/")
@@ -234,6 +243,7 @@ def update_process(process):
     if all_done:
         process.status = True
         process.save()
+        create_summary(process)
     return process
 
 
@@ -290,6 +300,8 @@ def result_graph(request):
         process = Process.objects.get(id=process_id)
         results = Result.objects.filter(process=process)
         policy = Policy.objects.filter(id=process.policy_id)
+        summary = Summary.objects.get(process_id=process_id)
+        entries = Entry.objects.filter(summary=summary)
         operations = Operation.objects.filter(
             policy=policy).order_by('display_order')
         for operation in operations:
@@ -304,7 +316,8 @@ def result_graph(request):
     return render(request, 'groups/result_graph.html',
                   {'process': process, 'signal_names': signal_names,
                    'operations': operations, 'op_names': op_names,
-                   'c_numbers': c_numbers,
+                   'c_numbers': c_numbers, 'summary': summary,
+                   'entries': entries
                    })
 
 
@@ -351,3 +364,64 @@ def get_graph_data(request):
                 }
             data.append(signal_data)
     return JsonResponse(data, safe=False)
+
+
+class GroupCreateView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        groupname = request.POST['groupname']
+        current_user = request.user
+
+        count = Group.objects.filter(group_name=groupname).count()
+        if count > 1:
+            message = "group name exist. Please pick different name"
+            return Response(message, status=202)
+
+        newgroup = Group(
+            group_name=groupname,
+            user_name=current_user.username
+        )
+        newgroup.save()
+
+        return Response(groupname, status=200)
+
+
+class GroupAddFileView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        groupname = request.POST['groupname']
+        filename = request.POST['filename']
+        count = Group.objects.filter(group_name=groupname).count()
+        if count == 0:
+            message = "group doesn't exist. Please create group first"
+            return Response(message, status=202)
+        group = Group.objects.get(group_name=groupname)
+
+        name = get_filename(filename)
+        result = Video.objects.filter(filename=name).count()
+        if result == 0:
+            message = "file doesn't exist. Please upload file first"
+            return Response(message, status=202)
+        video = Video.objects.get(filename=name)
+        temp = Member.objects.filter(group=group)
+        member_exist = temp.filter(file_name=name).count()
+        if member_exist > 0:
+            message = "The file already exist in the group."
+            return Response(message, status=202)
+
+        try:
+            new_member = Member(
+                file_name=name,
+                group=group,
+                upload_time=video.upload_time,
+                file_id=video.id
+            )
+            new_member.save()
+        except IntegrityError:
+            pass  # it didn't need to save the dubplicate files
+
+        return Response("Success", status=200)

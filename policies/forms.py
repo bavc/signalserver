@@ -62,6 +62,8 @@ OPERATIONS = (
     ('average_difference', 'average_difference'),
 )
 
+DASHBOARD = (('True', True), ('False', False))
+
 
 class PolicyNameForm(forms.Form):
     policy_name = forms.CharField(label='Policy name', max_length=200)
@@ -83,6 +85,8 @@ class PolicyForm(forms.Form):
     display_order = forms.IntegerField(
         label='Display Location No.', initial=0
     )
+    dashboard = forms.ChoiceField(choices=DASHBOARD, required=True,
+                                  initial=False)
 
 
 class OperationForm(forms.Form):
@@ -104,4 +108,10 @@ class OperationForm(forms.Form):
     description = forms.CharField(
         label='Policy Description',
         initial='rule description'
+    )
+    dashboard = forms.ChoiceField(choices=DASHBOARD, required=True,
+                                  initial=False)
+
+    percentage = forms.FloatField(
+        label='Please percentage off from aveage for reporting', initial=0
     )

@@ -6,9 +6,7 @@ from django.core.urlresolvers import reverse
 
 from .models import Policy, Operation
 
-from fileuploads.models import Result
-from fileuploads.models import Row
-
+from groups.models import Result, Row
 from .forms import PolicyNameForm
 from .forms import PolicyForm
 from .forms import OperationForm
@@ -32,6 +30,7 @@ def index(request):
         policy_name = request.POST['policy_name']
         policy_name = replace_letters(policy_name)
         description = request.POST['description']
+        dashboard = request.POST['dashboard']
 
         count = Policy.objects.filter(
             policy_name=policy_name).count()
@@ -44,7 +43,8 @@ def index(request):
             new_policy = Policy(
                 policy_name=policy_name,
                 display_order=display_order,
-                description=description)
+                description=description,
+                dashboard=dashboard)
             new_policy.save()
             return HttpResponseRedirect(
                 reverse('policies:index'))
@@ -75,7 +75,7 @@ def delete_rule(request, op_id, policy_name):
 
 
 def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-              display_order, description, id_num):
+              display_order, description, percentage, dasdhboard, id_num):
     operation = Operation.objects.get(id=id_num)
     operation.policy = policy
     operation.cut_off_number = cutoff_num
@@ -83,11 +83,13 @@ def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
     operation.second_signal_name = sig2_name
     operation.op_name = op_name
     operation.description = description
+    operation.percentage = percentage
+    operation.dashboard = dashboard
     operation.save()
 
 
 def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-             display_order, description):
+             display_order, description, percentage, dashboard):
     new_operation = Operation(
         policy=policy,
         cut_off_number=cutoff_num,
@@ -95,7 +97,9 @@ def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
         second_signal_name=sig2_name,
         op_name=op_name,
         display_order=display_order,
-        description=description
+        description=description,
+        percentage=percentage,
+        dashboard=dashboard
     )
     new_operation.save()
 
@@ -112,14 +116,17 @@ def show(request, policy_id):
         #display_order = request.POST['display_order']
         display_order = 0
         description = request.POST['description']
+        percentage = request.POST['percentage']
+        dashboard = request.POST['dashboard']
         action = request.POST['action']
         if action == 'new':
             add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-                     display_order, description)
+                     display_order, description, percentage, dashboard)
         else:
             id_num = request.POST['id_num']
             edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-                      display_order, description, id_num)
+                      display_order, description, percentage,
+                      dashboard, id_num)
         policy.user_name = request.user.username
         policy.save()
     operation = Operation.objects.filter(

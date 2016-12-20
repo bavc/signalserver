@@ -5,6 +5,29 @@
 
         <body>
     <div class ="container-fluid">
+        {% if summary %}
+        <h2> Summary of the process </h2>
+        {{summary}}
+        {% endif %}
+        {% if entries %}
+        <h3><p> These files are off from average (percentage is set in rule in policy)<p></h3>
+        {% for entry in entries %}
+            <h4><ul> filename: {{entry.file_name}}
+                 signal_name: {{entry.signal_name}}
+                 {% if entry.second_signal_name != 'None' %}
+                    second_signal_name: {{entry.second_signal_name}}
+                 {% endif %} </ul>
+                <ul>operation_name: {{entry.operation_name}}
+                 {% if entry.operation_name != 'average' %}
+                    cut off number: {{entry.cut_off}}
+                 {% endif %}
+                 process average: {{entry.average}}
+                 this file's result: {{entry.result_number}}
+                 Off from average by :{{entry.percentage}} % </ul></h4>
+                 <p> ---------------------------------- </p>
+        {% endfor %}
+            {% endif %}
+
         <h2> Graphs from the processed data</h4>
         <h4> Group Name : <a href="../edit_group/{{process.group_id}}">{{ process.group_name }}</a>, Processed time: {{ process.processed_time }}</h4>
         <h4> Policy Name : <a href="/policy/show/{{process.policy_id}}">{{ process.policy_name }}</a> </h4>

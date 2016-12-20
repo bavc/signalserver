@@ -10,7 +10,9 @@
                     <!-- List of already created policies -->
                     {% if policies %}
                         {% for policy in policies %}
-                        <h4> Policy Name:<a href="show/{{ policy.id }}">{{ policy.policy_name }} </a>
+                        <h4> Policy Name:<a href="show/{{ policy.id }}">{{ policy.policy_name }} </a> <br>
+                            Show in dashboard : {{policy.dashboard}}
+
                             <a href="delete_policy/{{policy.id}}">Delete</a>
                             <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
                         <div id="rename_form{{ forloop.counter }}">
@@ -51,6 +53,13 @@
                     <p>{{ form.description.label_tag }} {{ form.description.help_text }}
                         {{ form.description.errors }}
                         {{ form.description }}
+                    </p>
+                    </div>
+
+                    <div>
+                    <p>{{ form.dashboard.label_tag }} {{ form.dashboard.help_text }}
+                        {{ form.dashboard.errors }}
+                        {{ form.dashboard }}
                     </p>
                     </div>
                     <div>

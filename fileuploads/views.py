@@ -11,15 +11,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
-from .forms import UploadFileForm
 from .models import Video
-from .models import Result
-from .models import Row
-from groups.models import Group
-from groups.models import Member
-from .forms import VideoForm
-from .forms import PolicyForm
-from .forms import GroupForm
+from groups.models import Group, Member, Result, Row
+from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
 from .processfiles import process_file_with_policy
@@ -227,7 +221,8 @@ class FileUploadView(APIView):
 
         count = Video.objects.filter(filename=file_name).count()
         if count > 0:
-            files = [f for f in listdir(filepath) if isfile(join(filepath, f))]
+            files = [f for f in listdir(filepath)
+                     if isfile(join(filepath, f))]
             for f in files:
                 if part in f and name != f:
                     os.remove(filepath + f)
@@ -245,3 +240,26 @@ class FileUploadView(APIView):
                 os.remove(filepath + f)
 
         return Response(up_file.name + "\n", status=204)
+
+    def get(self, request, filename, format=None):
+        name = get_filename(filename)
+        result = Video.objects.filter(filename=name).count()
+        if result > 0:
+            return Response(True, status=200)
+        else:
+            return Response(False, status=200)
+
+
+class FileDeleteView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        filename = request.POST['filename']
+        name = get_filename(filename)
+        result = Video.objects.filter(filename=name).count()
+        if result == 0:
+            return Response("File doesn't exist", status=202)
+        else:
+            delete_file(name)
+            return Response("success", status=200)
