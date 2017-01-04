@@ -10,13 +10,14 @@
     <h1> Add/Update/Delete Rules on Policies </h1>
     <div class="row">
     <div class="col-md-9">
-    <h3>Policy Name: {{ policy.policy_name }}</h3>
-        Show in dashboard: {{policy.dashboard }}
+    <h3>Policy Name: {{ policy.policy_name }} </h3>
+        <h4>Show in dashboard: {{policy.dashboard }} </h4>
+        <p> ** If the result value is exceeded higer or lower above or below from average results among the group, the filename is reported in summary or/and dashboard</p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
     {% for choice in operation %}
-        <p>
+    <p>
         <label for="choice{{ forloop.counter }}">
+            <ul>
             {% if choice.get_second_signal_name_display != "None" %}
                 Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}"
             {% elif choice.get_op_name_display == "exceeds"  %}
@@ -26,15 +27,18 @@
             {% elif choice.get_op_name_display == "equals"  %}
                 {{ choice.get_signal_name_display }} count of the frame with value euqal to {{ choice.cut_off_number }}
             {% else %}
-                Average of  "{{ choice.get_signal_name_display }}"
+                Average of  {{ choice.get_signal_name_display }}
             {% endif %}
-            Description:  "{{ choice.description }}"
-            <p>
-            Percentage for the reporting.
-            If the result value is exceeded higer or lower above  or below from average results among the group, the filename is reported in summary or/and dashboard :
-            "{{ choice.percentage }}"
-            </p>
-            Report in dashboard : "{{choice.dashboard}}"
+            </ul>
+            <ul>
+            Description:  {{ choice.description }}
+            </ul>
+            <ul>
+            Percentage for the reporting** : {{ choice.percentage }} %
+            </ul>
+            <ul>
+            Report in dashboard : {{choice.dashboard}}
+            </ul>
             <div id = "edit_form{{ forloop.counter }}">
             <form id="form_edit" action="{% url 'policies:show' policy.id %}" name = "edit" method="post" class="form">
                 {% csrf_token %}
@@ -91,12 +95,14 @@
                 </div>
               </form>
             </div>
+            <ul>
             <p>
             <a href="delete_rule/{{choice.id}}/{{ policy.id }}"> Delete</a>
             <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
             </p>
+            </ul>
         </label>
-        </p>
+    </p>
     {% endfor %}
 
     <form action="{% url 'policies:show' policy.id %}" method="post">
