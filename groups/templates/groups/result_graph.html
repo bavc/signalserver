@@ -10,23 +10,26 @@
         {{summary}}
         {% endif %}
         {% if entries %}
-        <h3><p> These files are off from average (percentage is set in rule in policy)<p></h3>
+        <p>
+        <h3>These files are off from average (percentage is set in rules in the policy)</h3>
+        <p> ---------------------------------- </p>
         {% for entry in entries %}
-            <h4><ul> filename: {{entry.file_name}}
-                 signal_name: {{entry.signal_name}}
+            <h4> Off from average by :{{entry.percentage}} % </h4>
+            <ul> filename: {{entry.file_name}} </ul>
+            <ul> signal_name: {{entry.signal_name}}
                  {% if entry.second_signal_name != 'None' %}
                     second_signal_name: {{entry.second_signal_name}}
                  {% endif %} </ul>
-                <ul>operation_name: {{entry.operation_name}}
+            <ul> operation_name: {{entry.operation_name}}
                  {% if entry.operation_name != 'average' %}
                     cut off number: {{entry.cut_off}}
-                 {% endif %}
-                 process average: {{entry.average}}
-                 this file's result: {{entry.result_number}}
-                 Off from average by :{{entry.percentage}} % </ul></h4>
-                 <p> ---------------------------------- </p>
+                 {% endif %} </ul>
+            <ul> process average: {{entry.average}} </ul>
+            <ul> this file's result: {{entry.result_number}} </ul>
+            <p> ---------------------------------- </p>
         {% endfor %}
-            {% endif %}
+        </p>
+         {% endif %}
 
         <h2> Graphs from the processed data</h4>
         <h4> Group Name : <a href="../edit_group/{{process.group_id}}">{{ process.group_name }}</a>, Processed time: {{ process.processed_time }}</h4>
