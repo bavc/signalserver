@@ -75,7 +75,7 @@ def delete_rule(request, op_id, policy_name):
 
 
 def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-              display_order, description, percentage, dasdhboard, id_num):
+              display_order, description, percentage, dashboard, id_num):
     operation = Operation.objects.get(id=id_num)
     operation.policy = policy
     operation.cut_off_number = cutoff_num
@@ -125,8 +125,8 @@ def show(request, policy_id):
         else:
             id_num = request.POST['id_num']
             edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-                      display_order, description, percentage,
-                      dashboard, id_num)
+                      display_order, description, percentage, dashboard,
+                      id_num)
         policy.user_name = request.user.username
         policy.save()
     operation = Operation.objects.filter(
