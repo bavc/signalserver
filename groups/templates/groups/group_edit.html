@@ -94,59 +94,21 @@
 </span>
 
 <script type="text/javascript">
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth()+1; //January is 0!
-    var yyyy = today.getFullYear();
 
-    if(dd<10) {
-        dd='0'+dd;
-    }
+function allowDrop(ev) {
+    ev.preventDefault();
+}
 
-    if(mm<10) {
-        mm='0'+ mm;
-    }
-    var lm = mm - 1
-    if (lm == 0){
-        mm = 12;
-    }
-    if (lm < 10) {
-        lm = '0' + lm;
-    }
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
 
-
-    today = yyyy+'/'+mm+'/'+dd;
-    today = today + " 00:00";
-    lastyear = (yyyy - 1) + '/' + mm + '/' + dd + " 00:00";
-
-
-
-    jQuery(function(){
-        jQuery('#datetimepicker').datetimepicker();
-        jQuery('#datetimepicker').datetimepicker({value:lastyear});
-        jQuery('#datetimepicker2').datetimepicker();
-        jQuery('#datetimepicker2').datetimepicker({value:today});
-    });
-
-
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
-
-    function drag(ev) {
-        ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function drop(ev) {
-        ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        ev.target.appendChild(document.getElementById(data));
-    }
-
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+}
 
 </script>
-<link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
-<script src="/frontend/bower_components/jquery/jquery.js"></script>
-<script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-{% endtimezone %}
+<script type="text/javascript" src="/frontend/static/js/defaultdate.js"> </script>
 {% endblock %}
