@@ -11,11 +11,10 @@
             {% for process in  processes %}
                 {% if process.id in not_completed %}
                     <div id="inprocess_{{process.id}}">
-                    <li><h4>{{ key }} </h4>
-                        Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                    <ul><li>Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
 
-                        Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
-                    <li>Processed time: {{process.processed_time}}</li>
+                        Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></ul>
+                    <ul>Processed time: {{process.processed_time}}</li></ul>
                     </div>
                 {% endif %}
             {% endfor %}
