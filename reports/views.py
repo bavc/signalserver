@@ -38,20 +38,23 @@ def create_entry(process, summary):
             nums.append(item[1])
         average = sum(nums)/len(nums)
         for item in ls:
-            if item[1]/average * 100 > percentage:
-                new_entry = Entry(
-                    summary=summary,
-                    file_name=item[0],
-                    operation_id=op_id,
-                    operation_name=op.op_name,
-                    signal_name=op.signal_name,
-                    second_signal_name=op.second_signal_name,
-                    percentage=percentage,
-                    result_number=item[1],
-                    average=average,
-                    cut_off=op.cut_off_number
-                )
-                new_entry.save()
+            if average == 0:
+                average = 1
+            if percentage > 0:
+                if item[1]/average * 100 > percentage:
+                    new_entry = Entry(
+                        summary=summary,
+                        file_name=item[0],
+                        operation_id=op_id,
+                        operation_name=op.op_name,
+                        signal_name=op.signal_name,
+                        second_signal_name=op.second_signal_name,
+                        percentage=percentage,
+                        result_number=item[1],
+                        average=average,
+                        cut_off=op.cut_off_number
+                    )
+                    new_entry.save()
     return entries
 
 
