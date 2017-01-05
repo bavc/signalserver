@@ -107,7 +107,7 @@ class OperationForm(forms.Form):
     )
     description = forms.CharField(
         label='Policy Description',
-        initial='rule description'
+        initial='Rule description'
     )
     dashboard = forms.ChoiceField(choices=DASHBOARD, required=True,
                                   initial=False)

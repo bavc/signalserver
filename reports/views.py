@@ -37,8 +37,13 @@ def create_entry(process, summary):
         for item in ls:
             nums.append(item[1])
         average = sum(nums)/len(nums)
+
         for item in ls:
-            if item[1]/average * 100 > percentage:
+            if percentage == 0.0:
+                continue
+            if average == 0:
+                average = 1
+            if ((item[1] - average)/average) * 100 > percentage:
                 new_entry = Entry(
                     summary=summary,
                     file_name=item[0],
@@ -59,14 +64,15 @@ def create_summary(process):
     summary = Summary.objects.filter(process_id=process.id)
     if summary.count() > 0:
         return summary[0]
-    new_summary = Summary(
-        user_name=process.user_name,
-        process_id=process.id,
-        policy_name=process.policy_name,
-        policy_id=process.policy_id,
-        group_id=process.group_id,
-        group_name=process.group_name,
-    )
-    new_summary.save()
-    create_entry(process, new_summary)
-    return new_summary
+    else:
+        new_summary = Summary(
+            user_name=process.user_name,
+            process_id=process.id,
+            policy_name=process.policy_name,
+            policy_id=process.policy_id,
+            group_id=process.group_id,
+            group_name=process.group_name,
+        )
+        new_summary.save()
+        create_entry(process, new_summary)
+        return new_summary
