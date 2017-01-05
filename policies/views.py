@@ -68,10 +68,10 @@ def delete_policy(request, policy_id):
     return HttpResponseRedirect(reverse('policies:index'))
 
 
-def delete_rule(request, op_id, policy_name):
+def delete_rule(request, op_id, policy_id):
     Operation.objects.get(id=op_id).delete()
     return HttpResponseRedirect(reverse('policies:show',
-                                kwargs={'policy_name': policy_name}))
+                                kwargs={'policy_id': policy_id}))
 
 
 def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
