@@ -1,5 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+#progress p
+{
+    display: block;
+    width: 240px;
+    padding: 2px 5px;
+    margin: 2px 0;
+    border: 1px inset #446;
+    border-radius: 5px;
+    background: #eee url("/frontend/static/img/progress.png") 100% 0 repeat-y;
+}
+
+#progress p.success
+{
+    background: #0c0 none 0 0 no-repeat;
+}
+
+#progress p.failed
+{
+    background: #c00 none 0 0 no-repeat;
+}
+
+</style>
 
 
 <span>
@@ -53,8 +76,11 @@
                 {{ form.videofile.errors }}
                 {{ form.videofile }}
             </p>
-            <p><input type="submit" value="Upload" /></p>
+            <button id="submit_button" type="submit" class="btn btn-primary">
+                    upload
+            </button>
             </form>
+            <div id="progress"></div>
             <h3>File Search</h3>
             <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="form">
             {% csrf_token %}
@@ -96,6 +122,67 @@
     </div>
     </div>
 </span>
+<script>
+function $id(id) {
+    return document.getElementById(id);
+}
+
+var fileupload = $id("submit_button");
+fileupload.addEventListener("click", FileStatusHandler, false);
+var current = 0
+var o = $id("progress");
+var progress = o.appendChild(document.createElement("p"));
+progress.appendChild(document.createTextNode("uploading file progress bar"));
+
+
+function FileStatusHandler(e) {
+    var target = $id("id_videofile")
+    var files = $(target).get(0).files;
+    var total = 0;
+    var file_list = []
+
+    //look all files
+    for (var i = 0, f; f = files[i]; i++) {
+        if (f.type == "application/x-gzip"){
+            file_list.push(f);
+            total++;
+        }
+    }
+    for (var i = 0, f; f = file_list[i]; i++) {
+        CheckProgressUploadFile(f, total, 0);
+    }
+}
+
+function update_progress_bar(total) {
+    var pc = parseInt(100 - (current / total * 100));
+    if (pc >= 0) {
+        progress.style.backgroundPosition = pc + "% 0";
+        current++;
+    }
+}
+
+function CheckProgressUploadFile(file, total, count) {
+    if (count > 100){
+        return;
+    }
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function(){
+        data = JSON.parse(xhr.response);
+        if (data['result'] == 'success'){
+            update_progress_bar(total);
+        }
+        else {
+            count++;
+            setTimeout(CheckProgressUploadFile, 1000, file, total, count);
+            //CheckProgressUploadFile(file, total);
+        }
+    }
+    xhr.open("GET", "{% url 'fileuploads:check_progress' %}?file_name=" + file.name, true);
+    xhr.send();
+
+}
+</script>
 <script type="text/javascript" src="/frontend/static/js/defaultdate.js"> </script>
 {% endblock %}
 

@@ -2,11 +2,14 @@ import os
 from os import listdir
 from os.path import isfile, join
 from datetime import datetime
+from datetime import timedelta
 import pytz
+from pytz import timezone
 import json
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -198,6 +201,23 @@ def list_file(request):
     return render(request, 'fileuploads/list.html',
                   {'videos': videos, 'shared_videos': shared_videos,
                    'form': form, 'user': current_user})
+
+
+def check_progress(request):
+    file_name = request.GET['file_name']
+    name = get_filename(file_name)
+    data = {}
+    count = Video.objects.filter(filename=name).count()
+    if count > 0:
+        video = Video.objects.get(filename=name)
+        diff = video.upload_time - datetime.now(timezone('US/Eastern'))
+        if diff >= timedelta(hours=1):
+            data = {"result": "not yet replaced"}
+        else:
+            data = {"result": "success"}
+    else:
+        data = {"result": "not yet uploaded"}
+    return JsonResponse(data, safe=False)
 
 
 class FileUploadView(APIView):
