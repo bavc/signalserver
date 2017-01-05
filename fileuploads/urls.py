@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^list/$', views.list_file, name='list'),
     url(r'^about/$', views.about, name='about'),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^api/check_progress/$',
+        views.check_progress, name='check_progress'),
     url(r'^process/$', views.process, name='process'),
     url(r'^status/$', views.status, name='status'),
     url(r'^search/$', views.search, name='search'),
