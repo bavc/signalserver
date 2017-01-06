@@ -16,11 +16,15 @@ from django.core.urlresolvers import reverse
 from django.template import loader
 from .models import Video
 from groups.models import Group, Member, Result, Row
+from groups.views import update_process
+from signals.views import update_output
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
 from .processfiles import process_file_with_policy
 from .processfiles import get_full_path_file_name
+from .processfiles import search_result
+from .processfiles import get_filename
 from celery import group
 from .tasks import add
 from celery.result import AsyncResult
@@ -78,13 +82,6 @@ def delete_video(request, video_videofile_name):
     return HttpResponseRedirect(reverse('fileuploads:list'))
 
 
-def get_filename(original_name):
-    if original_name.endswith('.gz'):
-        original_name = os.path.splitext(original_name)[0]
-    name = os.path.splitext(original_name)[0]
-    return name
-
-
 def process(request):
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
@@ -94,17 +91,6 @@ def process(request):
             file_name, policy_id, original_file_name)
         return render(request, 'fileuploads/process.html',
                       {'result': result})
-
-
-def search_result(start_field, end_field, keyword):
-    start = datetime.strptime(start_field,
-                              "%Y/%m/%d %H:%M")
-    end = datetime.strptime(end_field,
-                            "%Y/%m/%d %H:%M")
-    results = Video.objects.filter(upload_time__range=[start, end])
-    if keyword is not None:
-        results = results.filter(filename__contains=keyword)
-    return results
 
 
 @login_required(login_url="/login/")
@@ -179,12 +165,24 @@ def upload(request):
                    'user': current_user, 'form': form, 'message': message})
 
 
+def update_videos(videos):
+    for video in videos:
+        outputs = video.outputs.all()
+        processes = video.processes.all()
+        for process in processes:
+            process = update_process(process)
+        if outputs is not None and len(outputs) > 0:
+            update_output(outputs)
+    return videos
+
+
 @login_required(login_url="/login/")
 def list_file(request):
     form = VideoForm()
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
+    videos = update_videos(videos)
 
     if request.method == 'POST':
         start_field = request.POST['start_field']

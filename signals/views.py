@@ -64,6 +64,8 @@ def process_policy(file_name, policy_id, original_file_name,
             user_name=current_user
         )
         new_output.save()
+        video = Video.objects.get(filename=original_file_name)
+        video.outputs.add(new_output)
 
 
 def update_output(outputs):
