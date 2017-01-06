@@ -9,6 +9,24 @@ from policies.models import Policy, Operation
 from .constants import STORED_FILEPATH
 
 
+def get_filename(original_name):
+    if original_name.endswith('.gz'):
+        original_name = os.path.splitext(original_name)[0]
+    name = os.path.splitext(original_name)[0]
+    return name
+
+
+def search_result(start_field, end_field, keyword):
+    start = datetime.strptime(start_field,
+                              "%Y/%m/%d %H:%M")
+    end = datetime.strptime(end_field,
+                            "%Y/%m/%d %H:%M")
+    results = Video.objects.filter(upload_time__range=[start, end])
+    if keyword is not None:
+        results = results.filter(filename__contains=keyword)
+    return results
+
+
 def get_full_path_file_name(original_file_name):
     original_file_name = original_file_name + '.xml'
     original_file_name = os.path.join(STORED_FILEPATH, original_file_name)

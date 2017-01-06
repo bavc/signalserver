@@ -21,8 +21,8 @@ from fileuploads.models import Video
 from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
-from fileuploads.views import search_result
-from fileuploads.views import get_filename
+from fileuploads.processfiles import search_result
+from fileuploads.processfiles import get_filename
 from fileuploads.constants import STORED_FILEPATH
 from celery import group
 from fileuploads.tasks import process_file
@@ -220,6 +220,8 @@ def file_process(file_name, process):
     file_name = get_full_path_file_name(original_name)
     status = process_file.delay(file_name, process.policy_id,
                                 original_name, process.id)
+    video = Video.objects.get(filename=original_name)
+    video.processes.add(process)
     result = Result(
         process=process,
         filename=original_name,
@@ -249,6 +251,7 @@ def update_process(process):
 
 def save_member(group, file_name):
     video = Video.objects.get(filename=file_name)
+    video.groups.add(group)
     try:
         new_member = Member(
             file_name=file_name,
@@ -284,6 +287,8 @@ def remove_file(request, group_id, file_name):
     group = Group.objects.get(id=group_id)
     members = Member.objects.filter(group=group)
     member = members.filter(file_name=file_name)
+    video = Video.objects.get(filename=file_name)
+    video.groups.remove(group)
     member.delete()
     return HttpResponseRedirect(reverse('groups:edit_group',
                                         args=(group_id,)))

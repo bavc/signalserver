@@ -27,23 +27,65 @@
 
 <span>
     <div class = "container-fluid">
-    <h1>File List, Search and Upload</h1>
+    <h1>QC Tool Generated File List, Search and Upload</h1>
     <div class="row">
-        <div class="col-md-6">
-             <h3>List of of all loaded files by you </h3>
+        <div class="col-md-9">
                 {% if videos %}
                 <ul>
                 {% for video in videos %}
-                    <li>{{ video.filename }}
-                    Uploaded time{{video.upload_time}}
-                    <a href="../delete-video/{{video.filename}}">Delete</a></li>
+                    <li><ul><h4>{{ video.filename }}</h4>
+                    Uploaded time : {{video.upload_time}} <a href="../delete-video/{{video.filename}}">Delete</a></ul>
+                    <ul> groups :
+                    {% for group in video.groups.all %}
+                            <a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}</ul>
+                    <ul>
+                    <span><a href="/fileuploads/search/">Create Group</a></span></ul>
+                    <ul> Group Process Status:</ul>
+                    {% for process in video.processes.all %}
+                        {% if process.status  %}
+                            <ul>
+                            Completed :
+                            Process Id : {{ process.id }}
+                            Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a>
+                            Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                            Processed time: {{ process.processed_time }}
+                            <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
+                            <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                            </form></ul>
+                        {% else %}
+                            <ul>In Progress :
+                                Process Id : {{process.id}}
+                                Policy Name: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                                Group Name: <a href="/group/edit_group/{{process.group_id}}">{{process.group_name}}</a>
+                                Processed time: {{ process.processed_time }}</ul>
+                        {% endif %}
+                    {% endfor %}
+                    <ul><a href="/groups/save_group/">Request Group Process</a></ul>
+                    <ul> File Process Status:</ul>
+                    {% for output in video.outputs.all %}
+                    {% if output.status  %}
+                        <ul>Completed : {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+                        <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+                        <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                        </form></ul>
+                    {% else %}
+                        <ul> In Process : processed time : {{ output.processed_time }}</ul>
+                    {% endif %}
+                    {% endfor %}
+                    <ul><span><a href="/signals/">Request File Process</a></span></ul>
                 {% endfor %}
-                </ul>
 
+                </li>
+            </ul>
                 {% else %}
                     <p>No file.</p>
                 {% endif %}
-             <h3>List of of all shared uploaded files</h3>
+             <h3>Files Uploaded by others</h3>
                 {% if shared_videos %}
                 <ul>
                 {% for video in shared_videos %}
@@ -59,7 +101,7 @@
 
             <p><a href="/fileuploads/search">Go to create group page</a>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
 
 
 
