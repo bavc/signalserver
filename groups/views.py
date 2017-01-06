@@ -170,7 +170,7 @@ def group_process_status(request):
         update_process(process)
     shared_processes = Process.objects.exclude(user_name=user_name)
     for process in shared_processes:
-        update_process(processes)
+        update_process(process)
 
     not_completed = check_not_complete(processes)
     shared_not_completed = check_not_complete(shared_processes)
