@@ -8,6 +8,8 @@
         <script type="text/javascript" src="/frontend/bower_components/bootstrap/dist/js/bootstrap.min.js">
         </script>
         <link rel="stylesheet" href="/frontend/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/frontend/static/css/main.css" />
+        <link rel="stylesheet" href="/frontend/static/css/bootswatch.css" />
     </head>
     <body>
     <nav class="navbar navbar-default">
@@ -33,10 +35,11 @@
         <li><a href="/reports/dashboard/">Dashboard</a></li>
         <li><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File<span class="sr-only">(current)</span><span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/fileuploads/list/">File list, upload, delete</a></li>
+            <li><a href="/fileuploads/list/">File upload, delete</a></li>
             <li><a href="/signals/">Submit Process by File, Config</a></li>
             <li><a href="/signals/file_process_status/">File Config Process Status </a></li>
             <li role="separator" class="divider"></li>
+            <li><a href="#">Signal Graphs</a></li>
           </ul></li>
         <li><a href="/policy">Policy</a></li>
         <li class="dropdown">
@@ -74,4 +77,3 @@
 <script src="/frontend/bower_components/jquery/jquery.js"></script>
 <script src="/frontend/bower_components/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 </html>
-
