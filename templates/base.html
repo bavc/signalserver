@@ -13,65 +13,73 @@
     </head>
     <body>
     <nav class="navbar navbar-default">
-    <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="/"><img src="/frontend/static/img/signalserver_sm.png" alt="signalserver logo"></a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <!-- li class="active"><a href="/fileuploads/list">About</a></li -->
-
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="/reports/dashboard/">Dashboard</a></li>
-        <li><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File<span class="sr-only">(current)</span><span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/fileuploads/list/">File upload, delete</a></li>
-            <li><a href="/signals/">Submit Process by File, Config</a></li>
-            <li><a href="/signals/file_process_status/">File Config Process Status </a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Signal Graphs</a></li>
-          </ul></li>
-        <li><a href="/policy">Policy</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Group <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/fileuploads/search/">Create Group</a></li>
-            <li><a href="/groups/save_group/">Submit Process by Group</a></li>
-            <li><a href="/groups/group_process">Group Process Status </a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Result Graph</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Account<span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/accounts"> Settings</a></li>
-            <li><a href="/register">Register</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="/logout">Log Out</a></li>
-          </ul>
-        </li>
-        <li><a href="/fileuploads/about/">About</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-        <div id="content">
-        {% load tz %}
-        {% block content %}
-        {% endblock %}
+      <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/"><img src="/frontend/static/img/signalserver_sm.png" alt="signalserver logo"></a>
       </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/reports/dashboard/">Dashboard</a></li>
+          <li><a href="/fileuploads/about/">About</a></li>
+          <li><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Files<span class="sr-only">(current)</span><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/fileuploads/list/">File upload, delete</a></li>
+              <li><a href="/signals/">Submit Process by File, Config</a></li>
+              <li><a href="/signals/file_process_status/">File Config Process Status </a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Signal Graphs</a></li>
+            </ul></li>
+          <li><a href="/policy">Policy</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Group <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/fileuploads/search/">Create Group</a></li>
+              <li><a href="/groups/save_group/">Submit Process by Group</a></li>
+              <li><a href="/groups/group_process">Group Process Status </a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Result Graph</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Account<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/accounts"> Settings</a></li>
+              <li><a href="/register">Register</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="/logout">Log Out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+  <div id="content">
+    {% load tz %}
+    {% block content %}
+    {% endblock %}
+  </div>
+  <footer class="footer">
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a href="https://bavc.org/">BAVC</a></li>
+          <li><a href="https://github.com/bavc/signalserver">Github</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <!-- <li><a href="">License information here</a></li> -->
+        </ul>
+      </div>
+    </nav>
+  </footer>
 </body>
 <link rel="stylesheet" type="text/css" href="/frontend/bower_components/datetimepicker/jquery.datetimepicker.css"/ >
 <script src="/frontend/bower_components/jquery/jquery.js"></script>

@@ -4282,10 +4282,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   line-height: 20px;
   height: 50px;
 }
-.navbar-brand:hover,
-.navbar-brand:focus {
-  text-decoration: none;
-}
+
 .navbar-brand > img {
   display: block;
 }
