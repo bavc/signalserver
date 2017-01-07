@@ -50,7 +50,9 @@ FILES_VOLUME_PATH=/files
 
 If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. In docker container, it will be stored in /var/signalserver/files directly.
 
-### Running the application
+### Running the application]
+
+#### First Step
 
 When you have docker-engine and docker-compose is installed and .env file is created with above value, you just need to run below script.
 
@@ -66,6 +68,24 @@ you can also run the command following way.
 ```
 FILES_VOLUME_PATH=/data ./quickstart.sh
 ```
+
+### Second Step
+
+In this point, your application is running on the IP address that quickstart.sh tells you.
+However, you probably won't have frontend asset.
+
+Now you need to open frontend.sh file and change the 1st line as below. In this example,
+this person's signalserver folder is located on Users/username/signalserver/Dockerfile-frontend
+So in this example, the first line of the frontend.sh is changed as as below.
+
+```
+docker build -t signalserver-frontend  -f /Users/username/signalserver/Dockerfile-frontend
+```
+Once you changed your frontend.sh to your project's Dockerfile-frontend path, save the file and run frontend.sh.
+
+After you run frontend.sh, run quickstart.sh again following the first step.
+
+And it should be it!
 
 
 ### API usage

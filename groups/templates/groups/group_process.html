@@ -6,6 +6,9 @@
         <div class="col-md-6">
         <div class = "container-fluid">
         <h2>Request Submitted By you</h2>
+        {% if message %}
+            <p>{{ message }}<p>
+        {% endif %}
         {% if processes %}
             <h3> In Progress </h3>
             {% for process in  processes %}

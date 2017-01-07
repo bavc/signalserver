@@ -27,6 +27,12 @@ def search_result(start_field, end_field, keyword):
     return results
 
 
+def check_file_exist(file_name):
+    original_file_name = file_name + '.xml.gz'
+    file_name = os.path.join(STORED_FILEPATH, original_file_name)
+    return os.path.exists(file_name)
+
+
 def get_full_path_file_name(original_file_name):
     original_file_name = original_file_name + '.xml'
     original_file_name = os.path.join(STORED_FILEPATH, original_file_name)
