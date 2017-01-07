@@ -113,8 +113,7 @@ def show(request, policy_id):
         sig_name = request.POST['signal_fields']
         sig2_name = request.POST['second_signal_fields']
         op_name = request.POST['operation_fields']
-        #display_order = request.POST['display_order']
-        display_order = 0
+        display_order = request.POST['display_order']
         description = request.POST['description']
         percentage = request.POST['percentage']
         dashboard = request.POST['dashboard']
@@ -131,11 +130,12 @@ def show(request, policy_id):
         policy.save()
     operation = Operation.objects.filter(
         policy=policy).order_by('display_order')
+    length = len(operation) + 1
     form = OperationForm()  # A empty, unbound form
     return render(request, 'policies/show.html',
                   {'policy': policy,
                    'form': form,
-                   'operation': operation})
+                   'operation': operation, 'length': length})
 
 
 def rename(request):

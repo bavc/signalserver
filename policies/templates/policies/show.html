@@ -46,13 +46,21 @@
                 <!-- variable -->
                     <input name='action' type="hidden" value="edit">
                     <input name='id_num' type="hidden" value="{{ choice.id }}">
-                    {{ form.signal_fields.errors }}
+
+
                     <label for="id_signal">Filter</label>
-                    {{ form.signal_fields }}
+                    <input name='signal_fields' type="hidden" value="{{ choice.signal_name }}">
+                    {{ choice.get_signal_name_display }}
 
                     {{ form.operation_fields.errors}}
                     <label for="id_name">Operation</label>
-                    {{ form.operation_fields}}
+                    <select id="id_operation_fields{{ choice.id }}" name="operation_fields" onChange="operationSelect(this)" required value="{{choice.get_op_name_display}}">
+                        <option value="average">average</option>
+                        <option value="exceeds">count of frames with value above</option>
+                        <option value="equals">count of frames with value equal to</option>
+                        <option value="belows">count of frames with value below</option>
+                        <option value="average_difference">average_difference</option>
+                    </select>
 
                     <div id="secondsignal" style="display:none;">
                     {{ form.second_signal_fields.errors }}
@@ -60,28 +68,28 @@
                     {{ form.second_signal_fields }}
                     </div>
 
-                    <div id="cutoffnumber" style="display:none;">
-                    {{ form.cutoff_number.errors }}
+                    <div id="cutoffnumber{{ choice.id }}" style="display:none;">
                     <label for="id_cutoff ">Cutoff Number</label>
-                    {{ form.cutoff_number }}
+                    <input name='cutoff_number' type="text" value="{{ choice.cut_off_number }}">
                     </div>
 
                     <div id="display_order" style="display:none;">
+                    <input name='display_order' type="hidden" value="{{ forloop.counter }}">
                     {{ form.display_order.errors }}
                     <label for="id_cutoff ">Display order</label>
                     {{ form.display_order }}
                     </div>
 
                     <div>
-                    {{ form.description.errors }}
+
                     <label for="id_description">Description</label>
-                    {{ form.description }}
+                    <input name='description' type="text" value="{{ choice.description }}">
                     </div>
 
                     <div>
-                    {{ form.percentage.errors }}
+
                     <label for="id_percentage">Percentage</label>
-                    {{ form.percentage }}
+                    <input name='percentage' type="text" value="{{ choice.percentage }}">
                     </div>
 
                     <div>
@@ -156,7 +164,7 @@
          <label for="id_dashboard">Dashboard</label>
          {{ form.dashboard }}
          </div>
-
+         <input name='display_order' type="hidden" value="{{ length }}">
          <input name='action' type="hidden" value="new">
          <button type="search" class="btn btn-primary">
                     Add
@@ -180,9 +188,17 @@
     $("#edit_form{{ forloop.counter }}").hide();
     $(".edit_link{{ forloop.counter }}").click (function(){
         $("#edit_form{{ forloop.counter }}").show();
+        document.getElementById('id_operation_fields{{ choice.id }}').value="{{choice.get_op_name_display}}";
+        if ("{{choice.get_op_name_display}}" == "exceeds" ||
+            "{{choice.get_op_name_display}}" == "belows" ||
+            "{{choice.get_op_name_display}}" == "equals") {
+            document.getElementById("cutoffnumber{{ choice.id }}").style.display = "block";
+        }
     });
 
 {% endfor %}
+
+
 
 function operationSelect(that) {
     var parent = that.parentElement;
