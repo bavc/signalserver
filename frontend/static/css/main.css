@@ -12,14 +12,16 @@ body {
 }
 
 .badge-info {
-  background-color: lightsalmon !important;
+  background-color: #008264 !important;
 }
 
 .badge a {
+  font-weight: normal;
   color: white;
 }
 
 .badge a:hover {
+  color:  #f9e5b6;
   text-decoration: none;
 }
 
