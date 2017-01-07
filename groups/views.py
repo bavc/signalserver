@@ -22,7 +22,7 @@ from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
 from fileuploads.processfiles import search_result
-from fileuploads.processfiles import get_filename
+from fileuploads.processfiles import get_filename, check_file_exist
 from fileuploads.constants import STORED_FILEPATH
 from celery import group
 from fileuploads.tasks import process_file
@@ -163,7 +163,7 @@ def check_not_complete(processes):
 
 
 @login_required(login_url="/login/")
-def group_process_status(request):
+def group_process_status(request, message=None):
     user_name = request.user.username
     processes = Process.objects.filter(user_name=user_name)
     for process in processes:
@@ -179,20 +179,22 @@ def group_process_status(request):
                    'shared_processes': shared_processes,
                    'not_completed': not_completed,
                    'shared_not_completed': shared_not_completed,
+                   'message': message
                    })
 
 
 @login_required(login_url="/login/")
 def group_process(request):
     user_name = request.user.username
+    not_exist = []
+    message = None
     if request.method == 'POST':
         group_id = request.POST['group_id']
         group = Group.objects.get(id=group_id)
         group_name = group.group_name
         members = Member.objects.filter(group=group)
         policy_id = request.POST['policy_fields']
-        policy_name = Policy.objects.get(
-            id=policy_id).policy_name
+        policy_name = Policy.objects.get(id=policy_id).policy_name
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         process = Process(
             group_name=group_name,
@@ -205,9 +207,15 @@ def group_process(request):
         )
         process.save()
         for member in members:
-            file_process(member.file_name, process)
-
-    return HttpResponseRedirect('/groups/group_process_status/')
+            if check_file_exist(member.file_name):
+                file_process(member.file_name, process)
+            else:
+                not_exist.append(member.file_name)
+        if len(not_exist) > 0:
+            message = "These file doesn't exist in " + group_name + ".\n"
+            for name in not_exist:
+                message += name + "\n"
+    return group_process_status(request, message)
 
 
 def delete_group_result(request, process_id):
