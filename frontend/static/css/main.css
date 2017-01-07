@@ -8,12 +8,44 @@ html {
   position: relative;
   min-height: 100%;
 }
+
 body {
-  margin-bottom: 60px;
+  margin-bottom: 60px !important;
 }
+
+.badge-info {
+  background-color: lightsalmon !important;
+}
+
+.badge a {
+  color: white;
+}
+
+.badge a:hover {
+  text-decoration: none;
+}
+
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   height: 60px;
+}
+
+#progress p {
+  display: block;
+  width: 240px;
+  padding: 2px 5px;
+  margin: 2px 0;
+  border: 1px inset #446;
+  border-radius: 5px;
+  background: #eee url("/frontend/static/img/progress.png") 100% 0 repeat-y;
+}
+
+#progress p.success {
+  background: #0c0 none 0 0 no-repeat;
+}
+
+#progress p.failed {
+  background: #c00 none 0 0 no-repeat;
 }
