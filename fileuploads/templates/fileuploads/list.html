@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<span>
 <div class="container-fluid">
   <div class="row-fluid">
     <h1>Files</h1>
@@ -137,7 +136,6 @@
   </div>
 
 </div>
-</span>
 
 <script>
 function $id(id) {
@@ -197,7 +195,6 @@ function CheckProgressUploadFile(file, total, count) {
     }
     xhr.open("GET", "{% url 'fileuploads:check_progress' %}?file_name=" + file.name, true);
     xhr.send();
-
 }
 </script>
 <script type="text/javascript" src="/frontend/static/js/defaultdate.js"> </script>
