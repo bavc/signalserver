@@ -1,5 +1,5 @@
 .navbar-brand {
-  padding-top: 10px !important;
+  padding-top: 10px;
 }
 
 html {
@@ -8,13 +8,16 @@ html {
 }
 
 body {
-  margin-bottom: 60px !important;
+  margin-bottom: 60px;
 }
 
 .badge-info {
-  background-color: #008264 !important;
+  background-color: #008264;
 }
 
+.badge-danger {
+  background-color: darkorange;
+}
 .badge a {
   font-weight: normal;
   color: white;
