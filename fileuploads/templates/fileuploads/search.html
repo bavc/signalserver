@@ -2,92 +2,94 @@
 {% block content %}
 <span>
     <div class = "container-fluid">
-        <h1>File Search and Group Creation</h1>
-        <h4>Based on the result of file search, we can create the group in this page.</h4>
+        <h1>Find files and create group</h1>
+        <h4>Groups are created based on search results.</h4>
+
+        <div class="col-md-6">
+          <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="navbar-form form">
+          {% csrf_token %}
+            <h3>File Search</h3>
+            <div class="form-group">
+              <label for="start_field" style="padding:5px;">Start: </label><input name='start_field' type="text" id="datetimepicker">
+              <label for="end_field" style="padding:5px;">End: </label><input name='end_field' type="text" id="datetimepicker2">
+            </div>
+            <div class="form-group">
+              <input name='keyword' type="text" id="keyword" placeholder="Keyword or exact filename (case sensitive)." size="46">
+              <button type="search" class="btn btn-sm btn-primary">Search</button>
+            </div>
+          </form>
+
+        {% if videos %}
+            <h3>Search Results</h3>
+                <form action="{% url 'groups:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
+                <h4> Search keywords </h4>
+                {% if start %}
+                    <input type="hidden" name="start_field" id="start_field" value="{{ start }}" />
+                    <p>Start time: {{ start}}</p>
+                {% endif %}
+                {% if end %}
+                    <input type="hidden" name="end_field" id="end_field" value="{{ end }}" />
+                    <p>End time: {{ end }}</p>
+                {% endif %}
+                {% if keyword %}
+                    <p>The filename has the keyword: <strong>{{ keyword }}</strong></p>
+                    <input type="hidden" name="keyword" id="keyword" value="{{ keyword }}" />
+                {% endif %}
+                <ul class="list-group">
+                {% csrf_token %}
+                {% for video in videos %}
+                    <li class="list-group-item"><input type="hidden" name="file{{ forloop.counter }}" id="file{{ forloop.counter }}" value="{{ video.filename }}" />
+                    <p>{{ video.filename }}</p>
+                    Uploaded time: {{video.upload_time}}
+                    </li>
+                {% endfor %}
+                </ul>
+
+                {% if message %}
+                    {{ message }}
+                {% endif %}
+                {% if form %}
+                    {% csrf_token %}
+                    <p>{{ form.non_field_errors }}</p>
+                    <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
+                    <p>{{ form.group_name.errors }}
+                        {{ form.group_name }}</p>
+                {% endif %}
+                <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
+                  Create Group
+                </button>
+              </form>
+        {% endif %}
+        </div>
 
         <div class="row">
-            <div class="col-md-6">
-                    <h3> Files uploaded by you </h3>
-                    {% if files %}
-                    {% for file in files %}
-                            <li><h4>{{ file.filename }}</h4>
-                                 <ul> Uploaded time : {{file.upload_time}}</ul>
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No file.</p>
-                    {% endif %}
-                     <h3> All Shared Files </h3>
-                    {% if shared_files %}
-                    {% for file in shared_files %}
-                            <li>{{ file.filename }}
-                                 <ul> Uploaded time : {{file.upload_time}}</ul>
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No file.</p>
-                    {% endif %}
-
-            </div>
-            <div class="col-md-6">
-                    <form action="{% url 'fileuploads:search' %}" name = "search" method="post" class="form">
-                    {% csrf_token %}
-
-                    <h3>File Search</h3>
-                    <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
-                    <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
-
-                    <p>Exact file name or keyword in the filename (case sensitive): </p>
-                    <p><input name='keyword' type="text" id="keyword"></p>
-                    <button type="search" class="btn btn-primary">
-                        Search
-                    </button>
-                    </form>
-                    {% if videos %}
-                        <h3> Search Results </h3>
-                            <form action="{% url 'groups:save_group' %}" name="group_name" method="post" enctype="multipart/form-data">
-                            <h4> Search keywords </h4>
-                            {% if start %}
-                                <input type="hidden" name="start_field" id="start_field" value="{{ start }}" />
-                                Start time : {{ start}}
-                            {% endif %}
-                            {% if end %}
-                                <input type="hidden" name="end_field" id="end_field" value="{{ end }}" />
-                                End time : {{ end }}
-                            {% endif %}
-                            {% if keyword %}
-                                The filename has a word : {{ keyword }} </h4></br></br>
-                                <input type="hidden" name="keyword" id="keyword" value="{{ keyword }}" />
-                            {% endif %}
-
-
-                            <ul>
-                            {% csrf_token %}
-                            {% for video in videos %}
-                                <li><input type="hidden" name="file{{ forloop.counter }}" id="file{{ forloop.counter }}" value="{{ video.filename }}" />
-                                {{ video.filename }}
-                                <ul>Uploaded time : {{video.upload_time}}</ul>
-                                </li>
-                            {% endfor %}
-                            </ul>
-
-                            {% if message %}
-                                {{ message }}
-                            {% endif %}
-                            {% if form %}
-                                {% csrf_token %}
-                                <p>{{ form.non_field_errors }}</p>
-                                <p>{{ form.group_name.label_tag }}{{ form.group_name.help_text }}<p>
-                                <p>{{ form.group_name.errors }}
-                                    {{ form.group_name }}</p>
-                            {% endif %}
-                            <button type="submit" value="Save Group" class="btn btn-primary" name="group_name_button">
-                                Create Group
-                            </button>
-                            </form>
-                    {% endif %}
+            <div class="col-xs-12">
+              <h3>Files uploaded by you</h3>
+              {% if files %}
+              <ul class="list-group">
+              {% for file in files %}
+                 <li class="list-group-item">
+                   <p>{{ file.filename }}</p>
+                   Uploaded time: {{file.upload_time}}
+                 </li>
+                  {% endfor %}
+              </ul>
+              {% else %}
+                  <p>No files.</p>
+              {% endif %}
+              <h3>All shared files</h3>
+              {% if shared_files %}
+              <ul class="list-group">
+              {% for file in shared_files %}
+                <li class="list-group-item">
+                  <p>{{ file.filename }}</p>
+                   Uploaded time: {{file.upload_time}}
+                 </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+                  <p>No files.</p>
+              {% endif %}
             </div>
         </div>
     </div>

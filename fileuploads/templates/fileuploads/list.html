@@ -1,169 +1,142 @@
 {% extends 'base.html' %}
 {% block content %}
-<style>
-#progress p
-{
-    display: block;
-    width: 240px;
-    padding: 2px 5px;
-    margin: 2px 0;
-    border: 1px inset #446;
-    border-radius: 5px;
-    background: #eee url("/frontend/static/img/progress.png") 100% 0 repeat-y;
-}
 
-#progress p.success
-{
-    background: #0c0 none 0 0 no-repeat;
-}
-
-#progress p.failed
-{
-    background: #c00 none 0 0 no-repeat;
-}
-
-</style>
-
-
-<span>
-    <div class = "container-fluid">
+<div class="container-fluid">
+  <div class="row-fluid">
     <h1>Files</h1>
-    <div class="row">
-        <div class="col-md-6">
-                {% if videos %}
-                <ul>
-                {% for video in videos %}
-                    <li><ul><h4>{{ video.filename }}</h4>
-                    Uploaded time : {{video.upload_time}} <a href="../delete-video/{{video.filename}}">Delete</a></ul>
-                    <ul> groups :
-                    {% for group in video.groups.all %}
-                            <a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a>{% if not forloop.last %}, {% endif %}
-                    {% endfor %}</ul>
-                    <ul>
-                    <span><a href="/fileuploads/search/">Create Group</a></span></ul>
-                    <ul> Group Process Status:</ul>
-                    {% for process in video.processes.all %}
-                        {% if process.status  %}
-                            <ul>
-                            Completed :
-                            Process Id : {{ process.id }}
-                            Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a>
-                            Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
-                            Processed time: {{ process.processed_time }}
-                            <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
-                            <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                            </form></ul>
-                        {% else %}
-                            <ul>In Progress :
-                                Process Id : {{process.id}}
-                                Policy Name: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
-                                Group Name: <a href="/group/edit_group/{{process.group_id}}">{{process.group_name}}</a>
-                                Processed time: {{ process.processed_time }}</ul>
-                        {% endif %}
-                    {% endfor %}
-                    <ul><a href="/groups/save_group/">Request Group Process</a></ul>
-                    <ul> File Process Status:</ul>
-                    {% for output in video.outputs.all %}
-                    {% if output.status  %}
-                        <ul>Completed : {{ output.frame_count }} frames, processed : {{ output.processed_time }}
-                        <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
-                        <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                        </form></ul>
-                    {% else %}
-                        <ul> In Process : processed time : {{ output.processed_time }}</ul>
-                    {% endif %}
-                    {% endfor %}
-                    <ul><span><a href="/signals/">Request File Process</a></span></ul>
-                {% endfor %}
-
-                </li>
-            </ul>
-                {% else %}
-                    <p>No file.</p>
-                {% endif %}
-             <h3>Files Uploaded by others</h3>
-                {% if shared_videos %}
-                <ul>
-                {% for video in shared_videos %}
-                    <li>{{ video.filename }}
-                    Uploaded time{{video.upload_time}}
-                    <a href="../delete-video/{{video.filename}}">Delete</a></li>
-                {% endfor %}
-                </ul>
-
-                {% else %}
-                    <p>No file.</p>
-                {% endif %}
-
-            <p><a href="/fileuploads/search">Go to create group page</a>
-        </div>
-        <div class="col-md-6">
-
-
-
-            <h3> File upload </h3>
-            {% if message %}
-                <p> {{ message }}</p>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Search files</h3>
+        <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="navbar-form form">
+        {% csrf_token %}
+          <div class="form-group">
+            <label for="start_field" style="padding:5px;">Start: </label><input name='start_field' type="text" id="datetimepicker">
+            <label for="end_field" style="padding:5px;">End: </label><input name='end_field' type="text" id="datetimepicker2">
+          </div>
+          <div class="form-group">
+            <input name='keyword' type="text" id="keyword" placeholder="Keyword or exact filename (case sensitive)." size="46">
+            <button type="search" class="btn btn-sm btn-primary">Search</button>
+          </div>
+        </form>
+        {% if files %}
+        <h3>Search Results</h3>
+            <h4>Search keywords</h4>
+            <p>{% if keyword %} {{ keyword }} {% endif %}</p>
+            {% if start %}
+              <p>Start time: {{ start}}</p>
             {% endif %}
-            <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
-            <p>{{ form.non_field_errors }}</p>
-            <p>{{ form.videofile.label_tag }} {{ form.videofile.help_text }}</p>
-            <p>
-                {{ form.videofile.errors }}
-                {{ form.videofile }}
-            </p>
-            <button id="submit_button" type="submit" class="btn btn-primary">
-                    upload
-            </button>
-            </form>
-            <div id="progress"></div>
-            <h3>File Search</h3>
-            <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="form">
-            {% csrf_token %}
-                <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
-                <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+            {% if end %}
+              <p>End time: {{ end }}</p>
+            {% endif %}
+            <ul class="list-group">
+            {% for video in files %}
+              <li class="list-group-item">
+                <p>{{ video.filename }}</p>
+                <p> Uploaded time: {{video.upload_time}}
+                  <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
+                </p>
+              </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 
-                <p>Exact file name or keyword in the filename (case sensitive): </p>
-                <p><input name='keyword' type="text" id="keyword"></p>
-                <button type="search" class="btn btn-primary">
-                    Search
-                </button>
-                </form>
-                {% if files %}
-                    <h3> Search Results </h3>
-                        <h4> Search keywords
-                        {% if keyword %}
-                           {{ keyword }}
-                        {% endif %}
-                        </h4>
-                        {% if start %}
-                            <h4> Start time : {{ start}}
-                        {% endif %}
-                        {% if end %}
-                            End time : {{ end }}</h4>
-                        {% endif %}
+    <div class="col-md-6">
+        <h3>File upload</h3>
+        <div id="progress"></div>
+        {% if message %}
+            <p> {{ message }}</p>
+        {% endif %}
+        <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
+        <p>{{ form.non_field_errors }}</p>
+        <p>{{ form.videofile.label_tag }} {{ form.videofile.help_text }}</p>
+        <p>{{ form.videofile.errors }}
+           {{ form.videofile }}
+        </p>
+        <button id="submit_button" type="submit" class="btn btn-sm btn-primary">Upload</button>
+        </form>
+    </div>
+  </div>
 
-                        <ul>
-                        {% for video in files %}
-                            <li>
-                            {{ video.filename }}
-                            <ul>Uploaded time : {{video.upload_time}}
-                            <a href="../delete-video/{{video.filename}}">Delete</a></ul>
-                            </li>
-                        {% endfor %}
-                        </ul>
+  <div class="row">
+    <div class="col-xs-12">
+      <h3>Files uploaded by you</h3>
+        {% if videos %}
+        <ul class="list-group">
+        {% for video in videos %}
+            <li class="list-group-item"><h4>{{ video.filename }}</h4>
+            Uploaded time: {{video.upload_time}}
+            <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
+              {% for group in video.groups.all %}
+                <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            <span class="badge badge-info"><a href="/fileuploads/search/">Create Group</a></span>
+            {% for process in video.processes.all %}
+                {% if process.status  %}
+                    <ul>
+                    Completed:
+                    Process Id: {{ process.id }}
+                    Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a>
+                    Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                    Processed time: {{ process.processed_time }}
+                    <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
+                    <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                    </form></ul>
+                {% else %}
+                    <ul>In Progress:
+                        Process Id: {{process.id}}
+                        Policy Name: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
+                        Group Name: <a href="/group/edit_group/{{process.group_id}}">{{process.group_name}}</a>
+                        Processed time: {{ process.processed_time }}
+                    </ul>
                 {% endif %}
-        </div>
+            {% endfor %}
+            <span class="badge badge-info"><a href="/groups/save_group/">Request Group Process</a></span>
+            {% for output in video.outputs.all %}
+            File Process Status:
+              {% if output.status  %}
+                  <ul>Completed: {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+                  <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+                  <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                  </form></ul>
+              {% else %}
+                  <ul> In Process. Processed time: {{ output.processed_time }}</ul>
+              {% endif %}
+            {% endfor %}
+            <span class="badge badge-info"><a href="/signals/">Request File Process</a></span>
+        {% endfor %}
+        </li>
+    </ul>
+      {% else %}
+          <p>No files.</p>
+      {% endif %}
 
+     <h3>Files uploaded by others</h3>
+        {% if shared_videos %}
+        <ul class="list-group">
+        {% for video in shared_videos %}
+            <li class="list-group-item">{{ video.filename }}
+            Uploaded time: {{video.upload_time}}
+            <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
+          </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+            <p>No filse.</p>
+        {% endif %}
+      <p><a href="/fileuploads/search">Go to create group page</a>
     </div>
-    </div>
-</span>
+  </div>
+
+</div>
+
 <script>
 function $id(id) {
     return document.getElementById(id);
@@ -174,7 +147,7 @@ fileupload.addEventListener("click", FileStatusHandler, false);
 var current = 0
 var o = $id("progress");
 var progress = o.appendChild(document.createElement("p"));
-progress.appendChild(document.createTextNode("uploading file progress bar"));
+progress.appendChild(document.createTextNode("file upload progress bar"));
 
 
 function FileStatusHandler(e) {
@@ -222,9 +195,7 @@ function CheckProgressUploadFile(file, total, count) {
     }
     xhr.open("GET", "{% url 'fileuploads:check_progress' %}?file_name=" + file.name, true);
     xhr.send();
-
 }
 </script>
 <script type="text/javascript" src="/frontend/static/js/defaultdate.js"> </script>
 {% endblock %}
-

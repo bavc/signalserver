@@ -1,93 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
-<span>
-    <div class = "container-fluid">
-        <h1>Policies</h1>
-        <h4>List of policy and create the new policy.</h4>
-        <div class="row">
-            <div class="col-md-6">
-                    <h3> All policies </h3>
-                    <!-- List of already created policies -->
-                    {% if policies %}
-                        {% for policy in policies %}
-                        <h4> Policy Name:<a href="show/{{ policy.id }}">{{ policy.policy_name }} </a> <br>
-                            Show in dashboard : {{policy.dashboard}}
-
-                            <a href="delete_policy/{{policy.id}}">Delete</a>
-                            <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a>
-                        <div id="rename_form{{ forloop.counter }}">
-                           <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
-                            {% csrf_token %}
-                            <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
-                            <input name='new_name' type="text" default="{{ policy.policy_name }}">
-                            <button type="search" class="btn btn-primary">
-                                Rename
-                            </button>
-                          </form>
-                        </div>
-                        Description: {{policy.description }}
-                        <!-- Creation time {{policy.creation_time}} -->
-                        </h4>
-
-
-
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No policy is set.</p>
-                    {% endif %}
-            </div>
-            <div class="col-md-6">
-                 <h3> Create new policy </h3>
-                 {% if message %}
-                    <p> {{ message }} <p>
-                 {% endif %}
-                <form action="{% url 'policies:index' %}" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <p>{{ form.non_field_errors }}</p>
-                    <p>{{ form.policy_name.label_tag }} {{ form.policy_name.help_text }}
-                        {{ form.policy_name.errors }}
-                        {{ form.policy_name }}
-                    </p>
-                    <div>
-                    <p>{{ form.description.label_tag }} {{ form.description.help_text }}
-                        {{ form.description.errors }}
-                        {{ form.description }}
-                    </p>
-                    </div>
-
-                    <div>
-                    <p>{{ form.dashboard.label_tag }} {{ form.dashboard.help_text }}
-                        {{ form.dashboard.errors }}
-                        {{ form.dashboard }}
-                    </p>
-                    </div>
-                    <div>
-                    <div id = "display_order_id" style="display: none;">
-                     <p>{{ form.non_field_errors }}</p>
-                    <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
-                        {{ form.display_order.errors }}
-                        {{ form.display_order }}
-                    </div>
-                    <div>
-                    <p><input type="submit" value="Create" /></p>
+<div class="container-fluid">
+    <h1>Policies</h1>
+    <div class="row">
+        <div class="col-md-6">
+          <h3>All policies</h3>
+          <!-- List of already created policies -->
+          {% if policies %}
+              {% for policy in policies %}
+              <h4>Policy Name: <a href="show/{{ policy.id }}">{{ policy.policy_name }}</a></h4>
+                  <p>Show in dashboard?: {{policy.dashboard}}</p>
+                  <a href="delete_policy/{{policy.id}}" class="btn btn-sm btn-warning">Delete</a>
+                  <a class="rename_link{{ forloop.counter }} btn btn-sm btn-warning" href="#">Rename</a>
+              <div id="rename_form{{ forloop.counter }}">
+                 <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
+                  {% csrf_token %}
+                  <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
+                  <input name='new_name' type="text" default="{{ policy.policy_name }}">
+                  <button type="search" class="btn btn-sm btn-warning">Rename</button>
+                  <button type="reset" class="btn btn-sm btn-warning">Reset</button>
                 </form>
-            </div>
+              </div>
+              <p>Description: {{policy.description }}</p>
+              <!-- Creation time {{policy.creation_time}} -->
+              {% endfor %}
+              </ul>
+          {% else %}
+            <p>No policy is set.</p>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+             <h3>Create new policy</h3>
+             {% if message %}
+                <p> {{ message }} <p>
+             {% endif %}
+            <form action="{% url 'policies:index' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ form.non_field_errors }}</p>
+                <p>{{ form.policy_name.label_tag }} {{ form.policy_name.help_text }}
+                    {{ form.policy_name.errors }}
+                    {{ form.policy_name }}
+                </p>
+                <div>
+                <p>{{ form.description.label_tag }} {{ form.description.help_text }}
+                    {{ form.description.errors }}
+                    {{ form.description }}
+                </p>
+                </div>
+
+                <div>
+                <p>{{ form.dashboard.label_tag }} {{ form.dashboard.help_text }}
+                    {{ form.dashboard.errors }}
+                    {{ form.dashboard }}
+                </p>
+                </div>
+                <div>
+                <div id = "display_order_id" style="display: none;">
+                 <p>{{ form.non_field_errors }}</p>
+                <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
+                    {{ form.display_order.errors }}
+                    {{ form.display_order }}
+                </div>
+                <div>
+                <p><input type="submit" value="Create" /></p>
+            </form>
         </div>
     </div>
-     <script>
+</div>
 
-{% for policy in policies %}
-
-   $("#rename_form{{ forloop.counter }}").hide();
-   $(".rename_link{{ forloop.counter }}").click (function(){
-   $("#rename_form{{ forloop.counter }}").show();
-   });
-
-{% endfor %}
-
-
-    </script>
-
+<script>
+  {% for policy in policies %}
+     $("#rename_form{{ forloop.counter }}").hide();
+     $(".rename_link{{ forloop.counter }}").click (function(){
+     $("#rename_form{{ forloop.counter }}").show();
+     });
+  {% endfor %}
+</script>
 
 {% endblock %}
