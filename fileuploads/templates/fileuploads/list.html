@@ -12,12 +12,13 @@
         <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="navbar-form form">
         {% csrf_token %}
           <div class="form-group">
-            <label for="start_field">Start </label><input name='start_field' type="text" id="datetimepicker">
-            <label for="end_field">End </label><input name='end_field' type="text" id="datetimepicker2">
-              <input name='keyword' type="text" id="keyword" placeholder="Search">
-              <button type="search" class="btn btn-sm btn-primary">Search</button>
-            </div>
-            <p>* Exact file name or keyword in the filename. Case sensitive.</p>
+            <label for="start_field" style="padding:5px;">Start: </label><input name='start_field' type="text" id="datetimepicker">
+            <label for="end_field" style="padding:5px;">End: </label><input name='end_field' type="text" id="datetimepicker2">
+          </div>
+          <div class="form-group">
+            <input name='keyword' type="text" id="keyword" placeholder="Keyword or exact filename (case sensitive)." size="46">
+            <button type="search" class="btn btn-sm btn-primary">Search</button>
+          </div>
         </form>
         {% if files %}
         <h3>Search Results</h3>
