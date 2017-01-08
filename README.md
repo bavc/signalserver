@@ -48,7 +48,7 @@ You can set this value either in the .env file or you can run with ./quickstart 
 FILES_VOLUME_PATH=/files
 ```
 
-If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. In docker container, it will be stored in /var/signalserver/files directly.
+If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. (It is already created in this folder). In docker container, it will be stored in /var/signalserver/files directly.
 
 ### Running the application]
 
