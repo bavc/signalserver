@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 
 from .models import Policy, Operation
 
-from groups.models import Result, Row
+from groups.models import Result, Row, Process
 from .forms import PolicyNameForm
 from .forms import PolicyForm
 from .forms import OperationForm
@@ -31,6 +31,7 @@ def index(request):
         policy_name = replace_letters(policy_name)
         description = request.POST['description']
         dashboard = request.POST['dashboard']
+        display_order = request.POST['dashboard']
 
         count = Policy.objects.filter(
             policy_name=policy_name).count()
@@ -38,7 +39,6 @@ def index(request):
             message = "policy name : " + policy_name + " is already taken. \
             Please choose different name. Policy name needs to be unique."
             return render_index(request, message)
-        display_order = 0
         if form.is_valid() and count == 0:
             new_policy = Policy(
                 policy_name=policy_name,
@@ -55,12 +55,13 @@ def index(request):
 def render_index(request, message):
     form = PolicyForm()  # A empty, unbound form
     # Load documents for the list page
-    policies = Policy.objects.order_by('display_order')
+    policies = Policy.objects.all().order_by('display_order')
+    new_display_order = policies.count() + 1
 
     # Render list page with the documents and the form
     return render(request, 'policies/index.html',
                   {'policies': policies, 'form': form,
-                   'message': message})
+                   'message': message, 'new_display_order': new_display_order})
 
 
 def delete_policy(request, policy_id):
@@ -144,15 +145,15 @@ def rename(request):
         new_name = request.POST['new_name']
         new_name = replace_letters(new_name)
 
-        policy = Policy.objects.filter(
+        policies = Policy.objects.filter(
             policy_name=old_name)
-        results = Result.objects.filter(policy_name=old_name)
-        for result in results:
-            result.policy_name = new_name
-            result.save()
-        for conf in policy:
-            conf.policy_name = new_name
-            conf.save()
+        processes = Process.objects.filter(policy_name=old_name)
+        for process in processes:
+            process.policy_name = new_name
+            process.save()
+        for policy in policies:
+            policy.policy_name = new_name
+            policy.save()
 
     return HttpResponseRedirect(reverse('policies:index'))
 

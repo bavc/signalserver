@@ -56,10 +56,7 @@
                 </div>
                 <div>
                 <div id = "display_order_id" style="display: none;">
-                 <p>{{ form.non_field_errors }}</p>
-                <p>{{ form.display_order.label_tag }} {{ form.display_order.help_text }}</p>
-                    {{ form.display_order.errors }}
-                    {{ form.display_order }}
+                <input name='display_order' type="hidden" value="{{ new_display_order }}">
                 </div>
                 <div>
                 <p><input type="submit" value="Create" /></p>
