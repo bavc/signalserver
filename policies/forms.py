@@ -115,3 +115,7 @@ class OperationForm(forms.Form):
     percentage = forms.FloatField(
         label='Please percentage off from aveage for reporting', initial=0
     )
+
+    file_percentage = forms.FloatField(
+        label='Please percentage off from aveage for reporting', initial=0
+    )

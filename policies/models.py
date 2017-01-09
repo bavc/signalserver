@@ -71,6 +71,7 @@ class Policy(models.Model):
     user_name = models.CharField(max_length=400, default=None, null=True)
     last_updated_time = models.DateTimeField(auto_now=True)
     dashboard = models.BooleanField(default=False)
+    version = models.FloatField(default=0)
 
 
 class Operation(models.Model):
@@ -85,3 +86,5 @@ class Operation(models.Model):
     description = models.CharField(max_length=500)
     percentage = models.FloatField(default=0)
     dashboard = models.BooleanField(default=False)
+    file_percentage = models.FloatField(default=0)
+    file_frame_count = models.IntegerField(default=0)

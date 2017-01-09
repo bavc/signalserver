@@ -76,7 +76,8 @@ def delete_rule(request, op_id, policy_id):
 
 
 def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-              display_order, description, percentage, dashboard, id_num):
+              display_order, description, percentage,
+              file_percentage, dashboard, id_num):
     operation = Operation.objects.get(id=id_num)
     operation.policy = policy
     operation.cut_off_number = cutoff_num
@@ -85,12 +86,14 @@ def edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
     operation.op_name = op_name
     operation.description = description
     operation.percentage = percentage
+    operation.file_percentage = file_percentage
     operation.dashboard = dashboard
     operation.save()
 
 
 def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-             display_order, description, percentage, dashboard):
+             display_order, description, percentage,
+             file_percentage, dashboard):
     new_operation = Operation(
         policy=policy,
         cut_off_number=cutoff_num,
@@ -100,9 +103,22 @@ def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
         display_order=display_order,
         description=description,
         percentage=percentage,
+        file_percentage=file_percentage,
         dashboard=dashboard
     )
     new_operation.save()
+
+
+def update_policy(request, policy):
+    if not 'policy_dashboard' in request.POST:
+        dashboard = False
+    else:
+        dashboard = True
+    version = request.POST['version']
+    policy.dashboard = dashboard
+    policy.version = version
+    policy.save()
+    return policy
 
 
 @login_required(login_url="/login/")
@@ -110,23 +126,29 @@ def show(request, policy_id):
     policy = Policy.objects.get(id=policy_id)
     if request.method == 'POST':
         form = OperationForm(request.POST)
-        cutoff_num = request.POST.get('cutoff_number', 0)
-        sig_name = request.POST['signal_fields']
-        sig2_name = request.POST['second_signal_fields']
-        op_name = request.POST['operation_fields']
-        display_order = request.POST['display_order']
-        description = request.POST['description']
-        percentage = request.POST['percentage']
-        dashboard = request.POST['dashboard']
         action = request.POST['action']
-        if action == 'new':
-            add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-                     display_order, description, percentage, dashboard)
+        if action == "update_policy":
+            policy = update_policy(request, policy)
         else:
-            id_num = request.POST['id_num']
-            edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
-                      display_order, description, percentage, dashboard,
-                      id_num)
+            cutoff_num = request.POST.get('cutoff_number', 0)
+            sig_name = request.POST['signal_fields']
+            sig2_name = request.POST['second_signal_fields']
+            op_name = request.POST['operation_fields']
+            display_order = request.POST['display_order']
+            description = request.POST['description']
+            percentage = request.POST['percentage']
+            file_percentage = request.POST['percentage']
+            dashboard = request.POST['dashboard']
+            if action == 'new':
+                add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+                         display_order, description, percentage,
+                         file_percentage, dashboard)
+            else:
+                id_num = request.POST['id_num']
+                edit_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
+                          display_order, description, percentage,
+                          file_percentage, dashboard,
+                          id_num)
         policy.user_name = request.user.username
         policy.save()
     operation = Operation.objects.filter(

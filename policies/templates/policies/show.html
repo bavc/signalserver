@@ -7,16 +7,18 @@
 
 <span>
     <div class = "container-fluid">
-    <h1> Add/Update/Delete Rules on Policies </h1>
+    <h1> Rules in Policy : {{ policy.policy_name }}</h1>
+
     <div class="row">
-    <div class="col-md-9">
-    <h3>Policy Name: {{ policy.policy_name }} </h3>
-        <h4>Show in dashboard: {{policy.dashboard }} </h4>
-        <p> ** If the result value is exceeded higer or lower above or below from average results among the group, the filename is reported in summary or/and dashboard</p>
+    <div class="col-md-6">
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    <h2> Rules </h2>
+    <p> ** If the result value is exceeded higer or lower above or below from average results among the group, the filename is reported in summary or/and dashboard</p>
+    <p> *** If frame value is exceeded higer or lower above or below from average value of entire frames within the file, the frame time is reported in summary or/and dashboard</p>
     {% for choice in operation %}
     <p>
         <label for="choice{{ forloop.counter }}">
+            <ul> Rule Id : {{choice.id}} </ul>
             <ul>
             {% if choice.get_second_signal_name_display != "None" %}
                 Average difference beween "{{ choice.get_signal_name_display }}" and "{{ choice.get_second_signal_name_display }}"
@@ -34,12 +36,17 @@
             Description:  {{ choice.description }}
             </ul>
             <ul>
-            Percentage for the reporting** : {{ choice.percentage }} %
+            Percentage for the Group Process reporting** : {{ choice.percentage }} %
+            </ul>
+            <ul>
+            Percentage for the File Process reporting*** : {{ choice.file_percentage }} %
             </ul>
             <ul>
             Report in dashboard : {{choice.dashboard}}
             </ul>
+
             <div id = "edit_form{{ forloop.counter }}">
+            <ul>
             <form id="form_edit" action="{% url 'policies:show' policy.id %}" name = "edit" method="post" class="form">
                 {% csrf_token %}
                 <div id="policy_edit{{ forloop.counter }}">
@@ -88,8 +95,14 @@
 
                     <div>
 
-                    <label for="id_percentage">Percentage</label>
+                    <label for="id_percentage">Group Percentage**</label>
                     <input name='percentage' type="text" value="{{ choice.percentage }}">
+                    </div>
+
+                    <div>
+
+                    <label for="id_percentage">File Percentage**</label>
+                    <input name='percentage' type="text" value="{{ choice.file_percentage }}">
                     </div>
 
                     <div>
@@ -102,20 +115,21 @@
                 </button>
                 </div>
               </form>
+            </ul>
             </div>
             <ul>
             <p>
             <a href="delete_rule/{{choice.id}}/{{ policy.id }}"> Delete</a>
-            <a class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
+            <a id="rule_edit{{choice.id}}" class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
             </p>
             </ul>
         </label>
     </p>
     {% endfor %}
-
+    <h4> Add A New Rule</h4>
+    <p>
+        <ul>
     <form action="{% url 'policies:show' policy.id %}" method="post">
-    {% csrf_token %}
-
     {% csrf_token %}
         <div id="policy_add">
                 <!-- variable -->
@@ -155,8 +169,14 @@
 
          <div>
          {{ form.percentage.errors }}
-         <label for="id_percentage">Percentage</label>
+         <label for="id_percentage">Percentage for the Group Process reporting**</label>
          {{ form.percentage }}
+         </div>
+
+         <div>
+         {{ form.file_percentage.errors }}
+         <label for="id_file_percentage">Percentage for the File Process reporting***</label>
+         {{ form.file_percentage }}
          </div>
 
          <div>
@@ -166,22 +186,45 @@
          </div>
          <input name='display_order' type="hidden" value="{{ length }}">
          <input name='action' type="hidden" value="new">
-         <button type="search" class="btn btn-primary">
+         <button type="submit" class="btn btn-primary">
                     Add
          </button>
      </div>
     </form>
-
-    <h4> Last updated by : {{ policy.user_name}} </h4>
-    <h4> Last Update : {{ policy.last_updated_time }} </h4>
-    <h4> Creation time : {{policy.creation_time}} </h4>
-
+        </ul>
+    </p>
+    </div>
+    <div class="col-md-6">
+    <h2> Policy Property:</h2>
+    <p>
+        <form id="policy_property" action="{% url 'policies:show' policy.id %}" method="post">
+        {% csrf_token %}
+        <input name='action' type="hidden" value="update_policy">
+        <ul><input id="id_new_checkbox" type="checkbox" name="policy_dashboard" value="{{policy.dashboard }}" checked="{{policy.dashboard }}"> Show in dashboard </ul>
+        <form>
+        <ul><div id="current_version">Version No.: {{policy.version }} </div><div id="version_info">Version No: <input type="text" id="id_new_version" name="version" value="{{policy.version }}"/></div><a id="version_edit" href="#">Change</a></ul>
+        <ul>Last updated by : {{ policy.user_name}} </ul>
+        <ul>Last Update : {{ policy.last_updated_time }} </ul>
+        <ul>Creation time : {{policy.creation_time}} </ul>
+        <ul><button type="search" class="btn btn-primary">Update</button></ul>
+        </form>
+    </p>
     </div>
 
 
 </div>
 </div>
 <script>
+if ($("#id_new_checkbox").val() == "False") {
+    document.getElementById("id_new_checkbox").checked = false;
+}
+
+$("#version_info").hide();
+$("#version_edit").click (function(){
+    $("#version_info").show();
+    $("#version_edit").hide();
+    $("#current_version").hide();
+});
 
 {% for choice in operation %}
 
@@ -193,6 +236,7 @@
             "{{choice.get_op_name_display}}" == "belows" ||
             "{{choice.get_op_name_display}}" == "equals") {
             document.getElementById("cutoffnumber{{ choice.id }}").style.display = "block";
+            document.getElementById("rule_edit{{ choice.id }}").style.display = "none";
         }
     });
 
@@ -221,7 +265,5 @@ function operationSelect(that) {
     }
 
 }
-
-
 </script>
 {% endblock %}
