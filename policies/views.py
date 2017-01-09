@@ -23,15 +23,22 @@ def replace_letters(policy_name):
     return policy_name
 
 
+def get_dashboard_value(request, keyword='dashboard'):
+    if not keyword in request.POST:
+        dashboard = False
+    else:
+        dashboard = True
+    return dashboard
+
+
 @login_required(login_url="/login/")
 def index(request):
     if request.method == 'POST':
-        form = PolicyForm(request.POST)
         policy_name = request.POST['policy_name']
         policy_name = replace_letters(policy_name)
         description = request.POST['description']
-        dashboard = request.POST['dashboard']
-        display_order = request.POST['dashboard']
+        dashboard = get_dashboard_value(request)
+        display_order = request.POST['display_order']
 
         count = Policy.objects.filter(
             policy_name=policy_name).count()
@@ -39,16 +46,14 @@ def index(request):
             message = "policy name : " + policy_name + " is already taken. \
             Please choose different name. Policy name needs to be unique."
             return render_index(request, message)
-        if form.is_valid() and count == 0:
+        else:
             new_policy = Policy(
                 policy_name=policy_name,
                 display_order=display_order,
                 description=description,
-                dashboard=dashboard)
+                dashboard=dashboard
+            )
             new_policy.save()
-            return HttpResponseRedirect(
-                reverse('policies:index'))
-
     return render_index(request, None)
 
 
@@ -110,10 +115,8 @@ def add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
 
 
 def update_policy(request, policy):
-    if not 'policy_dashboard' in request.POST:
-        dashboard = False
-    else:
-        dashboard = True
+    keyword = 'policy_dashboard'
+    dashboard = get_dashboard_value(request, keyword)
     version = request.POST['version']
     policy.dashboard = dashboard
     policy.version = version
@@ -130,6 +133,7 @@ def show(request, policy_id):
         if action == "update_policy":
             policy = update_policy(request, policy)
         else:
+            dashboard = get_dashboard_value(request)
             cutoff_num = request.POST.get('cutoff_number', 0)
             sig_name = request.POST['signal_fields']
             sig2_name = request.POST['second_signal_fields']
@@ -138,7 +142,6 @@ def show(request, policy_id):
             description = request.POST['description']
             percentage = request.POST['percentage']
             file_percentage = request.POST['percentage']
-            dashboard = request.POST['dashboard']
             if action == 'new':
                 add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
                          display_order, description, percentage,
