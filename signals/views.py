@@ -53,6 +53,10 @@ def process_policy(file_name, policy_id, original_file_name,
         policy_id=policy_id,
     )
     new_process.save()
+
+    video = Video.objects.get(filename=original_file_name)
+    video.file_processes.add(new_process)
+
     process_id = new_process.pk
     for op in operations:
         if op.op_name == 'average' or op.op_name == 'exceeds':
@@ -77,9 +81,6 @@ def process_policy(file_name, policy_id, original_file_name,
         new_output.task_id = status.task_id
         new_output.status = AsyncResult(status.task_id).ready()
         new_output.save()
-
-        video = Video.objects.get(filename=original_file_name)
-        video.outputs.add(new_output)
 
 
 def update_output(outputs):

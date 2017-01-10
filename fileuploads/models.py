@@ -2,7 +2,7 @@ from django.db import models
 from .constants import STORED_FILEPATH
 from groups.models import Group
 from groups.models import Process
-from signals.models import Output
+from signals.models import Process as File_process, Output
 
 
 class Video(models.Model):
@@ -13,4 +13,4 @@ class Video(models.Model):
     shared = models.BooleanField(default=True)
     groups = models.ManyToManyField(Group)
     processes = models.ManyToManyField(Process)
-    outputs = models.ManyToManyField(Output)
+    file_processes = models.ManyToManyField(File_process)
