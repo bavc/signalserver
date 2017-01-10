@@ -174,8 +174,8 @@ def process(request):
 
 @login_required(login_url="/login/")
 def delete_output(request, process_pk):
-    process = Process.objects.get(pk=process_pk)
-    process.delete()
+    Process.objects.get(pk=process_pk).delete()
+    Report.objects.get(process_id=process_pk).delete()
     return HttpResponseRedirect('/signals/file_process_status/')
 
 
