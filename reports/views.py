@@ -82,9 +82,9 @@ def get_off_values(high, low, values, times):
 def create_item(process, report):
     values_dict = {}
     outputs = Output.objects.filter(process=process)
-    items, values, times, percentages = [], [], [], []
 
     for output in outputs:
+        items, values, times, percentages = [], [], [], []
         #output has only one signal type but signal could have multiple entries
         signals = Signal.objects.filter(output=output)
         for signal in signals:
@@ -107,7 +107,7 @@ def create_item(process, report):
             low = average - average*(per/100)
             results = get_off_values(high, low, values, times)
             key = str(per) + output.signal_name
-            values_dict[per] = (results[0], results[1],
+            values_dict[key] = (results[0], results[1],
                                 average, output.signal_name+str(high)+str(low),
                                 per)
             values = results[0]
@@ -118,18 +118,18 @@ def create_item(process, report):
     if len(values_dict) == 0:
             return
 
-    for key, values in values_dict.items():
-            off_total = len(values[0])
+    for key, ans in values_dict.items():
+            off_total = len(ans[0])
             new_item = Item(
                 report=report,
                 file_name=process.file_name,
-                signal_name=values[3],
+                signal_name=ans[3],
                 total_frame_number=process.frame_count,
-                off_total_frame_number=len(values[0]),
-                percentage=values[4],
-                off_signal_values=values[0],
-                off_frame_times=values[1],
-                average=values[2]
+                off_total_frame_number=len(ans[0]),
+                percentage=ans[4],
+                off_signal_values=ans[0],
+                off_frame_times=ans[1],
+                average=ans[2]
             )
             new_item.save()
 
