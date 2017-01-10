@@ -2,14 +2,26 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 
-class Output(models.Model):
+class Process(models.Model):
+    file_id = models.IntegerField(default=0)
     file_name = models.CharField(max_length=400)
     processed_time = models.DateTimeField()
+    user_name = models.CharField(max_length=100)
+    policy_name = models.CharField(max_length=100)
+    policy_id = models.IntegerField(default=0)
+    shared = models.BooleanField(default=True)
+    status = models.BooleanField(default=False)
+    frame_count = models.IntegerField(default=0)
+
+
+class Output(models.Model):
+    process = models.ForeignKey(
+        Process, on_delete=models.CASCADE)
+    file_name = models.CharField(max_length=400)
     signal_name = models.CharField(max_length=400)
     status = models.BooleanField(default=False)
     task_id = models.CharField(max_length=200)
     frame_count = models.IntegerField(default=0)
-    user_name = models.CharField(max_length=100)
 
 
 class Signal(models.Model):

@@ -12,7 +12,7 @@ from signalserver.celery import app as celery
 from .models import Video
 from groups.models import Result, Row
 from policies.models import Policy, Operation
-from signals.models import Output, Signal
+from signals.models import Process, Output, Signal
 from celery import shared_task
 from datetime import datetime
 
@@ -42,7 +42,7 @@ def process_bulk(file_names, policy_id, original_names):
 
 
 @celery.task
-def process_signal(file_name, signal_name, original_name, processed_time_str):
+def process_signal(file_name, signal_name, original_name, output_id):
     count = 0
     datadict = {}
     timedict = {}
@@ -77,12 +77,7 @@ def process_signal(file_name, signal_name, original_name, processed_time_str):
 
     file_name = original_name + ".xml"
 
-    processed_time = datetime.strptime(processed_time_str,
-                                       "%Y-%m-%d %H:%M:%S")
-
-    output = Output.objects.get(file_name=original_name,
-                                processed_time=processed_time,
-                                signal_name=signal_name)
+    output = Output.objects.get(pk=output_id)
 
     for k, v in datadict.items():
         index = 0

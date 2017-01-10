@@ -10,17 +10,17 @@
     {{ signals }}
     <ul><h3>In Progress</h3></ul>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        {% for output in not_completed %}
-        <ul><h4>{{ output.file_name }}:</h4></ul>
-        <ul>processed : {{ output.processed_time }}</ul>
+        {% for process in not_completed %}
+        <ul><h4>{{ process.file_name }}:</h4></ul>
+        <ul>processed : {{ process.processed_time }}</ul>
     {% endfor %}
     <ul><h3>Completed</h3></ul>
-    {% for output in outputs %}
-        <ul><h4>{{ output.file_name }} <a href="../delete_output/{{output.pk}}">Delete</a></h4></ul>
+    {% for process in processes %}
+        <ul><h4>{{ process.file_name }} <a href="../delete_output/{{process.pk}}">Delete</a></h4></ul>
         <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-            <ul> {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+            <ul> {{ process.frame_count }} frames, processed : {{ process.processed_time }}
                      {% csrf_token %}
-                     <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+                     <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
                      <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
             </form>
     {% endfor %}
@@ -30,17 +30,17 @@
     <h3> Request Submitted by others </h3>
     <div class="container-fluid">
     <h3>In Progress</h3>
-    {% for output in shared_not_completed %}
-        <ul><h4>{{ output.file_name }}:  </h4></ul>
-        <ul>processed : {{ output.processed_time }}</ul>
+    {% for process in shared_not_completed %}
+        <ul><h4>{{ process.file_name }}:  </h4></ul>
+        <ul>processed : {{ process.processed_time }}</ul>
     {% endfor %}
     <h3>Completed</h3>
-    {% for output in shared_outputs %}
+    {% for process in shared_processes %}
         <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-        <ul><h4>{{ output.file_name }}</h4></ul>
-        <ul> {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+        <ul><h4>{{ process.file_name }}</h4></ul>
+        <ul> {{ process.frame_count }} frames, processed : {{ process.processed_time }}
         {% csrf_token %}
-        <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+        <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
         <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
         </form>
     {% endfor %}

@@ -10,6 +10,6 @@ urlpatterns = [
         name='file_process_status'),
     url(r'^get_graph/$', views.get_graph, name='get_graph'),
     url(r'^api/get_graph_data/$', views.get_graph_data, name='get_graph_data'),
-    url(r'^delete_output/(?P<output_pk>[\w.]{0,256})$',
+    url(r'^delete_output/(?P<process_pk>[\w.]{0,256})$',
         views.delete_output, name='delete_output'),
 ]

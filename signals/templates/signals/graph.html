@@ -3,6 +3,32 @@
 {% block content %}
 <script type="text/javascript" src="/frontend/bower_components/d3/d3.min.js"></script>
     <div class ="container-fluid">
+        {% if report %}
+        <h2> Summary of the process </h2>
+        {{ report }}
+        {% endif %}
+        {% if items %}
+        <p>
+        <h3>These frames are off from average (percentage is set in rules in the policy. It is "file_percentage") Policy Name: {{ report.policy_name }}</h3>
+        {% for item in items %}
+            <h4> Off from average by :{{item.percentage}} % </h4>
+            <ul> filename: {{item.file_name}} </ul>
+            <ul> signal_name: {{item.signal_name}} </ul>
+            <ul> average: {{item.average}} </ul>
+            <ul> total_frame_count: {{item.total_frame_number}}</ul>
+            <ul> total_off_frame_count: {{item.off_total_frame_number}}</ul>
+            <ul> {% for value in item.off_signal_values %}
+                    {{value}} ,
+                 {% endfor %}</ul>
+             <ul> {% for value in item.off_frame_times %}
+                    {{value}} ,
+                 {% endfor %}</ul>
+            <ul> frame average: {{item.average}} </ul>
+            <p> ---------------------------------- </p>
+        {% endfor %}
+        </p>
+         {% endif %}
+
 
         <h2> Graphs from the file processed data</h4>
         <h3> File Name : {{ outputs.0.file_name }}</h3>

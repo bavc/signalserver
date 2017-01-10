@@ -141,7 +141,7 @@ def show(request, policy_id):
             display_order = request.POST['display_order']
             description = request.POST['description']
             percentage = request.POST['percentage']
-            file_percentage = request.POST['percentage']
+            file_percentage = request.POST['file_percentage']
             if action == 'new':
                 add_rule(policy, op_name, cutoff_num, sig_name, sig2_name,
                          display_order, description, percentage,
