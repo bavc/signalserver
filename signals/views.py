@@ -7,19 +7,20 @@ import pytz
 import json
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.views import generic
 from django.utils import timezone
+from .models import Process, Output, Signal
 from fileuploads.models import Video
 from policies.models import Policy, Operation
-from .models import Output
-from .models import Signal
+from reports.models import Report, Item
 from fileuploads.forms import PolicyForm
 from fileuploads.processfiles import get_full_path_file_name
+from fileuploads.constants import STORED_FILEPATH
+from reports.views import create_report
 from celery import group
 from celery.result import AsyncResult
 from fileuploads.tasks import process_signal
-from django.http import JsonResponse
-from fileuploads.constants import STORED_FILEPATH
 from django.contrib.auth.decorators import login_required
 
 
@@ -41,7 +42,18 @@ def process_policy(file_name, policy_id, original_file_name,
     operations = Operation.objects.filter(policy=policy)
     current_time = datetime.strptime(current_time_str,
                                      "%Y-%m-%d %H:%M:%S")
+    video = Video.objects.get(filename=original_file_name)
     signal_lists = []
+    new_process = Process(
+        file_id=video.id,
+        file_name=original_file_name,
+        processed_time=current_time,
+        user_name=current_user,
+        policy_name=policy.policy_name,
+        policy_id=policy_id,
+    )
+    new_process.save()
+    process_id = new_process.pk
     for op in operations:
         if op.op_name == 'average' or op.op_name == 'exceeds':
             if op.signal_name not in signal_lists:
@@ -53,17 +65,19 @@ def process_policy(file_name, policy_id, original_file_name,
                 signal_lists.append(op.second_signal_name)
 
     for signal_name in signal_lists:
-        status = process_signal.delay(file_name, signal_name,
-                                      original_file_name, current_time_str)
         new_output = Output(
+            process=new_process,
             file_name=original_file_name,
-            processed_time=current_time,
             signal_name=signal_name,
-            task_id=status.task_id,
-            status=AsyncResult(status.task_id).ready(),
-            user_name=current_user
         )
         new_output.save()
+        output_id = new_output.pk
+        status = process_signal.delay(file_name, signal_name,
+                                      original_file_name, output_id)
+        new_output.task_id = status.task_id
+        new_output.status = AsyncResult(status.task_id).ready()
+        new_output.save()
+
         video = Video.objects.get(filename=original_file_name)
         video.outputs.add(new_output)
 
@@ -82,70 +96,64 @@ def update_output(outputs):
                 all_done = False
             output.status = work_status
             output.save()
-
-    if all_done:
-        files = []
-        file_name = STORED_FILEPATH + "/" + outputs[0].file_name + ".xml"
-        if file_name not in files and os.path.isfile(file_name):
-            os.remove(file_name)
-            files.append(file_name)
+    return all_done
 
 
-def sort_by_user(outputs, current_user_name):
+def sort_by_user(requests, current_user_name):
     users = []
     shared = []
-    for out in outputs:
-        if out.user_name == current_user_name:
-            users.append(out)
+    for request in requests:
+        if request.user_name == current_user_name:
+            users.append(request)
         else:
-            shared.append(out)
+            shared.append(request)
     return [users, shared]
 
 
-def check_complete(outputs):
-    for out in outputs:
-        if not out.status:
-            return False
-    return True
+def update_process(processes):
+    for process in processes:
+        temp_outputs = Output.objects.filter(process=process)
+        status = update_output(temp_outputs)
+        if status:
+            process.status = status
+            process.frame_count = temp_outputs[0].frame_count
+            process.save()
+            files = []
+            #file_name = STORED_FILEPATH + "/" + process.file_name + ".xml"
+            #if file_name not in files and os.path.isfile(file_name):
+            #    os.remove(file_name)
+            #    files.append(file_name)
+            create_report(process)
 
 
 @login_required(login_url="/login/")
 def file_process_status(request):
-    check = []
-    outputs = []
+    processes = []
     not_completed = []
-    shared_outputs = []
+    shared_processes = []
     shared_not_completed = []
 
     current_user = request.user
     current_user_name = current_user.username
+    all_processes = Process.objects.all()
+    update_process(all_processes)
 
-    temp_outputs = Output.objects.all()
-    update_output(temp_outputs)
+    for process in all_processes:
+        if process.status:
+            processes.append(process)
+        else:
+            not_completed.append(process)
 
-    for out in temp_outputs:
-        p_time = out.processed_time
-        p_time_str = p_time.strftime("%Y-%m-%d %H:%M:%S")
-        key = out.file_name + p_time_str
-        if key not in check:
-            check.append(key)
-            temp_outputs = Output.objects.filter(file_name=out.file_name,
-                                                 processed_time=p_time)
-            if check_complete(temp_outputs):
-                outputs.append(out)
-            else:
-                not_completed.append(out)
-
-    results = sort_by_user(outputs, current_user_name)
-    outputs = results[0]
-    shared_outputs = results[1]
+    results = sort_by_user(processes, current_user_name)
+    requests = results[0]
+    shared_requests = results[1]
     results = sort_by_user(not_completed, current_user_name)
     not_completed = results[0]
     shared_not_completed = results[1]
 
     return render(request, 'signals/result.html',
-                  {'outputs': outputs, 'not_completed': not_completed,
-                   'shared_outputs': shared_outputs,
+                  {'processes': processes, 'not_completed': not_completed,
+                   'shared_processes': shared_processes,
                    'shared_not_completed': shared_not_completed})
 
 
@@ -165,13 +173,9 @@ def process(request):
 
 
 @login_required(login_url="/login/")
-def delete_output(request, output_pk):
-    output = Output.objects.get(pk=output_pk)
-    file_name = output.file_name
-    processed_time = output.processed_time
-    temp = Output.objects.filter(file_name=file_name)
-    outputs = temp.filter(processed_time=processed_time)
-    outputs.delete()
+def delete_output(request, process_pk):
+    process = Process.objects.get(pk=process_pk)
+    process.delete()
     return HttpResponseRedirect('/signals/file_process_status/')
 
 
@@ -180,12 +184,14 @@ def get_graph(request):
     file_names = []
     signal_names = []
     if request.method == 'POST':
-        output_id = request.POST['output_id']
-        output = Output.objects.get(pk=output_id)
-        tempoutput = Output.objects.filter(file_name=output.file_name)
-        outputs = tempoutput.filter(processed_time=output.processed_time)
+        process_id = request.POST['process_id']
+        process = Process.objects.get(pk=process_id)
+        outputs = Output.objects.filter(process=process)
+        report = Report.objects.get(process_id=process_id)
+        items = Item.objects.filter(report=report)
         return render(request, 'signals/graph.html',
-                      {'outputs': outputs})
+                      {'outputs': outputs, 'report': report,
+                       'items': items})
     else:
         output = Output.objects.all()[0]
         tempoutput = Output.objects.filter(file_name=output.file_name)
