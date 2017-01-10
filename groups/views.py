@@ -220,6 +220,7 @@ def group_process(request):
 
 def delete_group_result(request, process_id):
     Process.objects.filter(id=process_id).delete()
+    Summary.objects.filter(process_id=process_id).delete()
     return HttpResponseRedirect('/groups/group_process_status/')
 
 

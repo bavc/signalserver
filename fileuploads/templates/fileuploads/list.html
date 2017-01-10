@@ -97,17 +97,17 @@
                 {% endif %}
             {% endfor %}
             <span class="badge badge-info"><a href="/groups/save_group/">Request Group Process</a></span>
-            {% for output in video.outputs.all %}
+            {% for process in video.file_processes.all %}
             File Process Status:
-              {% if output.status  %}
-                  <ul>Completed: {{ output.frame_count }} frames, processed : {{ output.processed_time }}
+              {% if process.status  %}
+                  <ul>Completed: {{ process.frame_count }} frames, processed : {{ process.processed_time }}
                   <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
-                  <input type="hidden" name="output_id" id="output_id" value="{{output.pk}}" />
+                  <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
                   <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
                   </form></ul>
               {% else %}
-                  <ul> In Process. Processed time: {{ output.processed_time }}</ul>
+                  <ul> In Process. Processed time: {{ process.processed_time }}</ul>
               {% endif %}
             {% endfor %}
             <span class="badge badge-info"><a href="/signals/">Request File Process</a></span>

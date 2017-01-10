@@ -54,7 +54,7 @@ function createLineGraph(data, chartId, svgId) {
       .range([0,height], .2);
 
     var xScale = d3.scale.ordinal()
-      .domain(d3.range(0, data.length))
+      .domain(d3.range(0, filenames.length))
       .rangeBands([0, width]);
 
     var tooltip = d3.select('body').append('div')
@@ -136,7 +136,7 @@ function createLineGraph(data, chartId, svgId) {
         return values;
       })
       .tickFormat(function(d,i){
-          name = filenames[i];
+          name = filenames[d];
           if (name.length > 20)
             return name.slice(0, 17) + '...';
           return name;

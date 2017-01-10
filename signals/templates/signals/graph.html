@@ -17,10 +17,10 @@
             <ul> average: {{item.average}} </ul>
             <ul> total_frame_count: {{item.total_frame_number}}</ul>
             <ul> total_off_frame_count: {{item.off_total_frame_number}}</ul>
-            <ul> {% for value in item.off_signal_values %}
+            <ul> frame values : {% for value in item.off_signal_values %}
                     {{value}} ,
                  {% endfor %}</ul>
-             <ul> {% for value in item.off_frame_times %}
+             <ul> timing : {% for value in item.off_frame_times %}
                     {{value}} ,
                  {% endfor %}</ul>
             <ul> frame average: {{item.average}} </ul>

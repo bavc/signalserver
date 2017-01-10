@@ -17,7 +17,7 @@ from django.template import loader
 from .models import Video
 from groups.models import Group, Member, Result, Row
 from groups.views import update_process
-from signals.views import update_output
+from signals.views import update_process as update_file_process
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .processfiles import process_file_original
 from .processfiles import delete_file
@@ -167,12 +167,12 @@ def upload(request):
 
 def update_videos(videos):
     for video in videos:
-        outputs = video.outputs.all()
+        file_processes = video.file_processes.all()
         processes = video.processes.all()
         for process in processes:
             process = update_process(process)
-        if outputs is not None and len(outputs) > 0:
-            update_output(outputs)
+        if file_processes is not None and len(file_processes) > 0:
+            update_file_process(file_processes)
     return videos
 
 
