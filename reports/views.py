@@ -103,12 +103,16 @@ def create_item(process, report):
                 percentages.append(op.file_percentage)
         percentages.sort()
         for per in percentages:
-            high = average + average*(per/100)
-            low = average - average*(per/100)
+            if per > 100:
+                high = average * (per/100)
+                low = average - average*(per/100)
+            else:
+                high = average + average*(per/100)
+                low = average - average*(per/100)
             results = get_off_values(high, low, values, times)
             key = str(per) + output.signal_name
             values_dict[key] = (results[0], results[1],
-                                average, output.signal_name+str(high)+str(low),
+                                average, output.signal_name,
                                 per)
             values = results[0]
             times = results[1]
