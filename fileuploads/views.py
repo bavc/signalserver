@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 from django.template import loader
 from .models import Video
 from groups.models import Group, Member, Result, Row
-from groups.views import update_process, update_group_member
+from groups.views import update_process
 from signals.views import update_process as update_file_process
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .processfiles import process_file_original
