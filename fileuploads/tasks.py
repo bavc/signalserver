@@ -210,6 +210,7 @@ def process_file(file_name, policy_id, original_name, process_id):
 
     result = Result.objects.get(filename=original_name,
                                 process_id=process_id)
+
     for k in datadict.keys():
         v = datadict[k]
         ave = v/count
@@ -219,6 +220,7 @@ def process_file(file_name, policy_id, original_name, process_id):
                 signal_name=k,
                 result_number=ave,
                 op_name='average_difference',
+                frame_number=count,
                 op_id=op_dict[k]
             )
         else:
@@ -227,6 +229,7 @@ def process_file(file_name, policy_id, original_name, process_id):
                 signal_name=k,
                 result_number=ave,
                 op_name='average',
+                frame_number=count,
                 op_id=op_dict[k]
             )
         new_row.save()

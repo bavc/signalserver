@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from .models import Summary, Entry, Report, Item
+from fileuploads.models import Video
 from groups.models import Process, Result, Row
 from signals.models import Process as File_Process, Output, Signal
 from policies.models import Policy, Operation
@@ -22,8 +23,14 @@ def create_entry(process, summary):
     values_dict = {}
     results = Result.objects.filter(process=process)
     entries = []
+
     for result in results:
         rows = Row.objects.filter(result=result)
+        video = Video.objects.get(filename=result.filename)
+        if video.frame_count == 0:
+            video.frame_count = rows[0].frame_number
+            video.save()
+
         for row in rows:
             if row.op_id in values_dict:
                 ls = values_dict[row.op_id]
@@ -158,6 +165,11 @@ def create_summary(process):
 
 def create_report(process):
     report = Report.objects.filter(process_id=process.id)
+    video = Video.objects.get(filename=process.file_name)
+    if video.frame_count == 0:
+        video.frame_count = process.frame_count
+        video.save()
+
     if report.count() > 0:
         return report[0]
     else:

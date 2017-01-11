@@ -1,6 +1,6 @@
 window.onload = function() {
     var today = new Date();
-    var dd = today.getDate();
+    var dd = today.getDate()+1; // I want ending of file search is tomorrow
     var mm = today.getMonth()+1; //January is 0!
     var yyyy = today.getFullYear();
     var lastyear = new Date(yyyy, mm - 1, dd);
