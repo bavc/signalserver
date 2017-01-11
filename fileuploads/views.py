@@ -147,10 +147,22 @@ def upload(request):
                     count = Video.objects.filter(filename=name).count()
                     if count > 0:
                         delete_file(name)
+                    f.seek(0, os.SEEK_END)
+                    size = f.tell()
+                    if size > 1000:
+                        size = size / 1000
+                        if size > 1000:
+                            size = size / 1000
+                            size = round(size, 1)
+                            size = str(size) + " MB"
+                        else:
+                            size = round(size)
+                            size = str(size) + " KB"
                     newvideo = Video(
                         videofile=f,
                         filename=name,
-                        user_name=user_name
+                        user_name=user_name,
+                        file_size=size
                     )
                     newvideo.save()
 

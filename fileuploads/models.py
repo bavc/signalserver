@@ -14,3 +14,5 @@ class Video(models.Model):
     groups = models.ManyToManyField(Group)
     processes = models.ManyToManyField(Process)
     file_processes = models.ManyToManyField(File_process)
+    frame_count = models.IntegerField(default=0)
+    file_size = models.CharField(max_length=20)
