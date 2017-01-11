@@ -68,7 +68,8 @@
         <ul class="list-group">
         {% for video in videos %}
             <li class="list-group-item"><h4>{{ video.filename }}</h4>
-            Uploaded time: {{video.upload_time}}
+            <ul>Uploaded time: {{video.upload_time}}  Size : {{ video.file_size}}
+            Frame Count (If file is not processed, it is set to 0) : {{ video.frame_count }}</ul>
             <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
               {% for group in video.groups.all %}
                 <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>{% if not forloop.last %}, {% endif %}
