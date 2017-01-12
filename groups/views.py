@@ -309,13 +309,19 @@ def result_graph(request):
     c_numbers = []
     operations = []
     process = ''
+    entry_dict = {}
     if request.method == 'POST':
         process_id = request.POST['process_id']
         process = Process.objects.get(id=process_id)
         results = Result.objects.filter(process=process)
         policy = Policy.objects.filter(id=process.policy_id)
         summary = Summary.objects.get(process_id=process_id)
+
         entries = Entry.objects.filter(summary=summary)
+        for entry in entries:
+            op = Operation.objects.get(id=entry.operation_id)
+            entry_dict[entry] = op
+
         operations = Operation.objects.filter(
             policy=policy).order_by('display_order')
         for operation in operations:
@@ -331,7 +337,7 @@ def result_graph(request):
                   {'process': process, 'signal_names': signal_names,
                    'operations': operations, 'op_names': op_names,
                    'c_numbers': c_numbers, 'summary': summary,
-                   'entries': entries
+                   'entry_dict': entry_dict
                    })
 
 
