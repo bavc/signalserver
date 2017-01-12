@@ -8,18 +8,18 @@
         {% if summary %}
         <h2> Summary of the process </h2>
         {% endif %}
-        {% if entries %}
+        {% if entry_dict %}
         <p>
         <h3>These files are off from average (percentage is set in rules in the policy)</h3>
         <p> ---------------------------------- </p>
-        {% for entry in entries %}
+        {% for entry, op in entry_dict.items %}
             <h4> Off from average by :{{entry.percentage}} % </h4>
             <ul> filename: {{entry.file_name}} </ul>
-            <ul> signal_name: {{entry.signal_name}}
+            <ul> signal_name: {{op.get_signal_name_display}}
                  {% if entry.second_signal_name != 'None' %}
-                    second_signal_name: {{entry.second_signal_name}}
+                    second_signal_name: {{op.get_second_signal_display}}
                  {% endif %} </ul>
-            <ul> operation_name: {{entry.operation_name}}
+            <ul> operation_name: {{op.get_operation_name_display}}
                  {% if entry.operation_name != 'average' %}
                     cut off number: {{entry.cut_off}}
                  {% endif %} </ul>
@@ -37,11 +37,11 @@
 
                 {% for operation in operations %}
                     <div class="container">
-                        <h3> Filter Name : {{ operation.signal_name }}
+                        <h3> Filter Name : {{ operation.get_signal_name_display }}
                              {% if operation.second_signal_name != "None" %}
-                                 Second Filter Name : {{ operation.second_signal_name }}
+                                 Second Filter Name : {{ operation.get_second_signal_name_display }}
                              {% endif %}
-                             Operation: {{ operation.op_name }}
+                             Operation: {{ operation.get_op_name_display }}
                         </h3>
                         {% if operation.op_name == "exceeds" %}
                             <div>

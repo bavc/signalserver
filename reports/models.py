@@ -45,6 +45,7 @@ class Item(models.Model):
         Report, on_delete=models.CASCADE)
     file_name = models.CharField(max_length=200)
     signal_name = models.CharField(max_length=100)
+    op_id = models.IntegerField(default=0)
     total_frame_number = models.IntegerField(default=0)
     off_total_frame_number = models.IntegerField(default=0)
     percentage = models.FloatField(default=0)

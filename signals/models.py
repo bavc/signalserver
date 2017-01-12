@@ -18,6 +18,7 @@ class Output(models.Model):
     process = models.ForeignKey(
         Process, on_delete=models.CASCADE)
     file_name = models.CharField(max_length=400)
+    op_id = models.IntegerField(default=0)
     signal_name = models.CharField(max_length=400)
     status = models.BooleanField(default=False)
     task_id = models.CharField(max_length=200)

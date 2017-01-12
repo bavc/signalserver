@@ -42,12 +42,14 @@ def process_bulk(file_names, policy_id, original_names):
 
 
 @celery.task
-def process_signal(file_name, signal_name, original_name, output_id):
+def process_signal(file_name, output_id):
     count = 0
     datadict = {}
     timedict = {}
     timestdict = {}
     outputs = []
+    output = Output.objects.get(pk=output_id)
+    signal_name = output.signal_name
     datadict[signal_name] = []
     timedict[signal_name] = []
 
@@ -74,10 +76,6 @@ def process_signal(file_name, signal_name, original_name, output_id):
                     datadict[key].append(float(value))
                     timedict[key].append(tstamp)
             elem.clear()
-
-    file_name = original_name + ".xml"
-
-    output = Output.objects.get(pk=output_id)
 
     for k, v in datadict.items():
         index = 0

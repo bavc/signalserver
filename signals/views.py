@@ -36,6 +36,17 @@ def index(request):
                    'shared_videos': shared_videos, 'form': form})
 
 
+def create_output(process, op):
+    new_output = Output(
+        process=process,
+        file_name=process.file_name,
+        signal_name=op.signal_name,
+        op_id=op.id
+    )
+    new_output.save()
+    return new_output
+
+
 def process_policy(file_name, policy_id, original_file_name,
                    current_time_str, current_user):
     policy = Policy.objects.get(id=policy_id)
@@ -44,6 +55,7 @@ def process_policy(file_name, policy_id, original_file_name,
                                      "%Y-%m-%d %H:%M:%S")
     video = Video.objects.get(filename=original_file_name)
     signal_lists = []
+    new_outputs = []
     new_process = Process(
         file_id=video.id,
         file_name=original_file_name,
@@ -59,28 +71,16 @@ def process_policy(file_name, policy_id, original_file_name,
 
     process_id = new_process.pk
     for op in operations:
-        if op.op_name == 'average' or op.op_name == 'exceeds':
-            if op.signal_name not in signal_lists:
-                signal_lists.append(op.signal_name)
-        else:
-            if op.signal_name not in signal_lists:
-                signal_lists.append(op.signal_name)
-            if op.second_signal_name not in signal_lists:
-                signal_lists.append(op.second_signal_name)
+        if op.signal_name not in signal_lists:
+            signal_lists.append(op.signal_name)
+            new_output = create_output(new_process, op)
+            new_outputs.append(new_output)
 
-    for signal_name in signal_lists:
-        new_output = Output(
-            process=new_process,
-            file_name=original_file_name,
-            signal_name=signal_name,
-        )
-        new_output.save()
-        output_id = new_output.pk
-        status = process_signal.delay(file_name, signal_name,
-                                      original_file_name, output_id)
-        new_output.task_id = status.task_id
-        new_output.status = AsyncResult(status.task_id).ready()
-        new_output.save()
+    for output in new_outputs:
+        status = process_signal.delay(file_name, output.pk)
+        output.task_id = status.task_id
+        output.status = AsyncResult(status.task_id).ready()
+        output.save()
 
 
 def update_output(outputs):
@@ -184,15 +184,23 @@ def delete_output(request, process_pk):
 def get_graph(request):
     file_names = []
     signal_names = []
+    items_dict = {}
+    ops = []
     if request.method == 'POST':
         process_id = request.POST['process_id']
         process = Process.objects.get(pk=process_id)
         outputs = Output.objects.filter(process=process)
         report = Report.objects.get(process_id=process_id)
         items = Item.objects.filter(report=report)
+        for output in outputs:
+            op = Operation.objects.get(id=output.op_id)
+            ops.append(op)
+        for item in items:
+            op = Operation.objects.get(id=item.op_id)
+            items_dict[item] = op
         return render(request, 'signals/graph.html',
                       {'outputs': outputs, 'report': report,
-                       'items': items})
+                       'items_dict': items_dict, 'ops': ops})
     else:
         output = Output.objects.all()[0]
         tempoutput = Output.objects.filter(file_name=output.file_name)
