@@ -6,7 +6,7 @@
     <div class="row">
     <div class="col-md-6">
     <div class = "container-fluid">
-    <h2>Request Submitted By you</h2>
+    <h2>Request submitted by you</h2>
     {{ signals }}
     <ul><h3>In Progress</h3></ul>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
@@ -16,13 +16,15 @@
     {% endfor %}
     <ul><h3>Completed</h3></ul>
     {% for process in processes %}
-        <ul><h4>{{ process.file_name }} <a href="../delete_output/{{process.pk}}">Delete</a></h4></ul>
+        <ul><h4>{{ process.file_name }}</h4></ul>
         <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-            <ul> {{ process.frame_count }} frames, processed : {{ process.processed_time }}
-                     {% csrf_token %}
-                     <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
-                     <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
-            </form>
+          <ul> {{ process.frame_count }} frames, processed : {{ process.processed_time }}
+             {% csrf_token %}
+             <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
+             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+             <a href="../delete_output/{{process.pk}}" class="btn btn-danger btn-sm">Delete</a>
+          </ul>
+        </form>
     {% endfor %}
     </div>
     </div>
