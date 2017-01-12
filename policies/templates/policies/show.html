@@ -78,8 +78,8 @@
           <label for="choice{{ forloop.counter }}"></label>
               <ul class="list-group">
                   <li class="list-group-item">Rule ID: {{choice.id}}
-                    <a href="delete_rule/{{choice.id}}/{{ policy.id }}">Delete</a>
-                    <a id="rule_edit{{choice.id}}" class = "edit_link{{ forloop.counter }}" href="#">Edit</a>
+                    <a href="delete_rule/{{choice.id}}/{{ policy.id }}" class="badge-danger">Delete</a>
+                    <a id="rule_edit{{choice.id}}" class="edit_link{{ forloop.counter }} badge" href="#">Edit</a>
                   </li>
                 <li class="list-group-item">
                 {% if choice.get_second_signal_name_display != "None" %}
