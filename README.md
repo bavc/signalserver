@@ -37,7 +37,7 @@ Create a directly where you want to mount the file volume for signalserver. (def
 So create /file directly if you don't have a strong preference about it.
 
 Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab.
-In Fire Shareing tab, click "+" icon and select /file. And /file should be added to "File Sharing"
+In the File Shareing tab, click "+" icon and select /file (the directly you created in previous step). And /file should be added to "File Sharing"
 
 Now signalserver is ready to be installed.
 
@@ -74,7 +74,7 @@ FILES_VOLUME_PATH=/files
 If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. (It is already created in this folder). In docker container, it will be stored in /var/signalserver/files directly.
 
 
-### Running the application]
+### Running the application
 
 #### First Step
 
@@ -95,10 +95,10 @@ FILES_VOLUME_PATH=/data ./quickstart.sh
 
 ### Second Step
 
-In this point, your application is running on the IP address that quickstart.sh tells you.
+In this point, your application is running on port of the localhost that quickstart.sh tells you.
 However, you may not have frontend asset.
 
-Now you need to open frontend.sh file and change the 1st line as below. In this example,
+If it is the case, you need to open frontend.sh file and change the 1st line as below. In this example,
 this person's signalserver folder is located on Users/username/signalserver/Dockerfile-frontend
 So in this example, the first line of the frontend.sh is changed as as below.
 
