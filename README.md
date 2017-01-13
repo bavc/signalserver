@@ -4,18 +4,15 @@ SignalServer is intended to become a web app to accompany [QCTools](https://gith
 
 ## Installation
 
-### From git
+### Dependency - Requirement before you install Signal Server.
 
-```
-git clone https://github.com/bavc/signalserver.git
-cd signalserver
-FILES_VOLUME_PATH=/files ./quickstart.sh
-```
+Signalserver can run anywhere as long as the host OS has docker-engine and docker compose are installed.
 
+Signalsever is designed using docker in mind. So please install docker-engine and docker-compose before you start.
 
-### Dependency
+If you are using mac or windows, you can also install docker made for either Window or Mac. You can refer to following documentations for docker installation.
 
-Signalserver can run anywhere as long as the host OS has docker-engine and docker compose are installed. Signalsever is designed using docker in mind. So please install docker-engine and docker-compose before you start. If you are using mac or windows, you can also install docker made for either Window or Mac. You can refer to following documentations for docker installation.
+##!!! Please follow docker's documentation for these installation exactly according to your OS. !!!
 
 Linux: https://docs.docker.com/engine/installation/
 
@@ -30,7 +27,33 @@ docker-compose, it probably need to be updated for both. Docker compose instruct
 
 https://docs.docker.com/compose/install/
 
-!!! Please follow docker's documentation for these installation exactly according to your OS. !!!
+Once you have docker installed and confirmed docker is running, you can install signal server.
+
+### For Mac Users:
+
+If you installed Docker by using Docker for Mac... there is one more step:
+
+Create a directly where you want to mount the file volume for signalserver. (default is /file)
+So create /file directly if you don't have a strong preference about it.
+
+Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab.
+In Fire Shareing tab, click "+" icon and select /file. And /file should be added to "File Sharing"
+
+Now signalserver is ready to be installed.
+
+
+
+
+### From git
+
+```
+git clone https://github.com/bavc/signalserver.git
+cd signalserver
+FILES_VOLUME_PATH=/files ./quickstart.sh
+```
+
+
+
 
 ### Environment variable
 
@@ -49,6 +72,7 @@ FILES_VOLUME_PATH=/files
 ```
 
 If you don't have any special arrangement for space, you can just create the .env file with above line in the project root directly. (It is already created in this folder). In docker container, it will be stored in /var/signalserver/files directly.
+
 
 ### Running the application]
 
@@ -72,7 +96,7 @@ FILES_VOLUME_PATH=/data ./quickstart.sh
 ### Second Step
 
 In this point, your application is running on the IP address that quickstart.sh tells you.
-However, you probably won't have frontend asset.
+However, you may not have frontend asset.
 
 Now you need to open frontend.sh file and change the 1st line as below. In this example,
 this person's signalserver folder is located on Users/username/signalserver/Dockerfile-frontend
