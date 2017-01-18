@@ -6,9 +6,9 @@
     <h1>Files</h1>
   </div>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
       <h3>Search files</h3>
-        <form action="{% url 'fileuploads:list' %}" name = "search" method="post" class="navbar-form form">
+        <form action="{% url 'fileuploads:find_files' %}" name = "search" method="post" class="navbar-form form">
         {% csrf_token %}
           <div class="form-group">
             <label for="start_field" style="padding:5px;">Start: </label><input name='start_field' type="text" id="datetimepicker">
@@ -42,12 +42,13 @@
         {% endif %}
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h3>File upload</h3>
-        <div id="progress"></div>
         {% if message %}
             <p> {{ message }}</p>
         {% endif %}
+        <div id="progress"></div>
+
         <form action="{% url 'fileuploads:upload' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
@@ -56,7 +57,31 @@
         <p>{{ form.videofile.errors }}
            {{ form.videofile }}
         </p>
+
+        {{ select_group_form.group_fields.errors }}
+
+
+        <label for="id_signal"> Group </label>
+        {{ select_group_form.group_fields }}
         <button id="submit_button" type="submit" class="btn btn-sm btn-primary">Upload</button>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <h3>Create New Group</h3>
+        <div id="progress"></div>
+        {% if group_message %}
+            <p> {{ group_message }}</p>
+        {% endif %}
+        <form action="{% url 'fileuploads:create_group' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input name='request_from' id='request_from' type="hidden" value='list'>
+        <p>{{ group_form.non_field_errors }}</p>
+        <p>{{ group_form.group_name.label_tag }}{{ group_form.group_name.help_text }}<p>
+        <p>{{ group_form.group_name.errors }}
+           {{ group_form.group_name }}</p>
+        </p>
+        <button id="submit_button" type="submit" class="btn btn-sm btn-primary">Create New Group</button>
         </form>
     </div>
   </div>
