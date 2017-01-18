@@ -97,7 +97,7 @@
             Frame Count (If file is not processed, it is set to 0) : {{ video.frame_count }}</ul>
             <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
               {% for group in video.groups.all %}
-                <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>{% if not forloop.last %}, {% endif %}
+                <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span><span>   </span>
               {% endfor %}
             <span class="badge badge-info"><a href="/fileuploads/search/">Create Group</a></span>
             {% for process in video.processes.all %}
