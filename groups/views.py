@@ -43,6 +43,37 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
+def create_new_group(user_name, group_name):
+    group_name = replace_letters(group_name)
+    count = Group.objects.filter(group_name=group_name).count()
+    message = None
+    if count > 0:
+        message = "the name " + group_name +  \
+            " is taken, please select differnt name"
+    else:
+        new_group = Group(
+            group_name=group_name,
+            user_name=user_name,
+            shared=True
+        )
+        new_group.save()
+    return message
+
+
+def save_members(username, group_name, request):
+    group = Group.objects.get(group_name=group_name)
+    #length of request you don't need group_name, token, start and end
+    number = len(request.POST) - 4
+    counter = 1
+    newkey = "file" + str(counter)
+    while counter < number:
+        if newkey in request.POST:
+            file_name = request.POST[newkey]
+            save_member(group.pk, file_name)
+        counter += 1
+        newkey = newkey = "file" + str(counter)
+
+
 @login_required(login_url="/login/")
 def save_group(request):
     user_name = request.user.username
@@ -50,11 +81,9 @@ def save_group(request):
     shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
         group_name = request.POST['group_name']
-        group_name = replace_letters(group_name)
-        count = Group.objects.filter(group_name=group_name).count()
-        if count > 0:
-            message = "the name " + group_name +  \
-                " is taken, please select differnt name"
+        request_from = request.POST['request_from']
+        message = create_new_group(user_name, group_name)
+        if message is not None:
             form = GroupForm()
             start_field = request.POST['start_field']
             end_field = request.POST['end_field']
@@ -67,23 +96,7 @@ def save_group(request):
                            'files': files,
                            'message': message})
         else:
-            new_group = Group(
-                group_name=group_name,
-                user_name=user_name,
-                shared=True
-            )
-            new_group.save()
-            group = Group.objects.get(group_name=group_name)
-            #length of request you don't need group_name, token, start and end
-            number = len(request.POST) - 4
-            counter = 1
-            newkey = "file" + str(counter)
-            while counter < number:
-                if newkey in request.POST:
-                    file_name = request.POST[newkey]
-                    save_member(group, file_name)
-                counter += 1
-                newkey = newkey = "file" + str(counter)
+            save_members(user_name, group_name, request)
             groups = Group.objects.filter(user_name=user_name)
             shared_groups = Group.objects.filter(shared=True)
             form = PolicyForm()
@@ -258,7 +271,8 @@ def update_process(process):
     return process
 
 
-def save_member(group, file_name):
+def save_member(group_id, file_name):
+    group = Group.objects.get(id=group_id)
     video = Video.objects.get(filename=file_name)
     video.groups.add(group)
     try:
@@ -286,7 +300,7 @@ def update_group(request):
                 file_names.append(value)
 
         for file_name in file_names:
-            save_member(group, file_name)
+            save_member(group.pk, file_name)
 
     return render(request, 'groups/group_edit.html',
                   {'group': group, 'files': files})

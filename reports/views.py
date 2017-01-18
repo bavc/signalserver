@@ -9,7 +9,6 @@ from fileuploads.models import Video
 from groups.models import Process, Result, Row
 from signals.models import Process as File_Process, Output, Signal
 from policies.models import Policy, Operation
-from policies.views import replace_letters
 
 from django.contrib.auth.decorators import login_required
 
