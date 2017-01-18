@@ -35,6 +35,8 @@ def get_groups():
         con_name = con.group_name
         group_dic[con_id] = con_name
 
+    group_dic[-1] = "create_new"
+
     return ((k, v) for k, v in group_dic.items())
 
 

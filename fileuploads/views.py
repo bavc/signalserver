@@ -91,7 +91,7 @@ def process(request):
 
 @login_required(login_url="/login/")
 def search(request):
-    user_name = request.user.username
+
     files = Video.objects.filter(user_name=user_name)
     shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
@@ -124,12 +124,18 @@ def status(request):
 @login_required(login_url="/login/")
 def upload(request):
     # Handle file upload
+    user_name = request.user.username
     form = VideoForm()
     message = None
     if request.method == 'POST':
         group_id = request.POST['group_fields']
+        if group_id == "-1":
+            current_time_str = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
+            default_name = "group_" + current_time_str
+            create_new_group(user_name, default_name)
+            group = Group.objects.get(group_name=default_name)
+            group_id = group.id
         form = VideoForm(request.POST, request.FILES)
-        user_name = request.POST['user_name']
         files = request.FILES.getlist('videofile')
         if form.is_valid():
             for f in files:
