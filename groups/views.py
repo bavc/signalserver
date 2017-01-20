@@ -275,16 +275,26 @@ def save_member(group_id, file_name):
     group = Group.objects.get(id=group_id)
     video = Video.objects.get(filename=file_name)
     video.groups.add(group)
-    try:
-        new_member = Member(
-            file_name=file_name,
-            group=group,
-            upload_time=video.upload_time,
-            file_id=video.id
-        )
-        new_member.save()
-    except IntegrityError:
-        pass  # it didn't need to save the dubplicate files
+
+    member = Member.objects.filter(group=group,
+                                   file_name=file_name).count()
+    if member > 0:
+        member = Member.objects.get(group=group,
+                                    file_name=file_name)
+        member.file_id = video.id
+        member.upload_time = video.upload_time
+        member.save()
+    else:
+        try:
+            new_member = Member(
+                file_name=file_name,
+                group=group,
+                upload_time=video.upload_time,
+                file_id=video.id
+            )
+            new_member.save()
+        except IntegrityError:
+            pass  # it didn't need to save the dubplicate files
 
 
 def update_group(request):
