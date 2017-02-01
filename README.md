@@ -111,6 +111,9 @@ After you run frontend.sh, run quickstart.sh again following the first step.
 
 And it should be it!
 
+### Wrap-up Step
+
+If doing a lot of development work and building many dockers, you may want to clean up by running `docker ps -a -q | xargs docker rm -f`.
 
 ### API usage
 
