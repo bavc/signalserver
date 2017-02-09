@@ -36,8 +36,18 @@ If you installed Docker by using Docker for Mac... there is one more step:
 Create a directly where you want to mount the file volume for signalserver. (default is /file)
 So create /file directly if you don't have a strong preference about it.
 
-Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab.
-In the File Shareing tab, click "+" icon and select /file (the directly you created in previous step). And /file should be added to "File Sharing"
+Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab
+
+
+![screen shot 2017-02-09 at 12 49 30 am](https://cloud.githubusercontent.com/assets/720709/22776921/6bd7e742-ee66-11e6-8eb9-e5072a4bb62e.png)
+
+
+In the File Shareing tab, click '+' icon and select /file (the directly you created in previous step). And /file should be added to "File Sharing"
+
+
+![screen shot 2017-02-09 at 12 49 54 am](https://cloud.githubusercontent.com/assets/720709/22776939/80c84282-ee66-11e6-9f6a-6d128af6ca06.png)
+
+
 
 Then, you need to comment out the first 4 lines of quickstart.sh or quickstartdev.sh
 
