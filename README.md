@@ -39,8 +39,33 @@ So create /file directly if you don't have a strong preference about it.
 Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab.
 In the File Shareing tab, click "+" icon and select /file (the directly you created in previous step). And /file should be added to "File Sharing"
 
+Then, you need to comment out the first 4 lines of quickstart.sh or quickstartdev.sh
+
+These four lines needs to be commented out.
+
+```
+
+#docker-machine create --driver virtualbox default
+#docker-machine start default
+#docker-machine env default
+#eval "$(docker-machine env default)"
+
+```
+
+### Non Docker for mac users, window users
+
+If you are using older version of mac or windows, you still need these above four lines, so please uncomment these before you run the quickstart.
+
 Now signalserver is ready to be installed.
 
+### Trouble Shooting
+
+If you run this script often, or if your script got stuck and don't produce any output, you may want to remove the intermediate containers/images every once in a while.
+
+```
+docker ps -a -q | xargs docker rm -f
+docker images -a -q | xargs docker rmi -f
+```
 
 
 
@@ -50,6 +75,7 @@ Now signalserver is ready to be installed.
 git clone https://github.com/bavc/signalserver.git
 cd signalserver
 FILES_VOLUME_PATH=/files ./quickstart.sh
+
 ```
 
 
