@@ -7,18 +7,7 @@
     <h1>{{ policy.policy_name }}</h1>
     <div class="row">
       <div class="col-md-6">
-        <a href="../delete_policy/{{policy.id}}" class="btn btn-sm btn-warning">Delete</a>
-        <div id="rename_form">
-           <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
-            {% csrf_token %}
-            <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
-            <input name='new_name' type="text" default="{{ policy.policy_name }}">
-            <button type="search" class="btn btn-sm btn-warning">Rename</button>
-          </form>
-        </div>
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        <p>** If the resulting value exceeds (over or under) average results among the group, the filename is reported in summary and/or dashboard</p>
-        <p>*** If frame value exceeds (over or under) the average value of all frames within the file, the frame time is reported in summary and/or dashboard</p>
         <div>
           <h4>Add A New Rule</h4>
           <form action="{% url 'policies:show' policy.id %}" method="post">
@@ -58,22 +47,23 @@
              </div>
 
              <div>
+             {{ form.dashboard.errors }}
+             <label for="id_dashboard">Show in dashboard? </label>
+             {{ form.dashboard }}
+             </div>
+
+             <div>
              {{ form.percentage.errors }}
-             <label for="id_percentage">Percentage for the Group Process reporting**</label>
+             <label for="id_percentage">Dashboard Group error percentage</label>
              {{ form.percentage }}
              </div>
 
              <div>
              {{ form.file_percentage.errors }}
-             <label for="id_file_percentage">Percentage for the File Process reporting***</label>
+             <label for="id_file_percentage">Dashboard File error percentage</label>
              {{ form.file_percentage }}
              </div>
 
-             <div>
-             {{ form.dashboard.errors }}
-             <label for="id_dashboard">Show in dashboard? </label>
-             {{ form.dashboard }}
-             </div>
              <input name='display_order' type="hidden" value="{{ length }}">
              <input name='action' type="hidden" value="new">
              <button type="submit" class="btn btn-primary">Add new rule</button>
@@ -106,10 +96,10 @@
                 Description:  {{ choice.description }}
               </li>
                 <li class="list-group-item">
-                Percentage for the Group Process reporting**: {{ choice.percentage }} %
+                Dashboard Group error percentage**: {{ choice.percentage }} %
               </li>
                 <li class="list-group-item">
-                Percentage for the File Process reporting***: {{ choice.file_percentage }} %
+                Dashboard File error percentage***: {{ choice.file_percentage }} %
               </li>
                 <li class="list-group-item">
                 Report in dashboard? {{choice.dashboard}}
@@ -176,6 +166,16 @@
       {% endfor %}
     </div>
     <div class="col-md-6">
+      <h2>Policy editing</h2>
+      <div id="rename_form">
+         <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
+          {% csrf_token %}
+          <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
+          <input name='new_name' type="text" default="{{ policy.policy_name }}">
+          <button type="search" class="btn btn btn-warning">Rename</button>
+        </form>
+        <a href="../delete_policy/{{policy.id}}" class="btn btn btn-danger">Delete</a>
+      </div>
       <h2>Properties</h2>
           <form id="policy_property" action="{% url 'policies:show' policy.id %}" method="post">
           {% csrf_token %}
