@@ -80,7 +80,7 @@ class PolicyForm(forms.Form):
     )
     description = forms.CharField(
         label='Policy Description',
-        initial='policy description'
+        required=False
     )
     display_order = forms.IntegerField(
         label='Display Location No.', initial=0
@@ -109,14 +109,14 @@ class OperationForm(forms.Form):
     )
     description = forms.CharField(
         label='Policy Description',
-        initial='Rule description'
+        required=False
     )
     dashboard = forms.ChoiceField(widget=forms.CheckboxInput, required=False)
 
     percentage = forms.FloatField(
-        label='Please percentage off from aveage for reporting', initial=0
+        label='Dashboard Group error percentage', initial=0
     )
 
     file_percentage = forms.FloatField(
-        label='Please percentage off from aveage for reporting', initial=0
+        label='Dashboard File error percentage', initial=0
     )
