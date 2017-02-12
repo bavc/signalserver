@@ -3,11 +3,19 @@
 <style>
 #div1 {width:500px;height:200px;padding:10px;border:1px solid #aaaaaa;}
 </style>
-
   <div class= "container-fluid">
-    <h1>Rules for {{ policy.policy_name }}</h1>
+    <h1>{{ policy.policy_name }}</h1>
     <div class="row">
       <div class="col-md-6">
+        <a href="../delete_policy/{{policy.id}}" class="btn btn-sm btn-warning">Delete</a>
+        <div id="rename_form">
+           <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
+            {% csrf_token %}
+            <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
+            <input name='new_name' type="text" default="{{ policy.policy_name }}">
+            <button type="search" class="btn btn-sm btn-warning">Rename</button>
+          </form>
+        </div>
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         <p>** If the resulting value exceeds (over or under) average results among the group, the filename is reported in summary and/or dashboard</p>
         <p>*** If frame value exceeds (over or under) the average value of all frames within the file, the frame time is reported in summary and/or dashboard</p>
@@ -68,7 +76,7 @@
              </div>
              <input name='display_order' type="hidden" value="{{ length }}">
              <input name='action' type="hidden" value="new">
-             <button type="submit" class="btn btn-primary">Add</button>
+             <button type="submit" class="btn btn-primary">Add new rule</button>
          </div>
         </form>
     </div>
