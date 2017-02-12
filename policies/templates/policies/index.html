@@ -10,17 +10,6 @@
               {% for policy in policies %}
               <h4>Policy Name: <a href="show/{{ policy.id }}">{{ policy.policy_name }}</a></h4>
                   <p>Show in dashboard?: {{policy.dashboard}}</p>
-                  <a href="delete_policy/{{policy.id}}" class="btn btn-sm btn-warning">Delete</a>
-                  <a class="rename_link{{ forloop.counter }} btn btn-sm btn-warning" href="#">Rename</a>
-              <div id="rename_form{{ forloop.counter }}">
-                 <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
-                  {% csrf_token %}
-                  <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
-                  <input name='new_name' type="text" default="{{ policy.policy_name }}">
-                  <button type="search" class="btn btn-sm btn-warning">Rename</button>
-                  <button type="reset" class="btn btn-sm btn-warning">Reset</button>
-                </form>
-              </div>
               <p>Description: {{policy.description }}</p>
               <!-- Creation time {{policy.creation_time}} -->
               {% endfor %}
