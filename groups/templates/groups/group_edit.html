@@ -1,14 +1,5 @@
 {% include 'base.html' %}
 {% block content %}
-<style>
-#div1 {
-    width:500px;
-    height:200px;
-    padding:10px;
-    border:1px solid #aaaaaa;
-    margin:0 0 10px 0;
-}
-</style>
 <span>
     <div class = "container-fluid">
         <h1>Group Edit, remove and add files</h1>
@@ -31,7 +22,7 @@
                         {% endfor %}
                     </p>
                     <h4>Drop files below to add more files to the group.</h4>
-                    <div class="container-fluid" id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"
+                    <div class="container-fluid" id="dropfiles" ondrop="drop(event)" ondragover="allowDrop(event)"
                     >
                     </div>
                     <div class="container-fluid">

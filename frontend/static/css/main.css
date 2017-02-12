@@ -39,6 +39,14 @@ body {
   height: 60px;
 }
 
+#dropfiles {
+  width:500px;
+  height:100px;
+  padding:10px;
+  border:1px solid #aaaaaa;
+  margin:0 0 10px 0;
+}
+
 #progress p {
   display: block;
   width: 240px;
