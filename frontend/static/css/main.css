@@ -11,6 +11,10 @@ body {
   margin-bottom: 60px;
 }
 
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
 .badge-info {
   background-color: #008264;
 }
