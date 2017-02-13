@@ -2,24 +2,31 @@
 {% block content %}
 <span>
     <div class = "container-fluid">
-        <h1>Group Edit, remove and add files</h1>
-        <h4>Edit group based on the file names.</h4>
-
         <div class="row">
             <div class="col-md-6">
                 {% if group %}
                     <form action="{% url 'groups:update_group' %}" method="post" enctype="multipart/form-data">
                     <h3>Group Name: {{group.group_name}} </h3>
+                    <div id="rename_form{{ forloop.counter }}">
+                      <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
+                        {% csrf_token %}
+                        <input name='old_name' type="hidden" value="{{ group.group_name }}">
+                        <input name='new_name' type="text" default="{{ group.group_name }}">
+                        <button type="search" class="btn btn-sm btn-warning">Rename</button>
+                        <span> </span>
+                        <a href="../delete_group/{{group.id}}"><button class="btn btn-sm btn-danger">Delete</button></a>
+                     </form>
+                    </div>
                     <h4>Files in this group: </h4>
                     <p>
-                        {% csrf_token %}
-                        <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
-                        {% for member in group.member_set.all %}
-                            <ul>
-                              <h4>{{member.file_name}}</h4>
-                              Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.id %}">remove</a>
-                            </ul>
-                        {% endfor %}
+                      {% csrf_token %}
+                      <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
+                      {% for member in group.member_set.all %}
+                          <ul>
+                            <h4>{{member.file_name}}</h4>
+                            Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.id %}">remove</a>
+                          </ul>
+                      {% endfor %}
                     </p>
                     <h4>Drop files below to add more files to the group.</h4>
                     <div class="container-fluid" id="dropfiles" ondrop="drop(event)" ondragover="allowDrop(event)"
