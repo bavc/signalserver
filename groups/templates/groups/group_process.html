@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container-fluid">
-        <h1>Group Process Status </h1>
+        <h1>Group Process Status</h1>
         <div class="row">
         <div class="col-md-6">
         <div class = "container-fluid">
@@ -24,24 +24,24 @@
              {% for process in processes %}
                 {% if process.id not in not_completed %}
                     <div id="{{process.id}}">
-                        <ul><li><h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                        <ul><li>
+                          <h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
                           <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a><br/>
                             Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                            <a href="../delete_group_result/{{process.id}}" class="btn btn-danger btn-sm">Delete</a></h4>
                             {% csrf_token %}
                             <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
-                        </form>
+                          </form>
                     </div>
                 {% else %}
                     <div id="completed_{{process.id}}" style="display: none;">
-                        <ul><li><h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                        <ul><li>
+                          <h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
                           <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a><br/>
                             Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
                             <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                            <a href="../delete_group_result/{{process.id}}" class="btn btn-danger btn-sm">Delete</a></h4>
                             {% csrf_token %}
                             <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
                           </li></ul>
@@ -62,7 +62,7 @@
                     <li>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}</li>
                 {% endif %}
             {% endfor %}
-            <h3> Completed </h3>
+            <h3>Completed</h3>
              {% for process in  shared_processes %}
                 {% if process.id not in shared_not_completed %}
                     <ul>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}</li>

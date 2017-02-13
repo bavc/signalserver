@@ -2,32 +2,16 @@
 {% block content %}
 <span>
     <div class = "container-fluid">
-        <h1>Group List, Group Search and submit process</h1>
-        <h4>Submit the process based on group and config. We can also search group by name.</h4>
+        <h1>Groups</h1>
 
         <div class="row">
-
             <div class="col-md-6">
-            <h2> Group List</h2>
-            <h3> Groups created by you.</h3>
+            <h3>Your Groups</h3>
             {% if groups %}
                 <ul>
                 {% for group in groups %}
                     <li>
-
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.id}}"> Edit </a>
-                    <a href="../delete_group/{{group.id}}">Delete</a>
-                    <a class = "rename_link{{ forloop.counter }}" href="#">Rename</a></h4>
-                    <div id="rename_form{{ forloop.counter }}">
-                           <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
-                            {% csrf_token %}
-                            <input name='old_name' type="hidden" value="{{ group.group_name }}">
-                            <input name='new_name' type="text" default="{{ group.group_name }}">
-                            <button type="search" class="btn btn-primary">
-                                Rename
-                            </button>
-                          </form>
-                    </div>
+                    <h4>Group name: <a href="../edit_group/{{group.id}}"> {{ group.group_name }}</a></h4>
                     <ul>Creation time: {{group.creation_time}}
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -36,8 +20,7 @@
 
                     {{ form.policy_fields.errors }}
 
-
-                    <label for="id_signal"> Policy </label>
+                    <label for="id_signal">Policy</label>
                     {{ form.policy_fields }}
                     <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul> </li>
                     </form>
@@ -55,12 +38,12 @@
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
-                    <h4>Group name: {{ group.group_name }}<a href="../edit_group/{{group.id}}"> Edit </a>   <a href="../delete_group/{{group.id}}">Delete</a></h4>
+                    <h4><a href="../edit_group/{{group.id}}">{{ group.group_name }}</a></h4>
                     <ul>Creation time: {{group.creation_time}}
                     {{ form.policy_fields.errors }}
-                    <label for="id_signal"> Policy </label>
+                    <label for="id_signal">Policy</label>
                     {{ form.policy_fields }}
-                    <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul> </li>
+                    <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul></li>
                     </form>
                 {% endfor %}
                 </ul>
@@ -72,7 +55,7 @@
                 {% if group %}
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
                     <h3> {{group.group_name}} is saved.</h3>
-                    <p> Files in this group :
+                    <p> Files in this group:
                         {% csrf_token %}
                         <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
                         {% for member in group.member_set.all %}
@@ -89,7 +72,7 @@
                 {% endif %}
                 <form action="{% url 'groups:search_group' %}" name="group_name" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <h3>Name Based Search</h3>
+                <h3>Name-based Search</h3>
                 <p>Please enter the name of group or keyword (case sensitive).</p>
                 <input name='group_name' type="text" id="group_name">
                 <button type="search" class="btn btn-primary">
@@ -102,17 +85,19 @@
                     <h4> Search keyword : {{keyword}}</h4>
                     {% for group in result_groups %}
                     <form action="{% url 'groups:group_process' %}" method="post" enctype="multipart/form-data">
-                    <h3> Group Name: {{group.group_name}} </h3>
-                    <p> Files in this group :
+                    <h3>Group Name: {{group.group_name}} </h3>
+                    <p> Files in this group:
                         {% csrf_token %}
                         <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
                         {% for member in group.member_set.all %}
                             <ul>{{member.file_name}} {{member.upload_time}}</ul>
                         {% endfor %}
                             </p>
-                        </li>    {{ form.config_fields.errors }}
-                                <label for="id_signal">Config</label>
-                                {{ form.config_fields }} </li>
+                        </li>
+                        {{ form.config_fields.errors }}
+                        <label for="id_signal">Config</label>
+                        {{ form.config_fields }}
+                      </li>
                     </ul>
                     <button type="submit" value="Process All" class="btn btn-primary btn-sm">Process</button>
                     </form>
@@ -125,16 +110,11 @@
 </span>
 
 <script>
-
-{% for group in groups %}
-
-   $("#rename_form{{ forloop.counter }}").hide();
-   $(".rename_link{{ forloop.counter }}").click (function(){
-   $("#rename_form{{ forloop.counter }}").show();
-   });
-
-{% endfor %}
-
+  {% for group in groups %}
+     $("#rename_form{{ forloop.counter }}").hide();
+     $(".rename_link{{ forloop.counter }}").click (function(){
+     $("#rename_form{{ forloop.counter }}").show();
+     });
+  {% endfor %}
 </script>
 {% endblock %}
-
