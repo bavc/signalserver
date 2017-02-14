@@ -9,29 +9,39 @@
       <div class="col-md-6">
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         <div>
-          <h4>Add A New Rule</h4>
+          <h4>Add a new rule</h4>
           <form action="{% url 'policies:show' policy.id %}" method="post">
           {% csrf_token %}
             <div id="policy_add">
             <!-- variable -->
-            {{ form.signal_fields.errors }}
-            <label for="id_signal">Filter</label>
-            {{ form.signal_fields }}
-
-            {{ form.operation_fields.errors}}
-            <label for="id_name">Operation</label>
-            {{ form.operation_fields}}
-
+            <div>
+              {{ form.signal_fields.errors }}
+              <label for="id_signal">
+                <span data-toggle="tooltip" data-placement="bottom" title="Select rule based on ffmpeg filter">Filter &#9432;</span>
+              </label>
+              {{ form.signal_fields }}
+            </div>
+            <div>
+              {{ form.operation_fields.errors}}
+              <label for="id_name">
+                <span data-toggle="tooltip" data-placement="bottom" title="Select method to analyze filter">Operation &#9432;</span>
+              </label>
+              {{ form.operation_fields}}
+            </div>
             <div id="secondsignal" style="display:none;">
-            {{ form.second_signal_fields.errors }}
-            <label for="id_signal2">Filter2</label>
-            {{ form.second_signal_fields }}
+              {{ form.second_signal_fields.errors }}
+              <label for="id_signal2">
+                <span data-toggle="tooltip" data-placement="bottom" title="Compare against second filter">Second Filter &#9432;</span>
+              </label>
+              {{ form.second_signal_fields }}
             </div>
 
             <div id="cutoffnumber" style="display:none;">
-            {{ form.cutoff_number.errors }}
-            <label for="id_cutoff ">Cutoff Number</label>
-            {{ form.cutoff_number }}
+              {{ form.cutoff_number.errors }}
+              <label for="id_cutoff ">
+                <span data-toggle="tooltip" data-placement="bottom" title="Specify number of frames that must quality for a rule to fail">Cutoff Number &#9432;</span>
+              </label>
+              {{ form.cutoff_number }}
             </div>
 
             <div id="display_order" style="display:none;">
@@ -39,30 +49,34 @@
             <label for="id_cutoff ">Display order</label>
             {{ form.display_order }}
             </div>
-
             <div>
-             {{ form.description.errors }}
-             <label for="id_description">Description</label>
-             {{ form.description }}
-             </div>
-
-             <div>
-             {{ form.dashboard.errors }}
-             <label for="id_dashboard">Show in dashboard? </label>
-             {{ form.dashboard }}
-             </div>
-
-             <div>
-             {{ form.percentage.errors }}
-             <label for="id_percentage">Dashboard Group error percentage</label>
-             {{ form.percentage }}
-             </div>
-
-             <div>
-             {{ form.file_percentage.errors }}
-             <label for="id_file_percentage">Dashboard File error percentage</label>
-             {{ form.file_percentage }}
-             </div>
+              {{ form.description.errors }}
+              <label for="id_description">
+                <span data-toggle="tooltip" data-placement="bottom" title="Brief description of rule's purpose">Description &#9432;</span>
+              </label>
+              {{ form.description }}
+            </div>
+            <div>
+              {{ form.dashboard.errors }}
+              <label for="id_dashboard">
+                <span data-toggle="tooltip" data-placement="bottom" title="Select if showing results on dashboard is desired.">Show in dashboard? &#9432;</span>
+              </label>
+              {{ form.dashboard }}
+            </div>
+            <div>
+              {{ form.percentage.errors }}
+              <label for="id_percentage">
+              <span data-toggle="tooltip" data-placement="bottom" title="If the resulting value is over or under average results among the group by this percentage, the filename will be reported.">Group error percentage &#9432;</span>
+              </label>
+              {{ form.percentage }}
+            </div>
+            <div>
+              {{ form.file_percentage.errors }}
+              <label for="id_file_percentage">
+              <span data-toggle="tooltip" data-placement="bottom" title="If frame value is over or under the average value of all frames within the file by this percentage, the frame time will be reported.">File error percentage &#9432;</span>
+              </label>
+              {{ form.file_percentage }}
+            </div>
 
              <input name='display_order' type="hidden" value="{{ length }}">
              <input name='action' type="hidden" value="new">
@@ -241,5 +255,9 @@ function operationSelect(that) {
     }
 
 }
+
+$(document).ready(function($) {
+  $('[data-toggle="tooltip"]').tooltip();
+});
 </script>
 {% endblock %}
