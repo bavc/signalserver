@@ -9,9 +9,7 @@
       <div class="col-md-6">
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         <div>
-          <h4 class="add-new-rule">
-            Add a new rule [+]
-          </h4>
+          <h4 class="add-new-rule btn btn-primary">Add a new rule</h4>
           <div class="new-rule" style="display:none;">
             <form action="{% url 'policies:show' policy.id %}" method="post">
               {% csrf_token %}
@@ -83,7 +81,7 @@
 
                <input name='display_order' type="hidden" value="{{ length }}">
                <input name='action' type="hidden" value="new">
-               <button type="submit" class="btn btn-primary">Add new rule</button>
+               <button type="submit" class="btn btn-sm btn-primary">Add</button>
             </div>
             </form>
           </div>
