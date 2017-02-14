@@ -1,81 +1,77 @@
 {% include 'base.html' %}
 {% block content %}
-<span>
     <div class = "container-fluid">
-        <div class="row">
-            <div class="col-md-6">
-                {% if group %}
-                    <form action="{% url 'groups:update_group' %}" method="post" enctype="multipart/form-data">
-                    <h3>Group Name: {{group.group_name}} </h3>
-                    <div id="rename_form{{ forloop.counter }}">
-                      <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
-                        {% csrf_token %}
-                        <input name='old_name' type="hidden" value="{{ group.group_name }}">
-                        <input name='new_name' type="text" default="{{ group.group_name }}">
-                        <button type="search" class="btn btn-sm btn-warning">Rename</button>
-                        <span> </span>
-                        <a href="../delete_group/{{group.id}}"><button class="btn btn-sm btn-danger">Delete</button></a>
-                     </form>
-                    </div>
-                    <h4>Files in this group: </h4>
-                    <p>
-                      {% csrf_token %}
-                      <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
-                      {% for member in group.member_set.all %}
-                          <ul>
-                            <h4>{{member.file_name}}</h4>
-                            Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.id %}">remove</a>
-                          </ul>
-                      {% endfor %}
-                    </p>
-                    <h4>Drop files below to add more files to the group.</h4>
-                    <div class="container-fluid" id="dropfiles" ondrop="drop(event)" ondragover="allowDrop(event)"
-                    >
-                    </div>
-                    <div class="container-fluid">
-                    <button type="submit" value="update group" class="btn btn-primary">Add Files</button>
-                    </div>
-                    </form>
+      <div class="row">
+        <div class="col-md-6">
+          {% if group %}
+            <form action="{% url 'groups:update_group' %}" method="post" enctype="multipart/form-data">
+            <h3>Group Name: {{group.group_name}} </h3>
+            <div id="rename_form{{ forloop.counter }}">
+              <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
+                {% csrf_token %}
+                <input name='old_name' type="hidden" value="{{ group.group_name }}">
+                <input name='new_name' type="text" default="{{ group.group_name }}">
+                <button type="search" class="btn btn-sm btn-warning">Rename</button>
+                <span> </span>
+                <a href="../delete_group/{{group.id}}"><button class="btn btn-sm btn-danger">Delete</button></a>
+             </form>
+            </div>
+            <h4>Files in this group: </h4>
+            <p>
+              {% csrf_token %}
+              <input type="hidden" name="group_name" id="group_name" value="{{group.group_name}}" />
+              {% for member in group.member_set.all %}
+                  <ul>
+                    <h4>{{member.file_name}}</h4>
+                    Uploaded: {{member.upload_time}} <a href="{% url 'groups:remove_file' member.file_name group.id %}">remove</a>
+                  </ul>
+              {% endfor %}
+            </p>
+            <h4>Drop files below to add more files to the group.</h4>
+            <div class="container-fluid" id="dropfiles" ondrop="drop(event)" ondragover="allowDrop(event)"
+            >
+            </div>
+            <div class="container-fluid">
+            <button type="submit" value="update group" class="btn btn-primary">Add Files</button>
+            </div>
+            </form>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+            <form action="{% url 'groups:edit_group' group.id %}" name = "search" method="post" class="form">
+                {% csrf_token %}
+                <h3>File Search</h3>
+                <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
+                <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
+                <p>Exact file name or keyword in the filename (case sensitive): </p>
+                <p><input name='keyword' type="text" id="keyword"></p>
+                <button type="search" class="btn btn-primary">Search</button>
+            </form>
+            {% if videos %}
+                <h3> Search Results </h3>
+                <h4> Search keywords
+                {% if start %}
+                    <h4> Start time : {{ start}}
                 {% endif %}
-            </div>
-            <div class="col-md-6">
-                <form action="{% url 'groups:edit_group' group.id %}" name = "search" method="post" class="form">
-                    {% csrf_token %}
-                    <h3>File Search</h3>
-                    <p>Start Time: <input name='start_field' type="text" id="datetimepicker"></p>
-                    <p>End Time: <input name='end_field' type="text" id="datetimepicker2"></p>
-                    <p>Exact file name or keyword in the filename (case sensitive): </p>
-                    <p><input name='keyword' type="text" id="keyword"></p>
-                    <button type="search" class="btn btn-primary">Search</button>
-                </form>
-                {% if videos %}
-                    <h3> Search Results </h3>
-                    <h4> Search keywords
-                    {% if start %}
-                        <h4> Start time : {{ start}}
-                    {% endif %}
-                    {% if end %}
-                        End time: {{ end }}</h4>
-                    {% endif %}
-                    {% if keyword %}
-                        <h4>The filename has a word: {{ keyword }} </h4></br></br>
-                    {% endif %}
-                    <p>Max search results are 50. Please refine the search criteria if necessary.</p>
-                    <ul>
-                    {% for video in videos %}
-                        <div id="drag{{forloop.counter}}" draggable="true" ondragstart="drag(event)" width="336" height="69">
-                        <input type="hidden" name="file_name{{forloop.counter}}" id="file{{forloop.counter}}" value="{{ video.filename }}" />
-                        <ul>{{ video.filename }} Uploaded time: {{video.upload_time}}</ul>
-                        </div>
-                    {% endfor %}
-                    </ul>
-                    {% endif %}
-            </div>
-            </div>
-
+                {% if end %}
+                    End time: {{ end }}</h4>
+                {% endif %}
+                {% if keyword %}
+                    <h4>The filename has a word: {{ keyword }} </h4></br></br>
+                {% endif %}
+                <p>Max search results are 50. Please refine the search criteria if necessary.</p>
+                <ul>
+                {% for video in videos %}
+                    <div id="drag{{forloop.counter}}" draggable="true" ondragstart="drag(event)" width="336" height="69">
+                    <input type="hidden" name="file_name{{forloop.counter}}" id="file{{forloop.counter}}" value="{{ video.filename }}" />
+                    <ul>{{ video.filename }} Uploaded time: {{video.upload_time}}</ul>
+                    </div>
+                {% endfor %}
+                </ul>
+                {% endif %}
+        </div>
+      </div>
     </div>
-</div>
-</span>
 
 <script type="text/javascript">
 
