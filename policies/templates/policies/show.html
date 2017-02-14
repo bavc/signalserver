@@ -185,7 +185,7 @@
            <form id="form_rename" action="{% url 'policies:rename' %}" name = "rename" method="post" class="form">
             {% csrf_token %}
             <input name='old_name' type="hidden" value="{{ policy.policy_name }}">
-            <input name='new_name' type="text" default="{{ policy.policy_name }}">
+            <input name='new_name' type="text" value="{{ policy.policy_name }}" default="{{ policy.policy_name }}">
             <button type="search" class="btn btn-sm btn-warning">Rename</button>
           </form>
         </div>
@@ -194,10 +194,10 @@
         {% csrf_token %}
         <input name='action' type="hidden" value="update_policy">
         <div id="current_version">Version No.: {{policy.version }} </div><div id="version_info">Version No: <input type="text" id="id_new_version" name="version" value="{{policy.version }}"/></div><a id="version_edit" href="#">Change</a>
-        <strong>Last updated by</strong> {{ policy.user_name}} <br/>
-        <strong>Last update</strong> {{ policy.last_updated_time }} <br/>
-        <strong>Creation time</strong> {{policy.creation_time}} <br/>
-        Show in dashboard? <input id="id_new_checkbox" type="checkbox" name="policy_dashboard" value="{{policy.dashboard }}" checked="{{policy.dashboard }}"><br/>
+        <p><strong>Last updated by</strong> {{ policy.user_name}}</p>
+        <p><strong>Last update</strong> {{ policy.last_updated_time }}</p>
+        <p><strong>Creation time</strong> {{policy.creation_time}}</p>
+        <p>Show in dashboard? <input id="id_new_checkbox" type="checkbox" name="policy_dashboard" value="{{policy.dashboard }}" checked="{{policy.dashboard }}"></p>
         <button type="search" class="btn btn-sm btn-primary">Update</button>
         </form>
         <br/>
