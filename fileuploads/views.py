@@ -91,7 +91,7 @@ def process(request):
 
 @login_required(login_url="/login/")
 def search(request):
-
+    user_name = request.user.username
     files = Video.objects.filter(user_name=user_name)
     shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
