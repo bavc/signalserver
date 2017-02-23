@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import UserForm
-
+from django.contrib import messages
 
 @login_required(login_url="/login/")
 def index(request):
@@ -76,8 +76,8 @@ def custom_login(request):
     if user is not None:
         login(request, user)
         return HttpResponseRedirect('fileuploads/list')
-
     else:
+        messages.error(request, "Error")
         return HttpResponseRedirect('../login')
 
 
