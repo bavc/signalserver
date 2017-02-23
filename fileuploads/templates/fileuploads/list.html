@@ -92,51 +92,60 @@
         {% if videos %}
         <ul class="list-group">
         {% for video in videos %}
-            <li class="list-group-item clearfix"><h4>{{ video.filename }}</h4>
-            <ul>Uploaded time: {{video.upload_time}}  Size : {{ video.file_size}}
-            Frame Count (If file is not processed, it is set to 0) : {{ video.frame_count }}</ul>
-            <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
-              {% for group in video.groups.all %}
-                <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span><span>   </span>
-              {% endfor %}
-            <span class="badge badge-info"><a href="/fileuploads/search/">Create Group</a></span>
+            <li class="list-group-item clearfix">
+              <h4>{{ video.filename }}
+                {% for group in video.groups.all %}
+                  <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>
+                {% endfor %}
+              <span class="badge badge-info"><a href="/fileuploads/search/">Create Group</a></span>
+              <span class="badge badge-danger"><a href="../delete-video/{{video.filename}}">Delete</a></span>
+            </h4>
+            <ul>
+              <li>Uploaded time: {{video.upload_time}}  </li>
+              <li>Size: {{ video.file_size}}</li>
+              <li>Frame Count (If file is not processed, it is set to 0): {{ video.frame_count }}</li>
+            </ul>
             {% for process in video.processes.all %}
                 {% if process.status  %}
                     <ul>
-                    Completed:
-                    Process Id: {{ process.id }}
-                    Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a>
-                    Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
-                    Processed time: {{ process.processed_time }}
-                    <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
-                    <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                    </form></ul>
+                      <li>Completed.</li>
+                      <li>Process Id: {{ process.id }}</li>
+                      <li>Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
+                      <li>Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a></li>
+                      <li>Processed time: {{ process.processed_time }}</li>
+                      <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
+                        <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                        <a href="/signals/"><button class="btn btn-primary btn-sm">Request File Process</button></a>
+                        <a href="/groups/save_group/"><button class="btn btn-primary btn-sm">Request Group Process</button></a>
+                      </form>
+                    </ul>
                 {% else %}
                     <ul>In Progress:
-                        Process Id: {{process.id}}
-                        Policy Name: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a>
-                        Group Name: <a href="/group/edit_group/{{process.group_id}}">{{process.group_name}}</a>
-                        Processed time: {{ process.processed_time }}
+                        <li>Process Id: {{process.id}}</li>
+                        <li>Policy Name: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a></li>
+                        <li>Group Name: <a href="/group/edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
+                        <li>Processed time: {{ process.processed_time }}</li>
                     </ul>
                 {% endif %}
             {% endfor %}
-            <span class="badge badge-info"><a href="/groups/save_group/">Request Group Process</a></span>
             {% for process in video.file_processes.all %}
             File Process Status:
               {% if process.status  %}
                   <ul>Completed: {{ process.frame_count }} frames, processed : {{ process.processed_time }}
                   <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
-                  <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
-                  </form></ul>
+                    {% csrf_token %}
+                    <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
+                    <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                    <a href="/signals/"><button class="btn btn-primary btn-sm">Request File Process</button></a>
+                    <a href="/groups/save_group/"><button class="btn btn-primary btn-sm">Request Group Process</button></a>
+                  </form>
+                </ul>
               {% else %}
                   <ul> In Process. Processed time: {{ process.processed_time }}</ul>
               {% endif %}
             {% endfor %}
-            <span class="badge badge-info"><a href="/signals/">Request File Process</a></span>
         {% endfor %}
         </li>
     </ul>
