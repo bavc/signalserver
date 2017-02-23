@@ -2,31 +2,24 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-
 class UserForm(forms.Form):
     username = forms.CharField(
         label='Username',
-        required=False
-    )
+        required=False)
     password = forms.CharField(
-        label='password',
+        label='Password',
         widget=forms.PasswordInput,
-        required=True
-    )
+        required=True)
     password2 = forms.CharField(
-        label='confirm password',
+        label='Confirm password',
         widget=forms.PasswordInput,
-        required=True
-    )
+        required=True)
     email = forms.EmailField(
-        label='email',
-        required=True
-    )
+        label='Email',
+        required=True)
     first_name = forms.CharField(
         label='First name',
-        required=False
-    )
+        required=False)
     last_name = forms.CharField(
         label='Last name',
-        required=False
-    )
+        required=False)

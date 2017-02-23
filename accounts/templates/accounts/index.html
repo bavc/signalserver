@@ -11,8 +11,8 @@
                 <form id="form_update" action="{% url 'accounts:update' %}" name = "update" method="post" class="form">
                 <p>
                     {% csrf_token %}
-                    <b>User Name: </b><input name='user_name' type="text" value="{{ user.username }}" >
-                    <b>email: </b> <input name='email' type="text" value="{{ user.email }}">
+                    <b>Username: </b><input name='user_name' type="text" value="{{ user.username }}" >
+                    <b>Email: </b> <input name='email' type="text" value="{{ user.email }}">
                 </p>
                 <p>
                     <b>First name: </b><input name='first_name' type="text" value="{{ user.first_name }}" >
@@ -24,7 +24,7 @@
                   </form>
                 <h3> Reset Password </h3>
                 <div id="password_reset_link">
-                  <a href="{% url 'password_reset' %}">I like to reset password</a>
+                  <a href="{% url 'password_reset' %}">I would like to reset my password</a>
                 </div>
                 <!--a class = "password_reset_link" href="#">I like to reset password</a>
 
