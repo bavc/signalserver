@@ -20,7 +20,7 @@
         {% endfor %}
     </div>
     <div class="col-md-6">
-      <h2>Files uploaded by others</h2>
+      <h2>All files</h2>
       {% for video in shared_videos %}
       <form action="{% url 'signals:process' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
