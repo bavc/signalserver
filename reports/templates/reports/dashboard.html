@@ -3,10 +3,32 @@
 <span>
     <div class = "container-fluid">
         <h1>Dashboard</h1>
-        <h4>List of bad files goes here</h4>
-        <p> This is still a place holder. :)</p>
-        <h4>This will be a banch of graphs</h4>
-        <p> also this is a place holder. We will decide what graph we like to have.</p>
+        <p>TBD. In the meantime, a sitemap:</p>
+        <ul>
+          <li><a href="/reports/dashboard/">Dashboard</a></li>
+          <li><a href="/fileuploads/about/">About</a></li>
+          <li>Files
+            <ul>
+              <li><a href="/fileuploads/list/">List Files</a></li>
+              <li><a href="/fileuploads/search/">Create File Group</a></li>
+              <li><a href="/signals/">Process File</a></li>
+              <li><a href="/signals/file_process_status/">File Process Status</a></li>
+              <li><a href="/groups/save_group/">Process Group</a></li>
+              <li><a href="/groups/group_process">Group Process Status</a></li>
+            </ul>
+          </li>
+          <li><a href="/policy">Policies</a></li>
+          <li>Account
+            <ul>
+              <li><a href="/accounts"> Settings</a></li>
+              {% if user.is_authenticated %}
+              <li><a href="/logout">Log Out</a></li>
+              {% else %}
+              <li><a href="/register">Register</a></li>
+              {% endif %}
+            </ul>
+          </li>
+        </ul>
     </div>
 </span>
 
