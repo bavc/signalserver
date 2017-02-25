@@ -62,5 +62,5 @@ class VideoForm(forms.Form):
     videofile = forms.FileField(
         widget=forms.ClearableFileInput(attrs={'multiple': True}),
         label='Select a file',
-        help_text='max. 42 megabytes'
+        help_text=''
     )
