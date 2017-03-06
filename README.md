@@ -139,7 +139,7 @@ this person's signalserver folder is located on Users/username/signalserver/Dock
 So in this example, the first line of the frontend.sh is changed as as below.
 
 ```
-docker build -t signalserver-frontend  -f /Users/username/signalserver/Dockerfile-frontend
+docker build -t signalserver-frontend -f /Users/username/signalserver/Dockerfile-frontend .
 ```
 Once you changed your frontend.sh to your project's Dockerfile-frontend path, save the file and run frontend.sh.
 
