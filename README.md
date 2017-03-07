@@ -36,6 +36,8 @@ If you installed Docker by using Docker for Mac... there is one more step:
 Create a directly where you want to mount the file volume for signalserver. (default is /file)
 So create /file directly if you don't have a strong preference about it.
 
+Also make sure you give the /file directly the full permission. It may give an error if you don't give full permission. ß
+
 Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab
 
 
@@ -227,3 +229,35 @@ and your username and password is user1 and password2
 ```
 curl -i -u "user1:password2" 192.168.99.100:8000/groups/add_file/ --data "groupname=panda_group&filename=cucumber.gocart.xml.gz"
 ```
+
+# For Developers
+
+Congratulations for reading this far. So you want to customize or change signal server or contribute. Great. Here is what you need to know.
+
+## Pre-Requisite
+
+- Be able to install Docker and can follow the basic command and have a basic understanding of what Docker is and be able to do basic system adminining.
+
+If you have no idea what docker is, please go over some of the tutorial. (video or web)
+
+## Docker Video Tutorial
+https://www.youtube.com/watch?v=bV5vbNK3Uhw&list=PLkA60AVN3hh_6cAz8TUGtkYbJSL2bdZ4h
+
+Also, please go over this docker compose tutorial for wordpress and please actulally do deploy for wordpress site by yourself. This project depends on docker compose. So it is good to have a basic understanding.
+
+Welcome back. Assume you watched at least some of the tutorials and followed along the all the basics and you also deployed wordpress site. So now you know, how you deploy web application by single bash file. I hope you enjoyed your docker journey so far.
+
+So let me explain SignalServer's architecture overall. There are roughly three components of this system. Froendend, backend, and queue system. I will list these below but they are all put together by docker and docker compose. So you don't have to do any configuration for each of the application.
+
+- Frontend - Bower Packagemement, Node Server (Bower's dependency)
+            bootstrap, d3, jquery (all frontend asessets are installed by bower)
+
+- Backend - Django and Django RestFramework, Porgress (database)
+
+- Queue System - Celery, Rabbit MQ, Radis
+
+When you open the docker-compose.yml file, you see this application uses 5 docker containers to put these application together. (Also, you can easily add one more worker for your queue system by changing docker-compose.yml e.g. your CPU utilization is low with one queue.)
+
+Lastly, I recommend to use docker with it but it is not absolute requirement. You are free to choose whatever development environtment you like. Just to make sure it works with entire system at the end of the day.
+
+Good luck and Have fun!
