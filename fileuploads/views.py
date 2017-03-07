@@ -1,30 +1,26 @@
 import os
 from os import listdir
 from os.path import isfile, join
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import pytz
 from pytz import timezone
 import json
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
 from .models import Video
 from groups.models import Group, Member, Result, Row
-from groups.views import update_process
+from groups.views import update_process, create_new_group, save_member
 from signals.views import update_process as update_file_process
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
-from .processfiles import process_file_original
-from .processfiles import delete_file
+from .forms import SelectGroupForm
+from .processfiles import process_file_original, delete_file, search_result
 from .processfiles import process_file_with_policy
-from .processfiles import get_full_path_file_name
-from .processfiles import search_result
-from .processfiles import get_filename
+from .processfiles import get_full_path_file_name, get_filename
 from celery import group
 from .tasks import add
 from celery.result import AsyncResult
@@ -95,7 +91,7 @@ def process(request):
 
 @login_required(login_url="/login/")
 def search(request):
-    user_name = request.user.username
+
     files = Video.objects.filter(user_name=user_name)
     shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
@@ -128,12 +124,18 @@ def status(request):
 @login_required(login_url="/login/")
 def upload(request):
     # Handle file upload
+    user_name = request.user.username
     form = VideoForm()
     message = None
     if request.method == 'POST':
-
+        group_id = request.POST['group_fields']
+        if group_id == "-1":
+            current_time_str = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
+            default_name = "group_" + current_time_str
+            create_new_group(user_name, default_name)
+            group = Group.objects.get(group_name=default_name)
+            group_id = group.id
         form = VideoForm(request.POST, request.FILES)
-        user_name = request.POST['user_name']
         files = request.FILES.getlist('videofile')
         if form.is_valid():
             for f in files:
@@ -165,16 +167,14 @@ def upload(request):
                         file_size=size
                     )
                     newvideo.save()
+                    save_member(group_id, name)
 
     # Load documents for the list page
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
 
-    # Render list page with the documents and the form
-    return render(request, 'fileuploads/list.html',
-                  {'shared_videos': shared_videos, 'videos': videos,
-                   'user': current_user, 'form': form, 'message': message})
+    return list_file(request, message)
 
 
 def update_videos(videos):
@@ -189,13 +189,14 @@ def update_videos(videos):
 
 
 @login_required(login_url="/login/")
-def list_file(request):
+def find_files(request):
     form = VideoForm()
+    group_form = GroupForm()
+    select_group_form = SelectGroupForm()
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(user_name=current_user.username)
     videos = update_videos(videos)
-
     if request.method == 'POST':
         start_field = request.POST['start_field']
         end_field = request.POST['end_field']
@@ -203,14 +204,40 @@ def list_file(request):
         files = search_result(start_field, end_field, keyword)
         return render(request, 'fileuploads/list.html',
                       {'videos': videos, 'shared_videos': shared_videos,
-                       'form': form, 'start': start_field,
-                       'end': end_field, 'keyword': keyword, 'files': files,
+                       'form': form, 'group_form': group_form,
+                       'select_group_form': select_group_form,
+                       'start': start_field, 'end': end_field,
+                       'keyword': keyword, 'files': files,
                        'user': current_user})
 
+
+@login_required(login_url="/login/")
+def create_new_group_in_file_list(request):
+    user_name = request.user.username
+    group_message = None
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        group_message = create_new_group(user_name, group_name)
+
+    return list_file(request, None, group_message)
+
+
+@login_required(login_url="/login/")
+def list_file(request, message=None, group_message=None):
+    form = VideoForm()
+    group_form = GroupForm()
+    select_group_form = SelectGroupForm()
+    current_user = request.user
+    shared_videos = Video.objects.filter(shared=True)
+    videos = Video.objects.filter(user_name=current_user.username)
+    videos = update_videos(videos)
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
                   {'videos': videos, 'shared_videos': shared_videos,
-                   'form': form, 'user': current_user})
+                   'form': form, 'group_form': group_form,
+                   'select_group_form': select_group_form,
+                   'user': current_user, 'message': message,
+                   'group_message': group_message})
 
 
 def check_progress(request):

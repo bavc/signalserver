@@ -1,4 +1,5 @@
 import os
+import errno
 import gzip
 import shutil
 import xml.etree.ElementTree as ET
@@ -192,9 +193,17 @@ def process_file_with_policy(file_name, policy_id, original_name):
 
 def delete_file(file_name):
     Video.objects.get(filename=file_name).delete()
-    full_path_file_name = get_full_path_file_name(file_name)
-    os.remove(full_path_file_name)
+    original_file_name = file_name + '.xml'
+    original_file_name = os.path.join(STORED_FILEPATH, original_file_name)
+    try:
+        os.remove(original_file_name)
+    except OSError as e:
+        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+            raise  # re-raise exception if a different error occured
     #check xml.gz file
-    full_path_file_name_with_gz = full_path_file_name + ".gz"
-    if os.path.isfile(full_path_file_name_with_gz) is True:
+    full_path_file_name_with_gz = original_file_name + ".gz"
+    try:
         os.remove(full_path_file_name_with_gz)
+    except OSError as e:
+        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+            raise  # re-raise exception if a different error occured

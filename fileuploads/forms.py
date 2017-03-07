@@ -1,5 +1,6 @@
 from django import forms
 from policies.models import Policy
+from groups.models import Group
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -23,6 +24,26 @@ def get_policies():
         policy_dic[con_id] = con_name
 
     return ((k, v) for k, v in policy_dic.items())
+
+
+def get_groups():
+    group_dic = {}
+
+    cons = Group.objects.all()
+    for con in cons:
+        con_id = con.id
+        con_name = con.group_name
+        group_dic[con_id] = con_name
+
+    group_dic[-1] = "create_new"
+
+    return ((k, v) for k, v in group_dic.items())
+
+
+class SelectGroupForm(forms.Form):
+    group_fields = forms.ChoiceField(
+        choices=get_groups, required=True
+    )
 
 
 class PolicyForm(forms.Form):
