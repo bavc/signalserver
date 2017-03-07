@@ -36,7 +36,7 @@ If you installed Docker by using Docker for Mac... there is one more step:
 Create a directly where you want to mount the file volume for signalserver. (default is /file)
 So create /file directly if you don't have a strong preference about it.
 
-Also make sure you give the /file directly the full permission. It may give an error if you don't give full permission. ß
+Also make sure you give the /file directly the full permission. It may give an error if you don't give full permission.
 
 Then you click on docker icon on the top right bar and select "preferences" and select "File Sharing" tab
 
