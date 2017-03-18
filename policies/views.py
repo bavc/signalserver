@@ -170,17 +170,18 @@ def rename(request):
         new_name = request.POST['new_name']
         new_name = replace_letters(new_name)
 
-        policies = Policy.objects.filter(
+        policy = Policy.objects.get(
             policy_name=old_name)
         processes = Process.objects.filter(policy_name=old_name)
         for process in processes:
             process.policy_name = new_name
             process.save()
-        for policy in policies:
-            policy.policy_name = new_name
-            policy.save()
 
-    return HttpResponseRedirect(reverse('policies:index'))
+        policy.policy_name = new_name
+        policy.save()
+
+    return HttpResponseRedirect(reverse('policies:show',
+                                kwargs={'policy_id': policy.id}))
 
 
 def results(request, policy_id):
