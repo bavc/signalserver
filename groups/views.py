@@ -81,7 +81,6 @@ def save_group(request):
     shared_files = Video.objects.filter(shared=True)
     if request.method == 'POST':
         group_name = request.POST['group_name']
-        request_from = request.POST['request_from']
         message = create_new_group(user_name, group_name)
         if message is not None:
             form = GroupForm()
