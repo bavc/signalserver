@@ -138,11 +138,11 @@ def process_file(file_name, policy_id, original_name, process_id):
         if op.op_name == 'average':
             op_dict[op.signal_name] = op.id
         elif op.op_name == 'exceeds':
-            op_dict, exceed_cutoff = add_to_dict(op_dict, exceed_cutoff)
+            op_dict, exceed_cutoff = add_to_dict(op, op_dict, exceed_cutoff)
         elif op.op_name == 'belows':
-            op_dict, below_cutoff = add_to_dict(op_dict, below_cutoff)
+            op_dict, below_cutoff = add_to_dict(op, op_dict, below_cutoff)
         elif op.op_name == 'equals':
-            op_dict, equal_value = add_to_dict(op_dict, equal_value)
+            op_dict, equal_value = add_to_dict(op, op_dict, equal_value)
         else:
             new_key = op.signal_name + "-" + str(op.second_signal_name)
             op_dict[new_key] = op.id
