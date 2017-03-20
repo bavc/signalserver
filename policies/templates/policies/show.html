@@ -229,18 +229,22 @@ $("#version_edit").click (function(){
         if ("{{choice.get_op_name_display}}" == "exceeds" ||
             "{{choice.get_op_name_display}}" == "belows" ||
             "{{choice.get_op_name_display}}" == "equals") {
-            document.getElementById("cutoffnumber{{ choice.id }}").style.display = "block";
+            var parent = document.getElementById("policy_edit{{ choice.id }}")
+            parent.children.cutoffnumber.style.display = "block";
             document.getElementById("rule_edit{{ choice.id }}").style.display = "none";
         }
     });
 
 {% endfor %}
 
-
-
 function operationSelect(that) {
     var parent = that.parentElement;
-    var children = parent.children;
+    var children = parent.children
+    if (parent.childElementCount == 2){
+        parent = document.getElementById("policy_add")
+        children = parent.children
+    }
+
     var cutoff_element = children.cutoffnumber;
     var second_sig_element = children.secondsignal;
     if (that.value === "exceeds" || that.value === "equals" || that.value === "belows" ) {
