@@ -123,14 +123,17 @@ def rename_group(request):
         new_name = replace_letters(new_name)
         groups = Group.objects.filter(
             group_name=old_name)
-        results = Result.objects.filter(group_name=old_name)
-        for result in results:
-            result.group_name = new_name
-            result.save()
+        processes = Process.objects.filter(group_name=old_name)
+        summaries = Summary.objects.filter(group_name=old_name)
+        for process in processes:
+            process.group_name = new_name
+            process.save()
+        for summary in summaries:
+            summary.group_name = new_name
+            summary.save()
         for group in groups:
             group.group_name = new_name
             group.save()
-
     return HttpResponseRedirect(reverse('groups:save_group'))
 
 
