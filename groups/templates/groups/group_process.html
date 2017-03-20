@@ -37,7 +37,8 @@
                 {% else %}
                     <div id="completed_{{process.id}}" style="display: none;">
                         <ul><li>
-                          <h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                          <h4>{{ process.group_name }}-{{ process.processed_time }}
+                          <a href="../delete_group_result/{{process.id}}" class="btn btn-danger btn-sm">Delete</a></h4>
                           <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a><br/>
                             Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
@@ -65,7 +66,7 @@
             <h3>Completed</h3>
              {% for process in  shared_processes %}
                 {% if process.id not in shared_not_completed %}
-                    <ul>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}</li>
+                    <ul>{{ process.group_name }}-{{process.processed_time}} Policy: {{process.policy_name}}<a href="../delete_group_result/{{process.id}}" class="btn btn-danger btn-sm">Delete</a></li>
                     <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
