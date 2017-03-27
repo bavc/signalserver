@@ -1,14 +1,14 @@
-# signalserver
+# SignalServer
 
 SignalServer is intended to become a web app to accompany [QCTools](https://github.com/bavc/qctools). Some early planning documentation is available in this [Vision doc](https://docs.google.com/document/d/1zXtVf47LVEYJvc9nPbLY-0pTDouyyNlsbeFu1YdmMlI/edit?usp=sharing).
 
 ## Installation
 
-### Dependency - Requirement before you install Signal Server.
+### Dependency - Requirement before you install SignalServer.
 
-Signalserver can run anywhere as long as the host OS has docker-engine and docker compose are installed.
+SignalServer can run anywhere as long as the host OS has docker-engine and docker compose are installed.
 
-Signalsever is designed using docker in mind. So please install docker-engine and docker-compose before you start.
+SignalServer is designed using docker in mind. So please install docker-engine and docker-compose before you start.
 
 If you are using mac or windows, you can also install docker made for either Window or Mac. You can refer to following documentations for docker installation.
 
@@ -27,13 +27,13 @@ docker-compose, it probably need to be updated for both. Docker compose instruct
 
 https://docs.docker.com/compose/install/
 
-Once you have docker installed and confirmed docker is running, you can install signal server.
+Once you have docker installed and confirmed docker is running, you can install SignalServer.
 
 ### For Mac Users:
 
 If you installed Docker by using Docker for Mac... there is one more step:
 
-Create a directly where you want to mount the file volume for signalserver. (default is /file)
+Create a directly where you want to mount the file volume for SignalServer. (default is /file)
 So create /file directly if you don't have a strong preference about it.
 
 Also make sure you give the /file directly the full permission. It may give an error if you don't give full permission.
@@ -68,7 +68,7 @@ These four lines needs to be commented out.
 
 If you are using older version of mac or windows, you still need these above four lines, so please uncomment these before you run the quickstart.
 
-Now signalserver is ready to be installed.
+Now SignalServer is ready to be installed.
 
 ### Trouble Shooting
 
@@ -137,7 +137,7 @@ In this point, your application is running on port of the localhost that quickst
 However, you may not have frontend asset.
 
 If it is the case, you need to open frontend.sh file and change the 1st line as below. In this example,
-this person's signalserver folder is located on Users/username/signalserver/Dockerfile-frontend
+this person's SignalServer folder is located on /Users/username/signalserver/Dockerfile-frontend
 So in this example, the first line of the frontend.sh is changed as as below.
 
 ```
@@ -157,7 +157,7 @@ If doing a lot of development work and building many dockers, you may want to cl
 
 #### Fileupload
 
-Once you are running the signalserver and you create your credential at the site, you can upload the file not only from the site, but also using the API from signalserver. The curl command is as below.
+Once you are running the SignalServer and you create your credential at the site, you can upload the file not only from the site, but also using the API from SignalServer. The curl command is as below.
 
 ```
 curl -i -u "username:password" [signalserver IP]:8000/fileuploads/upload/ --upload-file [your file name]
@@ -235,7 +235,7 @@ curl -i -u "user1:password2" 192.168.99.100:8000/groups/add_file/ --data "groupn
 
 # For Developers
 
-Congratulations for reading this far. So you want to customize or change signal server or contribute. Great. Here is what you need to know.
+Congratulations for reading this far. So you want to customize or change SignalServer or contribute. Great. Here is what you need to know.
 
 ## Pre-Requisite
 
