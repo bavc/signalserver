@@ -4,7 +4,29 @@
 <script type="text/javascript" src="/frontend/bower_components/d3/d3.min.js"></script>
     <div class ="container-fluid">
         {% if report %}
-        <h2> Summary of the process </h2>
+        <h2>{{ report.file_name }}</h2>
+        <div>
+          <ul class="list-unstyled">
+            <li>Filename:</li>
+            <li>Format log name:</li>
+            <li>Duration</li>
+            <li>Size:</li>
+            <li>Bitrate:</li>
+            <li>Codec name:</li>
+            <li>Codec type:</li>
+            <li>Width:</li>
+            <li>Height:</li>
+            <li>Sample aspect ratio (SAR):</li>
+            <li>Display aspect ratio (DAR):</li>
+            <li>Pixel format:</li>
+            <li>Field order:</li>
+            <li>Average frame rate:</li>
+            <li>Sample rate:</li>
+            <li>Bits per raw sample:</li>
+            <li>Channel:</li>
+          </ul>
+        </div>
+        <h2>Process Summary</h2>
         {{ report }}
         {% endif %}
         {% if items_dict %}
@@ -28,17 +50,11 @@
         {% endfor %}
         </p>
          {% endif %}
-
-
-        <h2> Graphs from the file processed data</h4>
-        <h3> File Name : {{ report.file_name }}</h3>
-
+        <h2>Graphs from the file processed data</h4>
          {% for op in ops %}
-            <h3> Signal Name : {{ op.get_signal_name_display }}</h3>
+            <h3>Signal Name: {{ op.get_signal_name_display }}</h3>
             <div id="chart{{ forloop.counter }}"></div>
-
         {% endfor %}
-
     </div>
 <script type="text/javascript" src="/frontend/static/js/linechart-signal.js"></script>
 <script>
@@ -62,5 +78,3 @@ for (i = 0; i < ids.length; i++) {
 
 </script>
 {% endblock %}
-
-
