@@ -85,10 +85,25 @@ cut_off_numbers = [
 {% endfor %}
 ];
 
+function showEmptyDataMessage(id){
+    var chartId = "chart" + id
+    var chartEl = document.getElementById(chartId);
+    var message = document.createElement("h3");
+    var t = document.createTextNode("Thre is no matching data in this policy in this file");
+    message.appendChild(t)
+    chartEl.appendChild(message)
+}
+
 function graph_for_signal(name, op_name, cut_off_number, idx) {
     d3.json("{% url 'groups:get_graph_data' %}?process_id={{process.id}}&signal_name=" + name + "&op_name=" + op_name + "&cut_off_number=" + cut_off_number,
         function(error, data) {
-            createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
+            if (data.length == 0) {
+                showEmptyDataMessage(idx);
+            }
+            else {
+                createLineGraph(data, '#chart' + idx, 'lineChart' + idx);
+            }
+
         }
     );
 }
