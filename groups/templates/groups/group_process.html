@@ -25,7 +25,8 @@
                 {% if process.id not in not_completed %}
                     <div id="{{process.id}}">
                         <ul><li>
-                          <h4>{{ process.group_name }}-{{ process.processed_time }}</h4>
+                          <h4>{{ process.group_name }}-{{ process.processed_time }}<h4>
+                            <a href="../delete_group_result/{{process.id}}" class="btn btn-danger btn-sm">Delete</a>
                           <form action="{% url 'groups:result_graph' %}" method="post" enctype="multipart/form-data">
                             Policy: <a href="/policy/show/{{process.policy_id}}">{{process.policy_name}}</a><br/>
                             Group Name: <a href="../edit_group/{{process.group_id}}">{{process.group_name}}</a></li>
