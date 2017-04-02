@@ -122,6 +122,7 @@ def save_new_row(result, signal_name, result_number,
 def process_file(file_name, policy_id, original_name, process_id):
     count = 0
     op_dict = {}
+    key_set = set()
     data_dict = defaultdict(lambda: 0)
     exceed_dict = defaultdict(lambda: 0)
     exceed_cutoff = defaultdict(lambda: [])
@@ -135,6 +136,7 @@ def process_file(file_name, policy_id, original_name, process_id):
     policy = Policy.objects.get(id=policy_id)
     operations = Operation.objects.filter(policy=policy)
     for op in operations:
+        key_set.add(op.signal_name)
         if op.op_name == 'average':
             op_dict[op.signal_name] = op.id
         elif op.op_name == 'exceeds':
@@ -147,6 +149,7 @@ def process_file(file_name, policy_id, original_name, process_id):
             new_key = op.signal_name + "-" + str(op.second_signal_name)
             op_dict[new_key] = op.id
             ave_diff_dict[new_key] = [op.signal_name, op_second_signal_name]
+            key_set.add(op.second_signal_name)
 
     for event, elem in ET.iterparse(file_name,
                                     events=('start',
@@ -156,7 +159,7 @@ def process_file(file_name, policy_id, original_name, process_id):
                 count += 1
         if event == 'end':
             key = elem.get("key")
-            if key is not None:
+            if key is not None and key in key_set:
                 value = elem.get("value")
                 data_dict[key] += float(value)
                 if key in exceed_cutoff:
