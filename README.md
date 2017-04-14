@@ -79,9 +79,9 @@ FILES_VOLUME_PATH=/files ./quickstart.sh
 
 ### Environment variable
 
-Singalserver has a capacity to accept large numbers of files. Thus, we provide an option to determine where the files are stored in your host OS.
+SignalServer has a capacity to accept large numbers of files. Thus, we provide an option to determine where the files are stored in your host OS.
 
-For example, the host OS has only 8G of local storage but you mounted extra space in `/data` directly of your host OS. Then you could designate your file storage to be within `/data` directly. In this case, your file storage path is :
+For example, the host OS has only 8G of local storage but you mounted extra space in `/data` directly of your host OS. Then you could designate your file storage to be within `/data` directly. In this case, your file storage path is:
 
 ```
 FILES_VOLUME_PATH=/data
@@ -117,15 +117,18 @@ FILES_VOLUME_PATH=/data ./quickstart.sh
 ### Frontend
 
 In this point, your application is running on port of the localhost that `quickstart.sh` tells you.
-However, you may not have frontend asset.
+However, you may not have frontend assets loaded.
 
-If it is the case, you need to open `frontend.sh` file and change the 1st line as below. In this example,
+If it is the case, you need to open the `frontend.sh` file and change the 1st line as below. In this example,
 this person's SignalServer folder is located on `/Users/username/signalserver/Dockerfile-frontend`
-So in this example, the first line of the frontend.sh is changed as as below.
+So in this example, the first line of the frontend.sh should be changed as below.
 
 ```
 docker build -t signalserver-frontend -f /Users/username/signalserver/Dockerfile-frontend .
 ```
+
+(Note the trailing `.`, which is significant).
+
 Once you changed your `frontend.sh` to your project's Dockerfile-frontend path, save the file and run `frontend.sh`.
 After you run `frontend.sh`, run `quickstart.sh` again following the first step.
 
@@ -134,13 +137,14 @@ After you run `frontend.sh`, run `quickstart.sh` again following the first step.
 ./quickstart.sh
 ```
 
-And it should be it!
+And that should be it!
 
 ### Cleanup
 
-If doing a lot of development work and building many dockers, you may want to clean up by running `docker ps -a -q | xargs docker rm -f`.
+If doing a lot of development work and building many dockers, you may want to clean up by running `docker ps -a -q | xargs docker rm -f` and `docker images -a -q | xargs docker rmi -f`
 
-## API usage
+
+# API usage
 
 ### Fileupload
 
@@ -158,9 +162,9 @@ and your username and password is user1 and password2
 curl -i -u "user1:password2" 192.168.99.100:8000/fileuploads/upload/ --upload-file 5A_born_digital_ffv1.qctools.xml.gz
 ```
 
-### Check file existance
+### Check file existence
 
-The file existance check returns true or false by given filename.
+The file existence check returns true or false by given filename.
 
 ```
 curl -i -u "username:password" [signalserver IP]:8000/fileuploads/check_exist/[your file name]
@@ -222,20 +226,21 @@ curl -i -u "user1:password2" 192.168.99.100:8000/groups/add_file/ --data "groupn
 
 # For Developers
 
-Congratulations for reading this far. So you want to customize or change SignalServer or contribute. Great. Here is what you need to know.
+Congratulations for reading this far. So you want to customize or change SignalServer or contribute, here is what you need to know.
 
 ## Pre-Requisite
 
-- Be able to install Docker and can follow the basic command and have a basic understanding of what Docker is and be able to do basic system adminining.
+- Be able to install Docker, have a basic understanding of what Docker is, and be able to do basic system administration.
 
-If you have no idea what docker is, please go over some of the tutorial. (video or web)
+If you have no idea what Docker is, please review before proceeding.
 
 ## Docker Video Tutorial
+
 https://www.youtube.com/watch?v=bV5vbNK3Uhw&list=PLkA60AVN3hh_6cAz8TUGtkYbJSL2bdZ4h
 
-Also, please go over this docker compose tutorial for wordpress and please actulally do deploy for wordpress site by yourself. This project depends on docker compose. So it is good to have a basic understanding.
+Also, please go over this `docker compose` tutorial for Wordpress (and please actually do deploy the Wordpress site by yourself). This project depends on `docker compose`. So it is good to have a basic understanding.
 
-Welcome back. Assume you watched at least some of the tutorials and followed along the all the basics and you also deployed wordpress site. So now you know, how you deploy web application by single bash file. I hope you enjoyed your docker journey so far.
+Welcome back. Assume you watched at least some of the tutorials and followed along the all the basics and you also deployed a Wordpress site. So now you know, how you deploy web application by single bash file. I hope you enjoyed your docker journey so far.
 
 So let me explain SignalServer's architecture overall. There are roughly three components of this system. Froendend, backend, and queue system. I will list these below but they are all put together by docker and docker compose. So you don't have to do any configuration for each of the application.
 
@@ -244,7 +249,7 @@ So let me explain SignalServer's architecture overall. There are roughly three c
 
 - Backend - Django and Django RestFramework, Porgress (database)
 
-- Queue System - Celery, Rabbit MQ, Radis
+- Queue System - Celery, Rabbit MQ, Redis
 
 When you open the docker-compose.yml file, you see this application uses 5 docker containers to put these application together. (Also, you can easily add one more worker for your queue system by changing docker-compose.yml e.g. your CPU utilization is low with one queue.)
 
