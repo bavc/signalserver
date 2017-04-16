@@ -74,7 +74,7 @@ docker images -a -q | xargs docker rmi -f
 ```
 git clone https://github.com/bavc/signalserver.git
 cd signalserver
-FILES_VOLUME_PATH=/files ./quickstart.sh
+./quickstart.sh
 ```
 
 ### Environment variable
@@ -93,8 +93,7 @@ You can set this value either in the `.env` file or you can run with `./quicksta
 FILES_VOLUME_PATH=/files
 ```
 
-If you don't have any special arrangement for space, you can just create the `.env` file with above line in the project root directly. (It is already created in this folder). Within the docker container, it will be stored in `/var/signalserver/files` directly.
-
+If you don't have any special arrangement for space, you can just edit the `.env` file with above line in the project root directly. Within the docker container, it will be stored in `/var/signalserver/files` directly.
 
 ## Running SignalServer
 
