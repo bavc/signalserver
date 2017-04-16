@@ -41,9 +41,9 @@ In the File Sharing tab, click '+' icon and select `/files` (the directory you c
 
 ![screen shot 2017-02-09 at 12 49 54 am](https://cloud.githubusercontent.com/assets/720709/22776939/80c84282-ee66-11e6-9f6a-6d128af6ca06.png)
 
-Then, you need to comment out the first 4 lines of quickstart.sh or quickstartdev.sh
+#### For Older Docker Environments
 
-These four lines needs to be commented out.
+If you are running and older Mac or Windows environement with Docker Toolbox, you will need to uncomment the first 4 lines of quickstart.sh or quickstartdev.sh. These four lines needs to be uncommented:
 
 ```
  #docker-machine create --driver virtualbox default
