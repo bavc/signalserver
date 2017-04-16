@@ -41,9 +41,9 @@ In the File Sharing tab, click '+' icon and select `/files` (the directory you c
 
 ![screen shot 2017-02-09 at 12 49 54 am](https://cloud.githubusercontent.com/assets/720709/22776939/80c84282-ee66-11e6-9f6a-6d128af6ca06.png)
 
-Then, you need to comment out the first 4 lines of quickstart.sh or quickstartdev.sh
+#### For Older Docker Environments
 
-These four lines needs to be commented out.
+If you are running and older Mac or Windows environement with Docker Toolbox, you will need to uncomment the first 4 lines of quickstart.sh or quickstartdev.sh. These four lines needs to be uncommented:
 
 ```
  #docker-machine create --driver virtualbox default
@@ -74,7 +74,7 @@ docker images -a -q | xargs docker rmi -f
 ```
 git clone https://github.com/bavc/signalserver.git
 cd signalserver
-FILES_VOLUME_PATH=/files ./quickstart.sh
+./quickstart.sh
 ```
 
 ### Environment variable
@@ -93,8 +93,7 @@ You can set this value either in the `.env` file or you can run with `./quicksta
 FILES_VOLUME_PATH=/files
 ```
 
-If you don't have any special arrangement for space, you can just create the `.env` file with above line in the project root directly. (It is already created in this folder). Within the docker container, it will be stored in `/var/signalserver/files` directly.
-
+If you don't have any special arrangement for space, you can just edit the `.env` file with above line in the project root directly. Within the docker container, it will be stored in `/var/signalserver/files` directly.
 
 ## Running SignalServer
 
