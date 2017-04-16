@@ -1,5 +1,5 @@
 psycopg2==2.6.1
-django>=1.9.0
+django==1.9.0
 djangorestframework >=3.0.0
 celery>=3.1.18
 django-celery>=3.1.17
