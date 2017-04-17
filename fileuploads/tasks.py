@@ -60,7 +60,7 @@ def process_signal(file_name, output_id):
                 count += 1
                 f_time = elem.attrib.get('pkt_dts_time')
                 if f_time is None:
-                    f_time = elem.elem.attrib.get('pkt_pts_time')
+                    f_time = elem.attrib.get('pkt_pts_time')
                 if f_time is not None:
                     tstamp = float(f_time)
 
