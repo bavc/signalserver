@@ -31,6 +31,7 @@ from policies.models import Policy, Operation
 from policies.views import replace_letters
 from reports.models import Summary, Entry
 from reports.views import create_summary
+from signals.models import Process as FileProcess
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -329,6 +330,24 @@ def remove_file(request, group_id, file_name):
                                         args=(group_id,)))
 
 
+def check_file_process(members, policy_id):
+    processed = {}
+    not_processed = []
+    for member in members:
+        if FileProcess.objects.filter(file_name=member.file_name,
+                                      policy_id=policy_id).exists():
+            processes = FileProcess.objects.filter(file_name=member.file_name,
+                                                   policy_id=policy_id)
+            counter = 0
+            for process in processes:
+                counter += 1
+                name = member.file_name + " -process no." + str(counter)
+                processed[name] = process
+        else:
+            not_processed.append(member)
+    return (processed, not_processed)
+
+
 def result_graph(request):
     signal_names = []
     op_names = []
@@ -342,6 +361,8 @@ def result_graph(request):
         results = Result.objects.filter(process=process)
         policy = Policy.objects.filter(id=process.policy_id)
         summary = Summary.objects.get(process_id=process_id)
+        members = Member.objects.filter(group_id=process.group_id)
+        processed_files, files = check_file_process(members, process.policy_id)
 
         entries = Entry.objects.filter(summary=summary)
         for entry in entries:
@@ -363,7 +384,9 @@ def result_graph(request):
                   {'process': process, 'signal_names': signal_names,
                    'operations': operations, 'op_names': op_names,
                    'c_numbers': c_numbers, 'summary': summary,
-                   'entry_dict': entry_dict
+                   'entry_dict': entry_dict,
+                   'processed_files': processed_files,
+                   'files': files
                    })
 
 
