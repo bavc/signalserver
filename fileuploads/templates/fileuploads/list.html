@@ -117,9 +117,10 @@
                         {% csrf_token %}
                         <input type="hidden" name="process_id" id="process_id" value="{{process.id}}" />
                         <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button>
+                      </form>
                         <a href="/signals/"><button class="btn btn-primary btn-sm">Request File Process</button></a>
                         <a href="/groups/save_group/"><button class="btn btn-primary btn-sm">Request Group Process</button></a>
-                      </form>
+
                     </ul>
                 {% else %}
                     <ul>In Progress:
