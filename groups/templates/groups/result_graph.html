@@ -8,6 +8,24 @@
         {% if summary %}
         <h2> Summary of the process </h2>
         {% endif %}
+        <h3> Files in this group (group name: {{process.group_name }})</h3>
+        {% if processed_files %}
+        {% for file_name, process in processed_files.items %}
+            <form action="{% url 'signals:get_graph' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <ul>{{file_name}}
+                <input type="hidden" name="process_id" id="process_id" value="{{process.pk}}" />
+                <button type="submit" value="Show Graph" class="btn btn-primary btn-sm">Show Graph</button></ul>
+            </form>
+        {% endfor %}
+        {% endif %}
+        {% if files %}
+        <p>There is no process result on these files
+        {% for file in files %}
+            <ul>{{file.file_name}}</ul>
+        {% endfor %}
+        {% endif %}
+        </p>
         {% if entry_dict %}
         <p>
         <h3>These files are off from average (percentage is set in rules in the policy)</h3>
