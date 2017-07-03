@@ -78,6 +78,13 @@ def delete_video(request, video_videofile_name):
     return HttpResponseRedirect(reverse('fileuploads:list'))
 
 
+def bulk_delete_files(request):
+    file_names = request.POST.getlist('file_name')
+    for file_name in file_names:
+        delete_file(file_name)
+    return HttpResponseRedirect(reverse('fileuploads:list'))
+
+
 def process(request):
     if request.method == 'POST':
         original_file_name = request.POST['file_name']

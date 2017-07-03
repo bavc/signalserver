@@ -88,12 +88,16 @@
 
   <div class="row">
     <div class="col-xs-12">
-      <h3>Files uploaded by you</h3>
+      <h3>Files uploaded by you
+        <form id="bulk_delete_form">
+          {% csrf_token %}
+          <button id="big_file_delete_button" type="submit" class="btn btn-md btn-danger">Delete Selected Files</button></h3>
+        </form>
         {% if videos %}
         <ul class="list-group">
         {% for video in videos %}
             <li class="list-group-item clearfix">
-              <h4>{{ video.filename }}
+              <h4><input type="checkbox" name="file_name" value="{{video.filename}}">{{ video.filename }}<br>
                 {% for group in video.groups.all %}
                   <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>
                 {% endfor %}
@@ -232,6 +236,30 @@ function CheckProgressUploadFile(file, total, count) {
     }
     xhr.open("GET", "{% url 'fileuploads:check_progress' %}?file_name=" + file.name, true);
     xhr.send();
+}
+
+
+var bulkfiledelete = $id("big_file_delete_button");
+bulkfiledelete.addEventListener("click", selectedFileDelete, false);
+
+function selectedFileDelete() {
+  var checkboxes = document.getElementsByName("file_name");
+  var checkboxesChecked = [];
+  for (var i = 0; i < checkboxes.length; i++) {
+    if(checkboxes[i].checked){
+      checkboxesChecked.push(checkboxes[i]);
+    }
+  }
+
+  var form = $id("bulk_delete_form");
+  form.setAttribute("method", "post");
+  form.setAttribute("action", "{% url 'fileuploads:bulk_delete_files' %}");
+
+  for (var i = 0; i < checkboxesChecked.length; i++) {
+    form.appendChild(checkboxesChecked[i]);
+  }
+  document.body.appendChild(form);
+  form.submit();
 }
 </script>
 <script type="text/javascript" src="/frontend/static/js/defaultdate.js"> </script>
