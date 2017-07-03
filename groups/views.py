@@ -336,13 +336,10 @@ def check_file_process(members, policy_id):
     for member in members:
         if FileProcess.objects.filter(file_name=member.file_name,
                                       policy_id=policy_id).exists():
-            processes = FileProcess.objects.filter(file_name=member.file_name,
-                                                   policy_id=policy_id)
-            counter = 0
-            for process in processes:
-                counter += 1
-                name = member.file_name + " -process no." + str(counter)
-                processed[name] = process
+            process = FileProcess.objects.filter(
+                file_name=member.file_name,
+                policy_id=policy_id).order_by('-processed_time')[0]
+            processed[process.file_name] = process
         else:
             not_processed.append(member)
     return (processed, not_processed)

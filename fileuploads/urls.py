@@ -26,7 +26,10 @@ urlpatterns = [
         views.show_result, name='show_result'),
     url(r'^delete-video/(?P<video_videofile_name>[\w.]{0,256})$',
         views.delete_video, name='delete_video'),
+    url(r'^bulk_delete_files/$', views.bulk_delete_files,
+        name='bulk_delete_files'),
     url(r'^upload/(?P<filename>[^/]+)$', views.FileUploadView.as_view()),
     url(r'^check_exist/(?P<filename>[^/]+)$', views.FileUploadView.as_view()),
     url(r'^delete_file/$', views.FileDeleteView.as_view()),
+
 ]
