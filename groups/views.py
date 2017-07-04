@@ -17,7 +17,6 @@ from .models import Group, Member, Process
 from .models import Result, Row
 
 from fileuploads.models import Video
-
 from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
@@ -110,6 +109,15 @@ def save_group(request):
         return render(request, 'groups/group.html',
                       {'groups': groups, 'shared_groups': shared_groups,
                        'form': form})
+
+
+def delete_group_and_files(request, group_id):
+    group = Group.objects.get(id=group_id)
+    members = Member.objects.filter(group=group)
+    for member in members:
+        delete_file(member.file_name)
+    group.delete()
+    return HttpResponseRedirect(reverse('groups:save_group'))
 
 
 def delete_group(request, group_id):

@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^rename/$', views.rename_group, name='rename'),
     url(r'^delete_group/(?P<group_id>[0-9]+)$',
         views.delete_group, name='delete_group'),
+    url(r'^delete_group_and_files/(?P<group_id>[0-9]+)$',
+        views.delete_group_and_files, name='delete_group_and_files'),
     url(r'^save_group/$', views.save_group, name='save_group'),
     url(r'^search_group/$', views.search_group, name='search_group'),
     url(r'^group_process/$', views.group_process, name='group_process'),

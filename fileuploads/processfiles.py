@@ -1,4 +1,5 @@
 import os
+import re
 import errno
 import gzip
 import shutil
@@ -207,3 +208,8 @@ def delete_file(file_name):
     except OSError as e:
         if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
             raise  # re-raise exception if a different error occured
+
+    for f in os.listdir(STORED_FILEPATH):
+        pattern = file_name + ".xml" + "_\w*.gz"
+        if re.match(pattern, f):
+            os.remove(STORED_FILEPATH + "/" + f)
