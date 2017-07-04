@@ -6,6 +6,7 @@
           {% if group %}
 
             <h3>Group Name: {{group.group_name}} </h3>
+            <a href="../delete_group_and_files/{{group.id}}"><button class="btn btn-sm btn-danger">Delete Group and All Files in the Group from Server</button></a>
             <div id="rename_form{{ forloop.counter }}">
               <form id="form_rename" action="{% url 'groups:rename' %}" name = "rename" method="post" class="form">
                 {% csrf_token %}
