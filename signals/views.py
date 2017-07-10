@@ -111,6 +111,10 @@ def sort_by_user(requests, current_user_name):
     return [users, shared]
 
 
+def delete_process(file_name):
+    Process.objects.filter(file_name=file_name).delete()
+
+
 def update_process(processes):
     for process in processes:
         temp_outputs = Output.objects.filter(process=process)

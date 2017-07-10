@@ -23,6 +23,7 @@ from .processfiles import get_full_path_file_name, get_filename
 from groups.models import Group, Member, Result, Row
 from groups.views import update_process, create_new_group, save_member
 from signals.views import update_process as update_file_process
+from signals.views import delete_process as delete_file_process
 from policies.models import Policy, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -78,6 +79,7 @@ def show_video(request, file_name):
 
 def delete_video(request, video_videofile_name):
     delete_file(video_videofile_name)
+    delete_file_process(video_videofile_name)
     return HttpResponseRedirect(reverse('fileuploads:list'))
 
 
