@@ -9,7 +9,7 @@ from signalserver.celery import app as celery
 # set the default Django settings module for the 'celery' program.
 #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 #from django.conf import settings  # noqa
-from .models import Video
+from .models import Video, VideoMeta
 from .processfiles import get_full_path_file_name
 from groups.models import Result, Row
 from policies.models import Policy, Operation
