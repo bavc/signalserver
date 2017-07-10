@@ -10,6 +10,7 @@ from signalserver.celery import app as celery
 #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signalserver.settings')
 #from django.conf import settings  # noqa
 from .models import Video
+from .processfiles import get_full_path_file_name
 from groups.models import Result, Row
 from policies.models import Policy, Operation
 from signals.models import Process, Output, Signal
