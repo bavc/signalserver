@@ -1,6 +1,7 @@
 import os
 from os import listdir
 from os.path import isfile, join
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import pytz
 from pytz import timezone
@@ -12,22 +13,22 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
-from .models import Video
-from groups.models import Group, Member, Result, Row
-from groups.views import update_process, create_new_group, save_member
-from signals.views import update_process as update_file_process
+from .models import Video, VideoMeta
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .forms import SelectGroupForm
+from .tasks import get_file_meta_data
 from .processfiles import process_file_original, delete_file, search_result
 from .processfiles import process_file_with_policy
 from .processfiles import get_full_path_file_name, get_filename
-from celery import group
-from .tasks import add
-from celery.result import AsyncResult
+from groups.models import Group, Member, Result, Row
+from groups.views import update_process, create_new_group, save_member
+from signals.views import update_process as update_file_process
 from policies.models import Policy, Operation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from celery import group
+from celery.result import AsyncResult
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -37,12 +38,13 @@ from rest_framework.response import Response
 
 
 def index(request):
-    ce = add.delay(1, 1)
-    status = ce.ready()
-    if status:
-        st = "hello" + str(ce.get())
-    else:
-        st = "not ready"
+    #ce = add.delay(1, 1)
+    #status = ce.ready()
+    #if status:
+    #    st = "hello" + str(ce.get())
+    #else:
+    #    st = "not ready"
+    st = "hello"
     return HttpResponse(
         "Hello, world. You're at the file upload index. %s" % st)
 
@@ -66,8 +68,9 @@ def show_result(request, video_videofile_name):
     return HttpResponse("Hello, world, index. {0}".format(newst))
 
 
-def show_video(request, video_videofile_name):
-    video = Video.objects.get(filename=video_videofile_name)
+def show_video(request, file_name):
+    video = Video.objects.filter(
+        filename=file_name).select_related('videometa').first()
     form = PolicyForm()
     return render(request, 'fileuploads/show.html',
                   {'video': video, 'form': form})
@@ -174,6 +177,7 @@ def upload(request):
                         file_size=size
                     )
                     newvideo.save()
+                    get_file_meta_data.delay(newvideo.id)
                     save_member(group_id, name)
 
     # Load documents for the list page
@@ -236,7 +240,8 @@ def list_file(request, message=None, group_message=None):
     select_group_form = SelectGroupForm()
     current_user = request.user
     shared_videos = Video.objects.filter(shared=True)
-    videos = Video.objects.filter(user_name=current_user.username)
+    videos = Video.objects.filter(
+        user_name=current_user.username).select_related('videometa')
     videos = update_videos(videos)
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',

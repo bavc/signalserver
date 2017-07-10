@@ -38,6 +38,32 @@ def process_bulk(file_names, policy_id, original_names):
 
 
 @celery.task
+def get_file_meta_data(file_id):
+    video = Video.objects.get(id=file_id)
+    file_name = get_full_path_file_name(video.filename)
+    tree = ET.parse(file_name)
+    root = tree.getroot()
+    streams = root[3]
+    attrib_dict = streams[0].attrib
+    meta_data = VideoMeta(
+        video=video,
+        file_name=video.filename,
+        format_log_name=attrib_dict['codec_long_name'],
+        codec_name=attrib_dict['codec_name'],
+        codec_type=attrib_dict['codec_type'],
+        width=attrib_dict['width'],
+        height=attrib_dict['height'],
+        sample_aspect_ratio=attrib_dict['sample_aspect_ratio'],
+        display_aspect_ratio=attrib_dict['display_aspect_ratio'],
+        pixel_format=attrib_dict['field_order'],
+        field_order=attrib_dict['pix_fmt'],
+        average_frame_rate=attrib_dict['avg_frame_rate'],
+    )
+    meta_data.save()
+    return "success"
+
+
+@celery.task
 def process_signal(file_name, output_id):
     count = 0
     datadict = {}

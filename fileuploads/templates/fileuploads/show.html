@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-        <h1>Hello</h1>
-        <p>This is parking page for policy for now. click link below</p>
+        <h2>Details for : {{ video.filename }}</h2>
+
 
     <!-- Policy will go here -->
     <form action="{% url 'fileuploads:process' %}" method="post" enctype="multipart/form-data">
@@ -11,8 +11,23 @@
                 <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
                 {{ form.policy_fields.errors }}
                 <label for="id_signal"> Policy </label>
-                {{ form.policy_fields }} </li>
+                {{ form.policy_fields }}
+
+            </li>
              <p><input type="submit" value="Process" /></p>
         </form>
+        <div>
+        <h4>File Meta Data</h4>
+              <ul> Codec Name : {{video.videometa.codec_name}}</ul>
+              <ul> Format Log Name : {{video.videometa.format_log_name}}</ul>
+              <ul> Codec Type : {{video.videometa.codec_type}}</ul>
+              <ul> width : {{video.videometa.width}}</ul>
+              <ul> height : {{video.videometa.height}}</ul>
+              <ul> sample aspect ratio : {{video.videometa.sample_aspect_ratio}}</ul>
+              <ul> display aspect ratio : {{video.videometa.display_aspect_ratio}}</ul>
+              <ul> pixel format : {{video.videometa.pixel_format}}</ul>
+              <ul> field order : {{video.videometa.field_order}}</ul>
+              <ul> average frame rate : {{video.videometa.average_frame_rate}}</ul>
+        </div>
 
    {% endblock %}
