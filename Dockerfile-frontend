@@ -1,5 +1,4 @@
 FROM node
-MAINTAINER Yayoi Ukai <yayoi.ukai@gmail.com>
 RUN mkdir -p /var/build/
 WORKDIR /var/build/
 RUN npm install -g bower
