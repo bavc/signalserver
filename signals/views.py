@@ -141,13 +141,13 @@ def file_process_status(request):
     current_user = request.user
     current_user_name = current_user.username
     all_processes = Process.objects.all()
-    update_process(all_processes)
-
-    for process in all_processes:
-        if process.status:
-            processes.append(process)
-        else:
-            not_completed.append(process)
+    if all_processes.count() > 0:
+        update_process(all_processes)
+        for process in all_processes:
+            if process.status:
+                processes.append(process)
+            else:
+                not_completed.append(process)
 
     results = sort_by_user(processes, current_user_name)
     requests = results[0]
