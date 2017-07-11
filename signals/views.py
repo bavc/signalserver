@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.views import generic
 from django.utils import timezone
 from .models import Process, Output, Signal
+from .tasks import process_signal
 from fileuploads.models import Video
 from policies.models import Policy, Operation
 from reports.models import Report, Item
@@ -20,7 +21,6 @@ from fileuploads.constants import STORED_FILEPATH
 from reports.views import create_report
 from celery import group
 from celery.result import AsyncResult
-from fileuploads.tasks import process_signal
 from django.contrib.auth.decorators import login_required
 
 
