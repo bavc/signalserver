@@ -13,6 +13,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.template import loader
+from django.utils.encoding import smart_str
+from django.views.static import serve
 from .models import Video, VideoMeta
 from .forms import UploadFileForm, VideoForm, PolicyForm, GroupForm
 from .forms import SelectGroupForm
@@ -20,6 +22,7 @@ from .tasks import get_file_meta_data
 from .processfiles import process_file_original, delete_file, search_result
 from .processfiles import process_file_with_policy
 from .processfiles import get_full_path_file_name, get_filename
+from .constants import STORED_FILEPATH
 from groups.models import Group, Member, Result, Row
 from groups.views import update_process, create_new_group, save_member
 from signals.views import update_process as update_file_process
@@ -99,6 +102,18 @@ def process(request):
             file_name, policy_id, original_file_name)
         return render(request, 'fileuploads/process.html',
                       {'result': result})
+
+
+def download(request, file_name):
+    file_path = get_full_path_file_name(file_name)
+    file_itself = open(file_path, 'rb')
+    response = HttpResponse(file_itself,
+                            content_type='application/force-download')
+    response['X-Sendfile'] = file_path
+    response['Content-Length'] = os.stat(file_path).st_size
+    response['Content-Disposition'] = 'attachment; \
+                                       filename={}.xml'.format(smart_str(file_name))
+    return response
 
 
 @login_required(login_url="/login/")
