@@ -101,6 +101,7 @@
             <li class="list-group-item clearfix">
               <div class="col-xs-6">
               <h4><input type="checkbox" name="file_name" value="{{video.filename}}"><a href="../show/{{video.filename}}">{{ video.filename }}</a><br>
+                <a href="/fileuploads/download/{{video.filename}}" style="text-decoration:None">Download this file</a><br>
                 {% for group in video.groups.all %}
                   <span class="badge badge-info"><a href="/groups/edit_group/{{group.id}}">{{group.group_name}}</a></span>
                 {% endfor %}
