@@ -26,7 +26,7 @@ def create_entry(process, summary):
     for result in results:
         rows = Row.objects.filter(result=result)
         video = Video.objects.get(filename=result.filename)
-        if video.frame_count == 0:
+        if video.frame_count == 0 and rows.count() > 0:
             video.frame_count = rows[0].frame_number
             video.save()
 
