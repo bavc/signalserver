@@ -24,7 +24,7 @@ from fileuploads.processfiles import search_result
 from fileuploads.processfiles import get_filename, check_file_exist
 from fileuploads.constants import STORED_FILEPATH
 from celery import group
-from fileuploads.tasks import process_file
+from groups.tasks import process_file
 from celery.result import AsyncResult
 from policies.models import Policy, Operation
 from policies.views import replace_letters
@@ -210,6 +210,7 @@ def group_process_status(request, message=None):
 @login_required(login_url="/login/")
 def group_process(request):
     user_name = request.user.username
+    user_email = request.user.email
     not_exist = []
     message = None
     if request.method == 'POST':
@@ -232,7 +233,7 @@ def group_process(request):
         process.save()
         for member in members:
             if check_file_exist(member.file_name):
-                file_process(member.file_name, process)
+                file_process(member.file_name, process, user_email)
             else:
                 not_exist.append(member.file_name)
         if len(not_exist) > 0:
@@ -248,11 +249,12 @@ def delete_group_result(request, process_id):
     return HttpResponseRedirect('/groups/group_process_status/')
 
 
-def file_process(file_name, process):
+def file_process(file_name, process, user_email):
     original_name = file_name
     file_name = get_full_path_file_name(original_name)
     status = process_file.delay(file_name, process.policy_id,
-                                original_name, process.id)
+                                original_name, process.id,
+                                user_email)
     video = Video.objects.get(filename=original_name)
     video.processes.add(process)
     result = Result(
@@ -268,13 +270,16 @@ def file_process(file_name, process):
 def update_process(process):
     results = Result.objects.filter(process=process)
     all_done = True
+    if process.status == True:
+        return process
     for result in results:
-        task_id = result.task_id
-        work_status = AsyncResult(task_id).ready()
-        result.status = work_status
-        if not result.status:
-            all_done = False
-        result.save()
+        if result.status == False:
+            task_id = result.task_id
+            work_status = AsyncResult(task_id).ready()
+            result.status = work_status
+            if not result.status:
+                all_done = False
+            result.save()
     if all_done:
         process.status = True
         process.save()
