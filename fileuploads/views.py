@@ -259,7 +259,8 @@ def list_file(request, message=None, group_message=None):
     shared_videos = Video.objects.filter(shared=True)
     videos = Video.objects.filter(
         user_name=current_user.username).select_related('videometa')
-    videos = update_videos(videos)
+    #videos = update_videos(videos) -- it slows loading a lot. So it is disabled
+    ## check the process complete or not is updated in each task
     # Render list page with the documents and the form
     return render(request, 'fileuploads/list.html',
                   {'videos': videos, 'shared_videos': shared_videos,
