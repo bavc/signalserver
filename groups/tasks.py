@@ -11,6 +11,7 @@ from fileuploads.models import Video, VideoMeta
 from fileuploads.processfiles import get_full_path_file_name
 from groups.models import Group, Member, Process, Result, Row
 from policies.models import Policy, Operation
+from reports.models import Summary
 from celery import shared_task
 
 
@@ -148,6 +149,18 @@ def process_file(file_name, policy_id, original_name, process_id, user_email):
     if complete is True:
         process.status = True
         process.save()
+
+        new_summary = Summary(
+            user_name=process.user_name,
+            process_id=process.id,
+            policy_name=process.policy_name,
+            policy_id=process.policy_id,
+            group_id=process.group_id,
+            group_name=process.group_name,
+        )
+        new_summary.save()
+        new_summary.refresh_from_db()
+
         send_mail(
             'Group Process is finished',
             '''Your group process for singal server is finished. \

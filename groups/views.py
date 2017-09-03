@@ -21,7 +21,8 @@ from fileuploads.forms import PolicyForm, GroupForm
 from fileuploads.processfiles import delete_file
 from fileuploads.processfiles import get_full_path_file_name
 from fileuploads.processfiles import search_result
-from fileuploads.processfiles import get_filename, check_file_exist
+from fileuploads.processfiles import get_filename
+from fileuploads.processfiles import check_file_exist
 from fileuploads.constants import STORED_FILEPATH
 from celery import group
 from groups.tasks import process_file
@@ -270,10 +271,10 @@ def file_process(file_name, process, user_email):
 def update_process(process):
     results = Result.objects.filter(process=process)
     all_done = True
-    if process.status == True:
+    if process.status is True:
         return process
     for result in results:
-        if result.status == False:
+        if result.status is False:
             task_id = result.task_id
             work_status = AsyncResult(task_id).ready()
             result.status = work_status
@@ -345,17 +346,13 @@ def remove_file(request, group_id, file_name):
 
 def check_file_process(members, policy_id):
     processed = {}
-    not_processed = []
     for member in members:
-        if FileProcess.objects.filter(file_name=member.file_name,
-                                      policy_id=policy_id).exists():
-            process = FileProcess.objects.filter(
-                file_name=member.file_name,
-                policy_id=policy_id).order_by('-processed_time')[0]
+        file_processes = FileProcess.objects.filter(file_name=member.file_name,
+                                                    policy_id=policy_id)
+        if file_processes.exists():
+            process = file_processes.order_by('-processed_time')[0]
             processed[process.file_name] = process
-        else:
-            not_processed.append(member)
-    return (processed, not_processed)
+    return processed
 
 
 def result_graph(request):
@@ -372,7 +369,7 @@ def result_graph(request):
         policy = Policy.objects.filter(id=process.policy_id)
         summary = Summary.objects.get(process_id=process_id)
         members = Member.objects.filter(group_id=process.group_id)
-        processed_files, files = check_file_process(members, process.policy_id)
+        pro_files = check_file_process(members, process.policy_id)
 
         entries = Entry.objects.filter(summary=summary)
         for entry in entries:
@@ -390,14 +387,13 @@ def result_graph(request):
                     operation.second_signal_name
             signal_names.append(signal_name)
 
-    return render(request, 'groups/result_graph.html',
-                  {'process': process, 'signal_names': signal_names,
-                   'operations': operations, 'op_names': op_names,
-                   'c_numbers': c_numbers, 'summary': summary,
-                   'entry_dict': entry_dict,
-                   'processed_files': processed_files,
-                   'files': files
-                   })
+        return render(request, 'groups/result_graph.html',
+                      {'process': process, 'signal_names': signal_names,
+                       'operations': operations, 'op_names': op_names,
+                       'c_numbers': c_numbers, 'summary': summary,
+                       'entry_dict': entry_dict,
+                       'processed_files': pro_files
+                       })
 
 
 def get_group_process_status(request):
