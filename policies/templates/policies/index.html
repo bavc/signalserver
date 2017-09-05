@@ -50,6 +50,20 @@
                 <div>
                 <p><button type="search" class="btn btn-primary">Create</button></p>
             </form>
+            <h3>Import Policy from policy file</h3>
+                {% if message %}
+                <p> {{ message }}</p>
+                {% endif %}
+                <form action="{% url 'policies:upload' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input name='user_name' id='user_name' type="hidden" value='{{ user.username}}'>
+                <p>{{ file_form.non_field_errors }}</p>
+                <p>{{ file_form.policyfile.label_tag }} {{ file_form.policyfile.help_text }}</p>
+                <p>{{ file_form.policyfile.errors }}
+                   {{ file_form.policyfile }}
+                </p>
+                <button id="submit_button" type="submit" class="btn btn-sm btn-primary">Import</button>
+        </form>
         </div>
     </div>
 </div>

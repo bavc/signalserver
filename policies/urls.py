@@ -15,4 +15,5 @@ urlpatterns = [
         views.delete_rule, name='delete_rule'),
     url(r'^show/(?P<policy_id>[0-9]+)$',
         views.show, name='show'),
+    url(r'^upload/$', views.upload, name='upload'),
 ]

@@ -1,4 +1,5 @@
 from django.db import models
+from fileuploads.constants import POLICY_FILEPATH
 
 # Create your models here.
 
@@ -72,6 +73,12 @@ class Policy(models.Model):
     last_updated_time = models.DateTimeField(auto_now=True)
     dashboard = models.BooleanField(default=False)
     version = models.FloatField(default=0)
+
+
+class PolicyFile(models.Model):
+    policy_file = models.FileField(upload_to=POLICY_FILEPATH)
+    file_name = models.CharField(max_length=400)
+    upload_time = models.DateTimeField(auto_now_add=True)
 
 
 class Operation(models.Model):
