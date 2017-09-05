@@ -1,3 +1,4 @@
 FROM django:onbuild
 RUN mkdir -p /var/signalserver/files
+RUN mkdir -p /var/signalserver/policies
 RUN useradd -ms /bin/bash signalserversadmin

@@ -153,6 +153,7 @@ def create_summary(process):
             group_name=process.group_name,
         )
         new_summary.save()
+        new_summary.refresh_from_db()
         create_entry(process, new_summary)
         return new_summary
 

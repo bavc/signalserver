@@ -1,18 +1,22 @@
+import os
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.utils.encoding import smart_str
+from xml.etree.ElementTree import Element, SubElement, Comment
+import xml.etree.ElementTree as ET
 
 from .models import Policy, Operation
 
+from fileuploads.constants import POLICY_FILEPATH
 from groups.models import Result, Row, Process
 from .forms import PolicyNameForm
 from .forms import PolicyForm
 from .forms import OperationForm
-
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 
 
 def replace_letters(policy_name):
@@ -72,6 +76,52 @@ def render_index(request, message):
 def delete_policy(request, policy_id):
     Policy.objects.get(id=policy_id).delete()
     return HttpResponseRedirect(reverse('policies:index'))
+
+
+def create_policy_xml(policy, file_name):
+    root = ET.Element("policy", name=policy.policy_name)
+    description = ET.SubElement(root, "description")
+    description.text = policy.description
+    operations = Operation.objects.filter(policy=policy)
+    for op in operations:
+        ET.SubElement(root, "rule", id=str(op.display_order),
+                      filter_01=op.signal_name,
+                      filter_02=op.second_signal_name, operation=op.op_name,
+                      cutoff_number=str(op.cut_off_number),
+                      dashboard=str(op.dashboard),
+                      group_percentage=str(op.percentage),
+                      file_percentage=str(op.file_percentage)
+                      ).text = op.description
+    tree = ET.ElementTree(root)
+    tree.write(file_name)
+
+
+def get_or_create_policy_file(policy):
+    original_file_name = policy.policy_name + ".xml"
+    file_name = os.path.join(POLICY_FILEPATH, original_file_name)
+    if os.path.exists(file_name):
+        try:
+            os.remove(file_name)
+        except OSError as e:
+            #errno.ENOENT = no such file or directory
+            if e.errno != errno.ENOENT:
+                raise  # re-raise exception if a different error occured
+    create_policy_xml(policy, file_name)
+    return file_name
+
+
+def download_policy(request, policy_id):
+    policy = Policy.objects.get(id=policy_id)
+    file_name = policy.policy_name
+    file_path = get_or_create_policy_file(policy)
+    file_itself = open(file_path, 'rb')
+    response = HttpResponse(file_itself,
+                            content_type='application/force-download')
+    response['X-Sendfile'] = file_path
+    response['Content-Length'] = os.stat(file_path).st_size
+    response['Content-Disposition'] = 'attachment; \
+                                       filename={}.xml'.format(smart_str(file_name))
+    return response
 
 
 def delete_rule(request, op_id, policy_id):
