@@ -16,6 +16,7 @@ from fileuploads.constants import POLICY_FILEPATH
 from groups.models import Result, Row, Process
 from .forms import PolicyNameForm
 from .forms import PolicyForm
+from .forms import PolicyFileForm
 from .forms import OperationForm
 
 
@@ -63,13 +64,14 @@ def index(request):
 
 def render_index(request, message):
     form = PolicyForm()  # A empty, unbound form
+    file_form = PolicyFileForm()
     # Load documents for the list page
     policies = Policy.objects.all().order_by('display_order')
     new_display_order = policies.count() + 1
 
     # Render list page with the documents and the form
     return render(request, 'policies/index.html',
-                  {'policies': policies, 'form': form,
+                  {'policies': policies, 'form': form, 'file_form': file_form,
                    'message': message, 'new_display_order': new_display_order})
 
 
@@ -122,6 +124,31 @@ def download_policy(request, policy_id):
     response['Content-Disposition'] = 'attachment; \
                                        filename={}.xml'.format(smart_str(file_name))
     return response
+
+
+@login_required(login_url="/login/")
+def upload(request):
+    # Handle policy file upload
+    user_name = request.user.username
+    message = None
+    if request.method == 'POST':
+        form = PolicyFileForm(request.POST, request.FILES)
+        files = request.FILES.getlist('policyfile')
+        if form.is_valid():
+            for f in files:
+                original_name = f.name
+                extension = original_name[-7:]
+                if extension != ".xml":
+                    message = "File format needs to be .xml. Your file is "
+                    message = message + original_name + "\n"
+                else:
+                    name = get_filename(original_name)
+                    new_policy_file = PolicyFile(
+                        policy_file=f,
+                        file_name=name,
+                    )
+                    new_policy_file.save()
+    return render_index(request, None)
 
 
 def delete_rule(request, op_id, policy_id):

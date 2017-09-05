@@ -69,10 +69,12 @@ class PolicyNameForm(forms.Form):
     policy_name = forms.CharField(label='Policy name', max_length=200)
 
 
-#class UploadFileForm(forms.Form):
-#    title = forms.CharField(max_length=50)
-#    file_name = forms.CharField()
-
+class PolicyFileForm(forms.Form):
+    policyfile = forms.FileField(
+        widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        label='Select a policy file',
+        help_text=''
+    )
 
 class PolicyForm(forms.Form):
     policy_name = forms.CharField(
