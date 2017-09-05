@@ -9,6 +9,7 @@
       <div class="col-md-6">
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         <div>
+          <a href="/policy/download_policy/{{policy.id}}" style="text-decoration:None">Download this policy</a><br>
           <h4 class="add-new-rule btn btn-primary">Add a new rule</h4>
           <div class="new-rule" style="display:none;">
             <form action="{% url 'policies:show' policy.id %}" method="post">
