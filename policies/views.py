@@ -1,4 +1,5 @@
 import os
+import datetime
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
@@ -10,7 +11,7 @@ from django.utils.encoding import smart_str
 from xml.etree.ElementTree import Element, SubElement, Comment
 import xml.etree.ElementTree as ET
 
-from .models import Policy, Operation
+from .models import Policy, Operation, PolicyFile
 
 from fileuploads.constants import POLICY_FILEPATH
 from groups.models import Result, Row, Process
@@ -122,8 +123,43 @@ def download_policy(request, policy_id):
     response['X-Sendfile'] = file_path
     response['Content-Length'] = os.stat(file_path).st_size
     response['Content-Disposition'] = 'attachment; \
-                                       filename={}.xml'.format(smart_str(file_name))
+                    filename={}.xml'.format(smart_str(file_name))
     return response
+
+
+def create_policy_from_file(file_name):
+    tree = ET.parse('policy_test.xml')
+    root = tree.getroot()
+    policy_name = root.attrib['name']
+    if Policy.objects.filter(policy_name=policy_name).count() > 0:
+        d = datetime.datetime.now()
+        policy_name = policy_name + '_uploaded_on_' + \
+            d.strftime("%Y_%m_%d_%H:%M")
+    desc = root.findall('description')[0].text
+    new_policy = Policy(
+        policy_name=policy_name,
+        description=desc
+    )
+    new_policy.save()
+    for child in root:
+        if child.tag == 'description':
+            continue
+        rule = child.attrib
+        desc = rule.get('description')
+        if desc is None:
+            desc = "No description"
+        new_operation = Operation(
+            policy=new_policy,
+            cut_off_number=rule.get('cutoff_number'),
+            signal_name=rule.get('filter_01'),
+            second_signal_name=rule.get('filter_02'),
+            op_name=rule.get('operation'),
+            description=desc,
+            percentage=rule.get('group_percentage'),
+            file_percentage=rule.get('file_percentage'),
+            dashboard=rule.get('dashboard')
+        )
+        new_operation.save()
 
 
 @login_required(login_url="/login/")
@@ -133,22 +169,23 @@ def upload(request):
     message = None
     if request.method == 'POST':
         form = PolicyFileForm(request.POST, request.FILES)
-        files = request.FILES.getlist('policyfile')
+        policy_file = request.FILES.get('policyfile')
         if form.is_valid():
-            for f in files:
-                original_name = f.name
-                extension = original_name[-7:]
-                if extension != ".xml":
-                    message = "File format needs to be .xml. Your file is "
-                    message = message + original_name + "\n"
-                else:
-                    name = get_filename(original_name)
-                    new_policy_file = PolicyFile(
-                        policy_file=f,
-                        file_name=name,
-                    )
-                    new_policy_file.save()
-    return render_index(request, None)
+            original_name = policy_file.name
+            extension = original_name[-4:]
+            if extension != ".xml":
+                message = "File format needs to be .xml. Your file is "
+                message = message + original_name + "\n"
+            else:
+                new_policy_file = PolicyFile(
+                    policy_file=policy_file,
+                    file_name=original_name,
+                )
+                new_policy_file.save()
+                create_policy_from_file(original_name)
+        else:
+            message = "something wrong with form"
+    return HttpResponseRedirect(reverse('policies:index'))
 
 
 def delete_rule(request, op_id, policy_id):
