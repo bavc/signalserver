@@ -1,2 +1,2 @@
 STORED_FILEPATH = '/var/signalserver/files'
-POLICY_FILEPATH = '/var/signalserver/policies'
+POLICY_FILEPATH = '/var/signalserver/files/policies'
