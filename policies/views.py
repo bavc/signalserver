@@ -128,7 +128,8 @@ def download_policy(request, policy_id):
 
 
 def create_policy_from_file(file_name):
-    tree = ET.parse('policy_test.xml')
+    new_file_name = os.path.join(POLICY_FILEPATH, file_name)
+    tree = ET.parse(new_file_name)
     root = tree.getroot()
     policy_name = root.attrib['name']
     if Policy.objects.filter(policy_name=policy_name).count() > 0:
