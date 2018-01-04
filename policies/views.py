@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_str
+from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, Comment
 import xml.etree.ElementTree as ET
 
@@ -95,8 +96,9 @@ def create_policy_xml(policy, file_name):
                       group_percentage=str(op.percentage),
                       file_percentage=str(op.file_percentage)
                       ).text = op.description
-    tree = ET.ElementTree(root)
-    tree.write(file_name)
+    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ")
+    with open(file_name, "w") as f:
+        f.write(xmlstr)
 
 
 def get_or_create_policy_file(policy):
