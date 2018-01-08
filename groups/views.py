@@ -208,39 +208,54 @@ def group_process_status(request, message=None):
                    })
 
 
+def save_process(policy_id, group, user_name):
+    policy = Policy.objects.get(id=policy_id)
+    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    process = Process(
+        group_name=group.group_name,
+        group_id=group.id,
+        policy_name=policy.policy_name,
+        policy_id=policy.id,
+        processed_time=current_time_str,
+        user_name=user_name,
+        status=False
+    )
+    process.save()
+    return process
+
+
+def check_members(process, group, user_name, user_email):
+    members = Member.objects.filter(group=group)
+    message = ""
+    for member in members:
+        if check_file_exist(member.file_name):
+            file_process(member.file_name, process, user_email)
+        else:
+            not_exist.append(member.file_name)
+            if len(not_exist) > 0:
+                message = "These file doesn't exist in " + group_name + ".\n"
+                for name in not_exist:
+                    message += name + "\n"
+    return message
+
+
 @login_required(login_url="/login/")
 def group_process(request):
     user_name = request.user.username
     user_email = request.user.email
     not_exist = []
-    message = None
+    message = ""
     if request.method == 'POST':
         group_id = request.POST['group_id']
         group = Group.objects.get(id=group_id)
-        group_name = group.group_name
-        members = Member.objects.filter(group=group)
-        policy_id = request.POST['policy_fields']
-        policy_name = Policy.objects.get(id=policy_id).policy_name
-        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        process = Process(
-            group_name=group_name,
-            group_id=group_id,
-            policy_name=policy_name,
-            policy_id=policy_id,
-            processed_time=current_time_str,
-            user_name=user_name,
-            status=False
-        )
-        process.save()
-        for member in members:
-            if check_file_exist(member.file_name):
-                file_process(member.file_name, process, user_email)
-            else:
-                not_exist.append(member.file_name)
-        if len(not_exist) > 0:
-            message = "These file doesn't exist in " + group_name + ".\n"
-            for name in not_exist:
-                message += name + "\n"
+        policy_ids = []
+        policy_ids.append(request.POST['policy_fields'])
+        policy_ids.append(request.POST['second_policy_fields'])
+        policy_ids.append(request.POST['third_policy_fields'])
+        policy_ids = [x for x in policy_ids if x != 'None']
+        for policy_id in policy_ids:
+            process = save_process(policy_id, group, user_name)
+            message += check_members(process, group, user_name, user_email)
     return group_process_status(request, message)
 
 

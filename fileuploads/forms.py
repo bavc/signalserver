@@ -22,6 +22,7 @@ def get_policies():
         con_id = con.id
         con_name = con.policy_name
         policy_dic[con_id] = con_name
+    policy_dic['None'] = 'None'
 
     return ((k, v) for k, v in policy_dic.items())
 
@@ -49,6 +50,16 @@ class SelectGroupForm(forms.Form):
 class PolicyForm(forms.Form):
     policy_fields = forms.ChoiceField(
         choices=get_policies, required=True
+    )
+    second_policy_fields = forms.ChoiceField(
+        choices=get_policies,
+        required=False,
+        initial='None'
+    )
+    third_policy_fields = forms.ChoiceField(
+        choices=get_policies,
+        required=False,
+        initial='None'
     )
 
 

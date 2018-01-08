@@ -13,6 +13,7 @@
         {% for process in not_completed %}
         <ul><h4>{{ process.file_name }}:</h4></ul>
         <ul>processed : {{ process.processed_time }}</ul>
+        <ul>policy : {{process.policy_name}} </ul>
     {% endfor %}
     <ul><h3>Completed</h3></ul>
     {% for process in processes %}

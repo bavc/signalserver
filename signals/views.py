@@ -33,7 +33,8 @@ def index(request):
     form = PolicyForm()
     return render(request, 'signals/request.html',
                   {'videos': videos,
-                   'shared_videos': shared_videos, 'form': form})
+                   'shared_videos': shared_videos,
+                   'form': form})
 
 
 def create_output(process, op):
@@ -65,7 +66,6 @@ def process_policy(file_name, policy_id, original_file_name,
         policy_id=policy_id,
     )
     new_process.save()
-
     video = Video.objects.get(filename=original_file_name)
     video.file_processes.add(new_process)
 
@@ -81,6 +81,14 @@ def process_policy(file_name, policy_id, original_file_name,
         output.task_id = status.task_id
         output.status = AsyncResult(status.task_id).ready()
         output.save()
+
+
+def process_policies(file_name, policy_ids, original_file_name,
+                     current_time_str, current_user):
+    policies = Policy.objects.filter(id__in=policy_ids)
+    for policy in policies:
+        process_policy(file_name, policy.id, original_file_name,
+                       current_time_str, current_user)
 
 
 def update_output(outputs):
@@ -168,12 +176,16 @@ def process(request):
     current_user_name = current_user.username
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
-        policy_id = request.POST['policy_fields']
+        policy_ids = []
+        policy_ids.append(request.POST['policy_fields'])
+        policy_ids.append(request.POST['second_policy_fields'])
+        policy_ids.append(request.POST['third_policy_fields'])
+        policy_ids = [x for x in policy_ids if x != 'None']
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file_name = get_full_path_file_name(original_file_name)
-        process_policy(file_name, policy_id,
-                       original_file_name, current_time_str,
-                       current_user_name)
+        process_policies(file_name, policy_ids,
+                         original_file_name, current_time_str,
+                         current_user_name)
     return HttpResponseRedirect('/signals/file_process_status/')
 
 
