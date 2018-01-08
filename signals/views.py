@@ -177,11 +177,10 @@ def process(request):
     if request.method == 'POST':
         original_file_name = request.POST['file_name']
         policy_ids = []
-        policy_id1 = request.POST['policy_fields']
         policy_ids.append(request.POST['policy_fields'])
         policy_ids.append(request.POST['second_policy_fields'])
         policy_ids.append(request.POST['third_policy_fields'])
-        policy_ids.remove('None')
+        policy_ids = [x for x in policy_ids if x != 'None']
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file_name = get_full_path_file_name(original_file_name)
         process_policies(file_name, policy_ids,
