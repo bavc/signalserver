@@ -12,6 +12,7 @@
             <ul>Uploaded time :{{video.upload_time}}
             <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}"></ul>
             <ul>
+            <ul>
             {{ form.policy_fields.errors }}
             <label for="id_signal1"> Policy-1 </label>
             {{ form.policy_fields }}
@@ -22,7 +23,7 @@
 
              {{ form.third_policy_fields.errors }}
             <label for="id_signal3"> Policy-3 </label>
-            {{ form.third_policy_fields }}
+            {{ form.third_policy_fields }}</ul>
             <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
         </ul>
         </form>
@@ -34,11 +35,19 @@
       <form action="{% url 'signals:process' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <ul><h4>{{ video.filename }}</h4>
-          <ul>Uploaded time :{{video.upload_time}}
+          <ul>Uploaded time :{{video.upload_time}}</ul>
           <input id="file_name" type="hidden" name="file_name" value="{{ video.filename }}">
           {{ form.policy_fields.errors }}
-          <label for="id_signal">Policy</label>
+          <ul><label for="id_signal">Policy</label>
           {{ form.policy_fields }}
+
+          {{ form.second_policy_fields.errors }}
+          <label for="id_signal2"> Policy-2 </label>
+          {{ form.second_policy_fields }}
+
+          {{ form.third_policy_fields.errors }}
+          <label for="id_signal3"> Policy-3 </label>
+          {{ form.third_policy_fields }}</ul>
           <button type="submit" value="Process" class="btn btn-primary btn-sm">Process</button></ul>
       </ul>
       </form>
