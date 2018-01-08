@@ -44,10 +44,18 @@
                     {% csrf_token %}
                     <input type="hidden" name="group_id" id="group{{ forloop.counter }}" value="{{group.id}}" />
                     <h4><a href="../edit_group/{{group.id}}">{{ group.group_name }}</a></h4>
-                    <ul>Creation time: {{group.creation_time}}
-                    {{ form.policy_fields.errors }}
+                    <ul>Creation time: {{group.creation_time}}</ul>
+                    <ul>{{ form.policy_fields.errors }}
                     <label for="id_signal">Policy</label>
-                    {{ form.policy_fields }}
+                    {{ form.policy_fields }}</ul>
+
+                    <ul>{{ form.second_policy_fields.errors }}
+                    <label for="id_signal">Policy2</label>
+                    {{ form.second_policy_fields }}</ul>
+
+                    <ul>{{ form.third_policy_fields.errors }}
+                    <label for="id_signal">Policy3</label>
+                    {{ form.third_policy_fields }}</ul>
                     <button type="submit" value="Process This Group" class="btn btn-primary btn-sm">Process</button></ul></li>
                     </form>
                 {% endfor %}
